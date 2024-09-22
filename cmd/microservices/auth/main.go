@@ -1,23 +1,29 @@
 package main
 
 import (
-	"fmt"
+	"auth/api"
+	_ "auth/utils"
 	"net/http"
+	"os"
+
+	"log/slog"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Main page")
-}
-
-func authHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Авторизация:", r.URL.String())
-}
-
 func main() {
-	http.HandleFunc("/auth/", authHandler)
+	// config
 
-	http.HandleFunc("/", handler)
+	// utils
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
 
-	fmt.Println("starting server at: 8080")
-	http.ListenAndServe(":8080", nil)
+	// storage
+
+	// behavior
+
+	// routers
+	router := api.NewRouter()
+
+	// run server
+	slog.Info("starting server at: 8081")
+	http.ListenAndServe(":8081", router)
 }
