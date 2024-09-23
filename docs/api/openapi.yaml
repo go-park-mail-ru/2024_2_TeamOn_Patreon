@@ -1,129 +1,79 @@
 openapi: 3.0.3
 info:
   title: PushART | API
-  description: API для регистрации, авторизации и управления профилем пользователя с использованием JWT-токена.
-  version: 1.0.3
-
+  description: >-
+    API для регистрации, авторизации и управления профилем пользователя с
+    использованием JWT-токена.
+  version: 1.0.5
 paths:
   /auth/register:
     post:
       tags:
-      - auth
+        - auth
       summary: Регистрация пользователя
-      description: Регистрирует нового пользователя, проверяет уникальность имени, возвращает JWT-токен при успешной регистрации.
+      description: >-
+        Регистрирует нового пользователя, проверяет уникальность имени,
+        возвращает JWT-токен при успешной регистрации.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  description: Имя пользователя. допустимые символы - латинские буквы, цифры и "-", "_".
-                  example: putin
-                  minLength: 4
-                  maxLength: 15
-                password:
-                  type: string
-                  description: Пароль. должен содержать хотя бы 1 заглавную, 1 строчную латинские буквы, 1 цифру, 1 спец символ.
-                  # предлагаемые регулярные выражения:
-                  # - (?=.*[0-9]) - строка содержит хотя бы одно число;
-                  # - (?=.*[!@#$%^&*_-:]) - строка содержит хотя бы один спецсимвол;
-                  # - (?=.*[a-z]) - строка содержит хотя бы одну латинскую букву в нижнем регистре;
-                  # - (?=.*[A-Z]) - строка содержит хотя бы одну латинскую букву в верхнем регистре;
-                  # - [0-9a-zA-Z!@#$%^&*]{8,64} - строка состоит не менее, чем из 8 вышеупомянутых символов, и не более чем 64;
-                  example: P@ssw0rd123
-                  minLength: 8
-                  maxLength: 64
-                  pattern: "/(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/g"
-                  format: password
-              required:
-                - username
-                - password
+              $ref: '#/components/schemas/Reg'
       responses:
         '201':
           description: Успешная регистрация
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    description: JWT-токен для авторизованного пользователя
+                $ref: '#/components/schemas/Token'
         '400':
-          description: Ошибка валидации (например, имя пользователя уже существует или пароль слишком простой)
+          description: >-
+            Ошибка валидации (например, имя пользователя уже существует или
+            пароль слишком простой)
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Сообщение об ошибке
-
+                $ref: '#/components/schemas/Error'
   /auth/login:
     post:
       tags:
-      - auth
+        - auth
       summary: Авторизация пользователя
-      description: Авторизует пользователя по имени пользователя или email, возвращает JWT-токен.
+      description: >-
+        Авторизует пользователя по имени пользователя или email, возвращает
+        JWT-токен.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  description: Логин пользователя (имя пользователя или почта)
-                  example: johndoe
-                password:
-                  type: string
-                  description: Пароль пользователя
-                  example: P@ssw0rd123
-                  format: password
-              required:
-                - login
-                - password
+              $ref: '#/components/schemas/Login'
       responses:
         '200':
           description: Успешная авторизация
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    description: JWT-токен для авторизованного пользователя
+                $ref: '#/components/schemas/Token'
         '400':
           description: Неправильный логин или пароль
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Сообщение об ошибке
+                $ref: '#/components/schemas/Error'
         '429':
-          description: Слишком большее количество попыток ввода пароля за короткое время. Не более 3 попыток за раз.
+          description: >-
+            Слишком большее количество попыток ввода пароля за короткое время.
+            Не более 3 попыток за раз.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Сообщение об ошибке
-
+                $ref: '#/components/schemas/Error'
   /profile:
     get:
       tags:
-      - profile
+        - profile
       summary: Получение профиля пользователя
       description: Возвращает данные профиля на основе JWT-токена, переданного в Cookie.
       security:
@@ -140,18 +90,15 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Сообщение об ошибке
-                  
+                $ref: '#/components/schemas/Error'
   /profile/posts:
     get:
       tags:
-      - profile
+        - profile
       summary: Получение постов пользователя
-      description: Возвращает список постов пользователя на основе JWT-токена, переданного в Cookie.
+      description: >-
+        Возвращает список постов пользователя на основе JWT-токена, переданного
+        в Cookie.
       security:
         - cookieAuth: []
       responses:
@@ -168,18 +115,15 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Сообщение об ошибке
-                    
+                $ref: '#/components/schemas/Error'
   /profile/payments:
     get:
       tags:
-      - profile
+        - profile
       summary: Получение суммы выплат пользователя
-      description: Возвращает список выплат пользователя на основе JWT-токена, переданного в Cookie.
+      description: >-
+        Возвращает список выплат пользователя на основе JWT-токена, переданного
+        в Cookie.
       security:
         - cookieAuth: []
       responses:
@@ -196,16 +140,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Сообщение об ошибке
-
+                $ref: '#/components/schemas/Error'
   /profile/update:
     post:
       tags:
-      - profile
+        - profile
       summary: Изменение профиля пользователя
       description: Позволяет обновить отдельные поля профиля. Требует JWT-токен в Cookie.
       security:
@@ -215,17 +154,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  description: Новое имя пользователя
-                  example: newname
-                email:
-                  type: string
-                  description: Новая почта пользователя
-                  format: email
-                  example: newemail@example.com
+              $ref: '#/components/schemas/UpdateProfile'
       responses:
         '200':
           description: Успешное обновление профиля
@@ -233,33 +162,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
-                
-        '401':
-          description: Неверный или отсутствующий JWT-токен
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Сообщение об ошибке
-                    
         '400':
           description: Ошибка валидации данных профиля
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Сообщение об ошибке
-                    
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /profile/update/photo:
     post:
       tags:
-      - profile
+        - profile
       summary: Изменение фотографии пользователя в профиле
       description: Позволяет обновить фото профиля. Требует JWT-токен в Cookie.
       security:
@@ -267,89 +185,128 @@ paths:
       requestBody:
         required: true
         content:
-         multipart/form-data:
+          multipart/form-data:
             schema:
-                $ref: '#/components/schemas/Upload'
-                
+              $ref: '#/components/schemas/Upload'
       responses:
         '200':
           description: Успешное обновление фото профиля
           content:
-            application/json:
+            multipart/form-data:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Сообщение об успешном обновлении
+                $ref: '#/components/schemas/Photo'
         '400':
           description: Ошибка загрузки фотографии профиля
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Сообщение об ошибке
-                    
+                $ref: '#/components/schemas/Error'
         '401':
           description: Неверный или отсутствующий JWT-токен
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Сообщение об ошибке
- 
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     cookieAuth:
       type: apiKey
       in: cookie
       name: JWT
-      
   schemas:
-    Upload:
-        type: object
-        required:
-          - files
-        description: Фотография для аватара пользователя. Максимальный размер 25 Мб.
-        properties:
-          files:
-           type: string
-           format: binary
-          
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT-токен для авторизованного пользователя
+    Reg:
+      type: object
+      properties:
+        username:
+          type: string
+          description: >-
+            Имя пользователя. допустимые символы - латинские буквы, цифры и "-",
+            "_".
+          example: putin
+          minLength: 4
+          maxLength: 15
+        password:
+          type: string
+          description: >-
+            Пароль. должен содержать хотя бы 1 заглавную, 1 строчную латинские
+            буквы, 1 цифру, 1 спец символ.
+          example: P@ssw0rd123
+          minLength: 8
+          maxLength: 64
+          pattern: >-
+            /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/g
+          format: password
+      required:
+        - username
+        - password
+    Login:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Логин пользователя (имя пользователя или почта)
+          example: johndoe
+        password:
+          type: string
+          description: Пароль пользователя
+          example: P@ssw0rd123
+          format: password
+      required:
+        - login
+        - password
     Profile:
-        type: object
-        required:
-          - username
-        description: Модель профиля пользователя
-        properties:
-          username:
-            type: string
-            description: Имя пользователя
-          email:
-            type: string
-            description: Почта пользователя (если есть)
-            nullable: true
-          avatar_url:
-            type: string
-            description: Ссылка на фото профиля (если есть)
-            nullable: true
-          followers:
-            type: integer
-            description: Количество подписчиков
-          subscriptions:
-            type: integer
-            description: Количество подписок 
-          posts:
-            type: integer
-            description: Количество постов 
-
-              
+      type: object
+      required:
+        - username
+      description: Модель профиля пользователя
+      properties:
+        username:
+          type: string
+          description: Имя пользователя
+        email:
+          type: string
+          description: Почта пользователя (если есть)
+          nullable: true
+        avatar_url:
+          type: string
+          description: Ссылка на фото профиля (если есть)
+          nullable: true
+        followers:
+          type: integer
+          description: Количество подписчиков
+        subscriptions:
+          type: integer
+          description: Количество подписок
+        posts:
+          type: integer
+          description: Количество постов
+    UpdateProfile:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Новое имя пользователя
+          example: newname
+        email:
+          type: string
+          description: Новая почта пользователя
+          format: email
+          example: newemail@example.com
+    Upload:
+      type: object
+      required:
+        - files
+      description: Фотография для аватара пользователя. Максимальный размер 25 Мб.
+      properties:
+        files:
+          type: string
+          format: binary
     Post:
       type: object
       required:
@@ -374,7 +331,6 @@ components:
           type: string
           format: date-time
           description: Дата обновления поста
-          
     Payment:
       type: object
       required:
@@ -384,3 +340,15 @@ components:
         amount:
           type: number
           description: Сумма выплаты
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Сообщение об ошибке
+    Photo:
+      type: object
+      properities:
+        avatar_url:
+          type: string
+          description: Ссылка на фото
