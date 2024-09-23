@@ -5,7 +5,8 @@ package api
 
 import (
 	"fmt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/cmd/microservices/auth/utils"
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/auth/api"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/auth/utils"
 	"log/slog"
 	"strings"
 
@@ -49,13 +50,13 @@ var routes = Routes{
 		"AuthLoginPost",
 		strings.ToUpper("Post"),
 		"/auth/login",
-		AuthLoginPost,
+		api.AuthLoginPost,
 	},
 
 	Route{
 		"AuthRegisterPost",
 		strings.ToUpper("Post"),
 		"/auth/register",
-		AuthRegisterPost,
+		api.AuthRegisterPost,
 	},
 }
