@@ -5,14 +5,13 @@ package api
 
 import (
 	"fmt"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/cmd/microservices/auth/utils"
 	"log/slog"
 	"strings"
 
 	// The "net/http" library has methods to implement HTTP clients and servers
 	"github.com/gorilla/mux"
 	"net/http"
-
-	"auth/utils"
 )
 
 type Route struct {
