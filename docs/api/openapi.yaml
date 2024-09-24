@@ -230,7 +230,7 @@ components:
             "_".
           example: putin
           minLength: 4
-          maxLength: 15
+          maxLength: 10
         password:
           type: string
           description: >-
@@ -348,7 +348,7 @@ components:
           description: Сообщение об ошибке
     Photo:
       type: object
-      properities:
+      properties:
         avatar_url:
           type: string
           description: Ссылка на фото
