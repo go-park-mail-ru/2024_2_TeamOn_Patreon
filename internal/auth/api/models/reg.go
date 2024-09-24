@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	er "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/auth/errors"
 	"regexp"
 )
@@ -30,7 +29,7 @@ func (reg *Reg) Validate() (bool, *er.ValidationError) {
 
 func (reg *Reg) validateUsername() (bool, *er.ValidationError) {
 	op := "auth.api.reg.validateUsername"
-	validErr := InitAuthValidErr("username", op)
+	validErr := er.InitValidErrorInField("username", op)
 
 	// Длина не менее 4 символов
 	if len(reg.Username) < 4 {
@@ -63,7 +62,7 @@ func (reg *Reg) validateUsername() (bool, *er.ValidationError) {
 
 func (reg *Reg) validatePassword() (bool, *er.ValidationError) {
 	op := "auth.api.reg.validatePassword"
-	validErr := InitAuthValidErr("password", op)
+	validErr := er.InitValidErrorInField("password", op)
 
 	// Длина не меньше 8 символов
 	if len(reg.Password) < 8 {
@@ -93,21 +92,4 @@ func (reg *Reg) validatePassword() (bool, *er.ValidationError) {
 	}
 
 	return true, nil
-}
-
-type check struct {
-	pattern string
-	msg     string
-}
-
-// InitAuthValidErr - возвращает функцию для генерации ошибок
-// при валидации в каждом поле.
-// (не уверена как назвать)
-// ((извините за замыкания, практика нужна же))
-func InitAuthValidErr(field string, op string) func(msg string) *er.ValidationError {
-	return func(msg string) *er.ValidationError {
-		return er.InitValidationError(
-			fmt.Sprintf("%v is not valid msg={%v}| in %v", field, msg, op),
-			msg)
-	}
 }
