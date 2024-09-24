@@ -1,3 +1,19 @@
+/*
+** HOW TO USE ??
+
+Предлагаю использовать при создании роутера
+
+Это обертка над HandlerFunc, что бы запросы логгировались
+возвращает HandlerFunc!!
+
+Пример использования:
+```
+newHandlerFunc := Logging(handlerFuncWithOutLogger)
+```
+
+! Не забудьте проимпортировать
+*/
+
 package utils
 
 import (
