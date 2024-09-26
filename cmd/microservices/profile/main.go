@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/cmd/microservices/auth/api"
+	slog "log/slog"
 	"net/http"
 	"os"
 
-	"log/slog"
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/dan-profile/cmd/microservices/profile/api"
 )
 
 func main() {
@@ -20,9 +20,10 @@ func main() {
 	// behavior
 
 	// routers
+
 	router := api.NewRouter()
 
 	// run server
-	slog.Info("starting server at: 8081")
-	http.ListenAndServe(":8081", router)
+	slog.Info("starting server at: 8080")
+	http.ListenAndServe(":8080", router)
 }
