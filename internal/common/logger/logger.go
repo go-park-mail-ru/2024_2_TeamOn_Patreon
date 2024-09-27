@@ -55,3 +55,7 @@ func StandardDebug(msg string, op string) {
 func standardInput(msg string, op string) string {
 	return fmt.Sprintf("{%v}                 | in %v", msg, op)
 }
+
+func StandardResponse(msg string, status int, host string, op string) {
+	StandardInfo(fmt.Sprintf("Response sent, status ='%v', message={%v} to host=%v", status, msg, host), op)
+}

@@ -23,6 +23,7 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 			op,
 		)
 		// TODO: Дописать отправку модели ошибки с err.msg
+		logger.StandardResponse(err.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -34,6 +35,7 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 			op,
 		)
 		// TODO: Дописать отправку модели ошибки с err.msg
+		logger.StandardResponse(errV.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -41,6 +43,7 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 	// Получаем Behavior из контекста
 	b, errM := utils.GetBehaviorCtx(r, op)
 	if errM != nil {
+		logger.StandardResponse(errM.Error(), http.StatusInternalServerError, r.Host, op)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -48,10 +51,11 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 	// Создание пользователя и генерация токена
 	tokenString, err := b.RegisterNewUser(p.Username, p.Password) // передаем username и password
 	if err != nil {
-		logger.StandardInfo(
+		logger.StandardDebug(
 			fmt.Sprintf("Received register error {%v}", err),
 			op,
 		)
+		logger.StandardResponse(err.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -62,8 +66,10 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 	// Устанавливаем токен в куку
 	http.SetCookie(w, &cookie)
 
-	logger.StandardInfo(
-		fmt.Sprintf("Successful register user=%v with token='%v'", p.Username, tokenString[:15]),
+	logger.StandardResponse(
+		fmt.Sprintf("Successful register user=%v with token='%v'", p.Username, tokenString),
+		http.StatusOK,
+		r.Host,
 		op,
 	)
 

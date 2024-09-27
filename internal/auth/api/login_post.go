@@ -17,6 +17,7 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 	var l tModels.Login
 	if err := utils.ParseModels(r, &l, op); err != nil {
 		// TODO: Дописать отправку модели ошибки с err.msg
+		logger.StandardResponse(err.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -29,6 +30,7 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 			fmt.Sprintf("Recevied validation error={%v}", errV),
 			op)
 		// TODO: Дописать отправку модели ошибки с err.msg
+		logger.StandardResponse(errV.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -38,6 +40,7 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 	// достаем behavior из контекста
 	b, errM := utils.GetBehaviorCtx(r, op)
 	if errM != nil {
+		logger.StandardResponse(errM.Error(), http.StatusInternalServerError, r.Host, op)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -46,7 +49,7 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 	// создаем токен пользователя
 	tokenString, errM := b.AuthoriseUser(l.Username, l.Password)
 	if errM != nil {
-		logger.StandardInfo(fmt.Sprintf("Recievd e={%v}", errM), op)
+		logger.StandardResponse(errM.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -57,8 +60,10 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 	// Устанавливаем токен в куку
 	http.SetCookie(w, &cookie)
 
-	logger.StandardInfo(
+	logger.StandardResponse(
 		fmt.Sprintf("Successful authorisated user=%v with token='%v'", l.Username, tokenString),
+		http.StatusOK,
+		r.Host,
 		op,
 	)
 
