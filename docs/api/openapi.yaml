@@ -23,10 +23,6 @@ paths:
       responses:
         '201':
           description: Успешная регистрация
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Token'
         '400':
           description: >-
             Ошибка валидации (например, имя пользователя уже существует или
@@ -52,10 +48,6 @@ paths:
       responses:
         '200':
           description: Успешная авторизация
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Token'
         '400':
           description: Неправильный логин или пароль
           content:
@@ -214,12 +206,6 @@ components:
       in: cookie
       name: JWT
   schemas:
-    Token:
-      type: object
-      properties:
-        token:
-          type: string
-          description: JWT-токен для авторизованного пользователя
     Reg:
       type: object
       properties:

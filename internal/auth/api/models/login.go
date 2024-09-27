@@ -1,7 +1,9 @@
 package models
 
 import (
-	er "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/auth/errors"
+	"fmt"
+	er "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/common/errors"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/common/logger"
 	"regexp"
 )
 
@@ -12,7 +14,7 @@ type Login struct {
 	Password string `json:"password"`
 }
 
-func (lg *Login) Validate() (bool, *er.ValidationError) {
+func (lg *Login) Validate() (bool, *er.MsgError) {
 	userValid, err := lg.validateUsername()
 	if err != nil || !userValid {
 		return false, err
@@ -26,13 +28,14 @@ func (lg *Login) Validate() (bool, *er.ValidationError) {
 	return true, nil
 }
 
-func (lg *Login) validateUsername() (bool, *er.ValidationError) {
+func (lg *Login) validateUsername() (bool, *er.MsgError) {
 	op := "auth.api.login.validateUsername"
-	validErr := er.InitValidErrorInField("username", op)
+	validErr := InitValidErrorInField("username", op)
 
 	// Длина не менее 4 символов
 	if len(lg.Username) < 4 {
 		msg := "логин должен быть не меньше 4 символов"
+		logger.StandardDebug(fmt.Sprintf("login isn't valid: '%v'", lg.Username), op)
 		return false, validErr(msg)
 	}
 
@@ -58,9 +61,9 @@ func (lg *Login) validateUsername() (bool, *er.ValidationError) {
 	return true, nil
 }
 
-func (lg *Login) validatePassword() (bool, *er.ValidationError) {
+func (lg *Login) validatePassword() (bool, *er.MsgError) {
 	op := "auth.api.login.validatePassword"
-	validErr := er.InitValidErrorInField("password", op)
+	validErr := InitValidErrorInField("password", op)
 
 	// Длина не меньше 8 символов
 	if len(lg.Password) < 8 {

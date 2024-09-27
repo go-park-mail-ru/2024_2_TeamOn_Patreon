@@ -1,7 +1,7 @@
 package models
 
 import (
-	er "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/auth/errors"
+	er "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/common/errors"
 	"regexp"
 )
 
@@ -13,7 +13,7 @@ type Reg struct {
 	Password string `json:"password"`
 }
 
-func (reg *Reg) Validate() (bool, *er.ValidationError) {
+func (reg *Reg) Validate() (bool, *er.MsgError) {
 	userValid, err := reg.validateUsername()
 	if err != nil || !userValid {
 		return false, err
@@ -27,9 +27,9 @@ func (reg *Reg) Validate() (bool, *er.ValidationError) {
 	return true, nil
 }
 
-func (reg *Reg) validateUsername() (bool, *er.ValidationError) {
+func (reg *Reg) validateUsername() (bool, *er.MsgError) {
 	op := "auth.api.reg.validateUsername"
-	validErr := er.InitValidErrorInField("username", op)
+	validErr := InitValidErrorInField("username", op)
 
 	// Длина не менее 4 символов
 	if len(reg.Username) < 4 {
@@ -60,9 +60,9 @@ func (reg *Reg) validateUsername() (bool, *er.ValidationError) {
 	return true, nil
 }
 
-func (reg *Reg) validatePassword() (bool, *er.ValidationError) {
+func (reg *Reg) validatePassword() (bool, *er.MsgError) {
 	op := "auth.api.reg.validatePassword"
-	validErr := er.InitValidErrorInField("password", op)
+	validErr := InitValidErrorInField("password", op)
 
 	// Длина не меньше 8 символов
 	if len(reg.Password) < 8 {
