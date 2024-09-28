@@ -1,11 +1,11 @@
 package main
 
 import (
-	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/cmd/microservices/auth/api"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/auth/behavior"
-	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/auth/repository/repositories"
-	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/common/logger"
-	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/common/middlewares"
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/auth/api"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior"
+	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/repositories"
+	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/middlewares"
 	"net/http"
 )
 

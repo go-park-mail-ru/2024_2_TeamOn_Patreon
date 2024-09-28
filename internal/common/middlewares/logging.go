@@ -18,7 +18,7 @@ package middlewares
 
 import (
 	"fmt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/common/logger"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
 	"github.com/gorilla/mux"
 	"net/http"
 )
