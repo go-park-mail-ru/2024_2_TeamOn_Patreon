@@ -1,4 +1,4 @@
-import requests
+import requests     # pip install requests
 from dataclasses import dataclass
 
 # Define the URL of the server
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     req = Request(
         BASE_URL + "auth/register",
         # Define the data to be sent in the request body
-        data = {"key": "value", "foo": "bar"},
+        data = {"username": "value", "password": "bar!A5barbarbarbb"},
 
         # Define the headers for the request
         headers = {"Content-Type": "application/json"}

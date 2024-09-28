@@ -97,7 +97,7 @@ paths:
         - profile
       summary: Получение постов пользователя
       description: >-
-        Возвращает список постов пользователя на основе JWT-токена, переданного
+        Возвращает массив постов пользователя на основе JWT-токена, переданного
         в Cookie.
       security:
         - cookieAuth: []
@@ -107,9 +107,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Post'
+                $ref: '#/components/schemas/Post'
         '401':
           description: Неверный или отсутствующий JWT-токен
           content:
@@ -230,7 +228,7 @@ components:
             "_".
           example: putin
           minLength: 4
-          maxLength: 15
+          maxLength: 10
         password:
           type: string
           description: >-
@@ -269,23 +267,29 @@ components:
         username:
           type: string
           description: Имя пользователя
+          example: "maxround"
         email:
           type: string
           description: Почта пользователя (если есть)
+          example: "normand1999@mail.ru"
           nullable: true
+        role:
+          type: string
+          description: Роль пользователя (читатель/автор)
+          example: "автор"
         avatar_url:
           type: string
           description: Ссылка на фото профиля (если есть)
+          example: "https://example.com/avatar.jpg"
           nullable: true
         followers:
           type: integer
           description: Количество подписчиков
+          example: 125
         subscriptions:
           type: integer
           description: Количество подписок
-        posts:
-          type: integer
-          description: Количество постов
+          example: 5
     UpdateProfile:
       type: object
       properties:
@@ -308,29 +312,40 @@ components:
           type: string
           format: binary
     Post:
-      type: object
+      type: array
       required:
-        - id
+        - author
+        - title
         - text
       description: Модель поста
-      properties:
-        id:
-          type: integer
-          description: ID поста
-        text:
-          type: string
-          description: Текст поста
-        media_content_url:
-          type: string
-          description: Ссылка на медиа-контент поста
-        createdAt:
-          type: string
-          format: date-time
-          description: Дата создания поста
-        updatedAt:
-          type: string
-          format: date-time
-          description: Дата обновления поста
+      items:
+          type: object
+          properties:
+            author:
+              type: string
+              description: "Автор поста"
+              example: "maxround"
+            title:
+              type: string
+              description: Заголовок поста
+              example: "Как заработать на своём таланте с помощью PushART"
+            text:
+              type: string
+              description: Текст поста
+              example: "Решил поделиться с вами способом заработка на PushART. Для этого..."
+            media_content_url:
+              type: string
+              description: Ссылка на медиа-контент поста (если есть)
+              example: "https://example.com/media.mp4"
+              nullable: true
+            createdAt:
+              type: string
+              format: date-time
+              description: Дата создания поста
+            updatedAt:
+              type: string
+              format: date-time
+              description: Дата обновления поста
     Payment:
       type: object
       required:
@@ -348,7 +363,7 @@ components:
           description: Сообщение об ошибке
     Photo:
       type: object
-      properities:
+      properties:
         avatar_url:
           type: string
           description: Ссылка на фото

@@ -1,13 +1,10 @@
-// This is the name of our package
-// Everything with this package name can see everything
-// else inside the same package, regardless of the file they are in
 package api
 
 import (
 	"fmt"
 
-	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/dan-profile/internal/profile/api"
-	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/dan-profile/internal/profile/utils"
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/api"
+	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/utils"
 
 	"log/slog"
 	"strings"

@@ -5,14 +5,15 @@ package api
 
 import (
 	"fmt"
-	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/auth/api"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth/internal/auth/utils"
-	"log/slog"
 	"strings"
 
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/api"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+
 	// The "net/http" library has methods to implement HTTP clients and servers
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type Route struct {
@@ -33,13 +34,16 @@ func NewRouter() *mux.Router {
 	for _, route := range routes {
 		var handler http.Handler
 		handler = route.HandlerFunc
-		slog.Info(fmt.Sprintf("Registered: %s %s | in %s", route.Method, route.Pattern, op))
+		logger.StandardInfo(
+			fmt.Sprintf("Registered: %s %s", route.Method, route.Pattern),
+			op,
+		)
 
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(utils.Logging(handler, route.Name))
+			Handler(handler)
 	}
 
 	return router
@@ -47,10 +51,10 @@ func NewRouter() *mux.Router {
 
 var routes = Routes{
 	Route{
-		"AuthLoginPost",
+		"LoginPost",
 		strings.ToUpper("Post"),
 		"/auth/login",
-		api.AuthLoginPost,
+		api.LoginPost,
 	},
 
 	Route{
