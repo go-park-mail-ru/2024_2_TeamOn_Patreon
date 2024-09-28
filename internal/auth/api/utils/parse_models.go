@@ -10,10 +10,9 @@ import (
 
 func ParseModels(r *http.Request, m any, op string) *errors.MsgError {
 	if err := json.NewDecoder(r.Body).Decode(&m); err != nil {
+		logger.StandardWarn(fmt.Sprintf("Resived parsing error {%v}", err), op)
 		return errors.UnknownError(err, op)
 	}
-	logger.StandardDebug(
-		fmt.Sprintf("ParseModels (%v)", m),
-		op)
+	logger.StandardDebug(fmt.Sprintf("Parsed models l={%v}", m), op)
 	return nil
 }

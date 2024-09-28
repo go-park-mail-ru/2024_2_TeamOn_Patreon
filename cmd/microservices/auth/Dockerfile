@@ -3,6 +3,8 @@
 # Запуск докер контейнера
 # >> docker run -p 8080:8080  -v /absolute/path/cmd/microservices/auth/volume:/app/volume auth
 
+# Еще залогиниться надо
+# >> docker login
 
 # Используем официальный образ Go для сборки приложения
 FROM golang:1.23-alpine AS builder

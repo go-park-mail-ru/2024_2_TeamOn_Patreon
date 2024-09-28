@@ -59,3 +59,7 @@ func standardInput(msg string, op string) string {
 func StandardResponse(msg string, status int, host string, op string) {
 	StandardInfo(fmt.Sprintf("Response sent, status ='%v', message={%v} to host=%v", status, msg, host), op)
 }
+
+func StandardSendModel(msg, op string) {
+	StandardInfo(fmt.Sprintf("Sent model '%v'", msg), op)
+}

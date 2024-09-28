@@ -14,6 +14,10 @@ type Login struct {
 	Password string `json:"password"`
 }
 
+func (lg *Login) String() string {
+	return fmt.Sprintf("Login model {Username: %s, Password: %s}", lg.Username, lg.Password)
+}
+
 func (lg *Login) Validate() (bool, *er.MsgError) {
 	userValid, err := lg.validateUsername()
 	if err != nil || !userValid {
@@ -24,7 +28,6 @@ func (lg *Login) Validate() (bool, *er.MsgError) {
 	if err != nil || !passValid {
 		return false, err
 	}
-
 	return true, nil
 }
 

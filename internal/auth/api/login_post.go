@@ -16,32 +16,33 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 	// Парсинг модели вводных данных логина
 	var l tModels.Login
 	if err := utils.ParseModels(r, &l, op); err != nil {
-		// TODO: Дописать отправку модели ошибки с err.msg
+		// отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: err.GetMsg()}, w, op)
+		// проставляем http.StatusBadRequest
 		logger.StandardResponse(err.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	logger.StandardDebug(fmt.Sprintf("Parsed l={%v}", l), op)
-
 	// Валидация полей вводных данных модели логина
 	if _, errV := l.Validate(); errV != nil {
-		logger.StandardWarn(
-			fmt.Sprintf("Recevied validation error={%v}", errV),
-			op)
-		// TODO: Дописать отправку модели ошибки с err.msg
+		logger.StandardWarn(fmt.Sprintf("Recevied validation error={%v}", errV), op)
+		// проставляем http.StatusBadRequest
 		logger.StandardResponse(errV.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
+		// отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: errV.GetMsg()}, w, op)
 		return
 	}
-
-	logger.StandardDebug(fmt.Sprintf("Validated l={%v}", l), op)
 
 	// достаем behavior из контекста
 	b, errM := utils.GetBehaviorCtx(r, op)
 	if errM != nil {
+		// проставляем http.StatusBadRequest
 		logger.StandardResponse(errM.Error(), http.StatusInternalServerError, r.Host, op)
 		w.WriteHeader(http.StatusInternalServerError)
+		// отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: errM.GetMsg()}, w, op)
 		return
 	}
 
@@ -49,8 +50,11 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 	// создаем токен пользователя
 	tokenString, errM := b.AuthoriseUser(l.Username, l.Password)
 	if errM != nil {
+		// проставляем http.StatusBadRequest
 		logger.StandardResponse(errM.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
+		// отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: errM.GetMsg()}, w, op)
 		return
 	}
 
@@ -62,10 +66,7 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 
 	logger.StandardResponse(
 		fmt.Sprintf("Successful authorisated user=%v with token='%v'", l.Username, tokenString),
-		http.StatusOK,
-		r.Host,
-		op,
-	)
+		http.StatusOK, r.Host, op)
 
 	w.WriteHeader(http.StatusOK)
 }
