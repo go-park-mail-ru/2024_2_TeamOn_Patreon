@@ -1,6 +1,6 @@
 module github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/tree/polina-auth
 
-go 1.23.1
+go 1.23
 
 require github.com/gorilla/mux v1.8.1 // | >> go get -u github.com/gorilla/mux
 
