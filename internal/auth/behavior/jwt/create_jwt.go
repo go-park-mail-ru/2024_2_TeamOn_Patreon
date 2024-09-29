@@ -24,9 +24,9 @@ func CreateJWT(user bModels.User, ttl int) (TokenString, error) {
 		Username: user.Username,
 		Role:     user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * (time.Duration(ttl)))), // Токен истекает через ttl часа
-			IssuedAt:  jwt.NewNumericDate(time.Now()),                                       // Время выпуска токена
-			Issuer:    "auth-app",                                                           // Кто выпустил токен
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(ttl))), // Токен истекает через ttl часа
+			IssuedAt:  jwt.NewNumericDate(time.Now()),                                     // Время выпуска токена
+			Issuer:    "auth-app",                                                         // Кто выпустил токен
 		},
 	}
 
