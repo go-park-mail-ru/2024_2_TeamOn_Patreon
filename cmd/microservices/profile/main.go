@@ -26,11 +26,11 @@ func main() {
 
 	// регистрируем middlewares
 	commonHandler := middlewares.CreateMiddlewareWithCommonRepository(rep, behavior.New)
-	router.Use(middlewares.Logging) // 1
-	// router.Use(middlewares.HandlerAuth) // 2 только для ручек, где требуется аутентификация
-	router.Use(commonHandler) // 3
+	router.Use(middlewares.Logging)     // 1
+	router.Use(middlewares.HandlerAuth) // 2 только для ручек, где требуется аутентификация
+	router.Use(commonHandler)           // 3
 
 	// run server
-	logger.StandardInfo("Starting server at: 8080", op)
-	http.ListenAndServe(":8080", router)
+	logger.StandardInfo("Starting server at: 8082", op)
+	http.ListenAndServe(":8082", router)
 }

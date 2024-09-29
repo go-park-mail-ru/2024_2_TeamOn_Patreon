@@ -65,17 +65,22 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		logger.StandardResponse(
-			fmt.Sprintf("successful get user=%v with userID='%v'", userData.Username, userData.UserID),
-			http.StatusOK, r.Host, op)
+		// logger.StandardResponse(
+		// 	fmt.Sprintf("successful get user=%v with userID='%v'", userData.Username, userData.UserID),
+		// 	http.StatusOK, r.Host, op)
 	}
+	logger.StandardResponse(
+		fmt.Sprintf("successful get user=%v with userID='%v'", userData.Username, userData.UserID),
+		http.StatusOK, r.Host, op)
 	profileData := models.Profile{
 		Username:      profile.Username,
 		Email:         profile.Email,
 		AvatarUrl:     profile.AvatarUrl,
+		Status:        profile.Status,
 		Role:          profile.Role,
 		Followers:     profile.Followers,
 		Subscriptions: profile.Subscriptions,
+		PostsAmount:   profile.PostsAmount,
 	}
 	json.NewEncoder(w).Encode(profileData)
 	w.WriteHeader(http.StatusOK)

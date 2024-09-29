@@ -29,9 +29,11 @@ func (r *Profiles) SaveProfile(userID int, username string, role busModels.Role)
 		Username:      username,
 		Email:         "",
 		AvatarUrl:     "",
+		Status:        "Создан, чтоб творить! Новая глава, новые вибрации!",
 		Role:          busModels.RoleToString(role),
 		Followers:     0,
 		Subscriptions: 0,
+		PostsAmount:   0,
 	}
 
 	// сохранение профиля в бд
