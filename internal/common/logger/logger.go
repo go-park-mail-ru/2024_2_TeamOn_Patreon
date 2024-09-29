@@ -20,19 +20,7 @@ func New() {
 	StandardInfo("created logger", op)
 }
 
-func Info(msg string, args ...any) {
-	slog.Info(msg, args...)
-}
-
 func Debug(msg string, args ...any) {
-	slog.Info(msg, args...)
-}
-
-func Error(msg string, args ...any) {
-	slog.Info(msg, args...)
-}
-
-func Warn(msg string, args ...any) {
 	slog.Info(msg, args...)
 }
 
