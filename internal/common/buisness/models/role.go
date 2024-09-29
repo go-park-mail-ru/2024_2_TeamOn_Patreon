@@ -6,8 +6,8 @@ type Role int
 
 // Именованные константы для ролей
 const (
-	Reader Role = iota + 1 // Читатель
-	Author                 // Автор
+	Reader Role = 1 // Читатель
+	Author Role = 2 // Автор
 )
 
 // RoleToString
