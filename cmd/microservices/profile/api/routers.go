@@ -2,14 +2,11 @@ package api
 
 import (
 	"fmt"
-
-	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/api"
-	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/utils"
-
-	"log/slog"
 	"strings"
 
-	// The "net/http" library has methods to implement HTTP clients and servers
+	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/api"
+
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -33,13 +30,16 @@ func NewRouter() *mux.Router {
 	for _, route := range routes {
 		var handler http.Handler
 		handler = route.HandlerFunc
-		slog.Info(fmt.Sprintf("Registered: %s %s | in %s", route.Method, route.Pattern, op))
+		logger.StandardInfo(
+			fmt.Sprintf("Registered: %s %s", route.Method, route.Pattern),
+			op,
+		)
 
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(utils.Logging(handler, route.Name)) // Замыкание для сигнала: "дёрнули ручку"
+			Handler(handler)
 	}
 
 	return router

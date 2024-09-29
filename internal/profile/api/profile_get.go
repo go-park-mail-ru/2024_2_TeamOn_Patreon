@@ -2,12 +2,13 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/buisness/models"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/api/models"
 	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/models"
 	repository "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/repositories"
@@ -21,15 +22,19 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 	// Извлекаем userData из контекста
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
 	if !ok {
-		slog.Info("err: userID not found in context")
-		// TODO: Дописать отправку модели ошибки "Недопустимый ID пользователя" с err.msg
+		err := errors.New("userData not found in context")
+		// проставляем http.StatusUnauthorized 401
+		logger.StandardResponse(err.Error(), http.StatusUnauthorized, r.Host, op)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	// validate userID
+	// Валидация userID
 	if userData.UserID <= 0 {
-		slog.Info(fmt.Sprintf("err: incorrect format userID | in %v", op))
-		// 	// TODO: Дописать отправку модели ошибки "Недопустимый ID пользователя" с err.msg
+		err := errors.New("invalid userID format")
+		// проставляем http.StatusBadRequest 400
+		logger.StandardResponse(err.Error(), http.StatusBadRequest, r.Host, op)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -41,20 +46,29 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 	// Если такой записи нет, значит профиль новый, поэтому создаём новую запись в БД
 	// Иначе возвращаем профиль с запрашиваемым userID
 	if !isUserExist {
-		slog.Info(fmt.Sprintf("create new profile | in %v", op))
 		profile, _ = rep.SaveProfile(userData.UserID, userData.Username, userData.Role)
+		logger.StandardResponse(
+			fmt.Sprintf("create new profile user=%v with userID='%v'", userData.Username, userData.UserID),
+			http.StatusOK, r.Host, op)
 	} else {
-		slog.Info(fmt.Sprintf("profile found | in %v", op))
+		// Сообщение о том, что профиль найден
+		logger.StandardResponse(
+			fmt.Sprintf("profile found for user=%v with userID='%v'", userData.Username, userData.UserID),
+			http.StatusOK, r.Host, op)
+
 		var err error
 		profile, err = rep.GetProfileByID(userData.UserID)
+		// Если не удалось получить профиль
 		if err != nil {
-			slog.Info(fmt.Sprintf("error get profile | in %v", op))
+			// проставляем http.StatusInternalServerError
+			logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		slog.Info(fmt.Sprintf("profile get | in %v", op))
+		logger.StandardResponse(
+			fmt.Sprintf("successful get user=%v with userID='%v'", userData.Username, userData.UserID),
+			http.StatusOK, r.Host, op)
 	}
-
-	// создаём объект Profile на основе полученных данных из  БД
 	profileData := models.Profile{
 		Username:      profile.Username,
 		Email:         profile.Email,
@@ -76,5 +90,3 @@ func ProfilePostsGet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 }
-
-// TODO: реализовать остальные ручки Profile согласно сваггеру

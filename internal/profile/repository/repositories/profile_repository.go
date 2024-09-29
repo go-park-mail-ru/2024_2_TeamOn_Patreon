@@ -33,13 +33,6 @@ func (r *Profiles) SaveProfile(userID int, username string, role busModels.Role)
 		Followers:     0,
 		Subscriptions: 0,
 	}
-	// STOP HERE
-	switch role {
-	case 1:
-		profile.Role = repModel.ReaderStatus
-	case 2:
-		profile.Role = repModel.AuthorStatus
-	}
 
 	// сохранение профиля в бд
 	r.profiles[profile.UserID] = &profile
@@ -64,7 +57,7 @@ func (r *Profiles) GetProfileByID(userID int) (*repModel.Profile, error) {
 	foundedProfile := r.profiles[key]
 
 	if foundedProfile == nil {
-		return nil, errors.New("user not found")
+		return nil, errors.New("failed to get user")
 	}
 
 	return foundedProfile, nil
