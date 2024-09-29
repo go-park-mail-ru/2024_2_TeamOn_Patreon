@@ -1,12 +1,12 @@
 package api
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
 
+	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/buisness/models"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/api/models"
 	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/models"
@@ -18,26 +18,8 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 	op := "profile.api.api_profile"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// ~~~~~ TEST GET userID ~~~~~
-	type UserContext struct {
-		UserID   int
-		Username string
-		Role     int
-	}
-	// Создаём структуру бизнес модели пользователя
-	userContext := UserContext{
-		UserID:   12,
-		Username: "maxround",
-		Role:     1,
-	}
-	// Кладём в контекст
-	ctx := context.WithValue(r.Context(), global.UserKey, userContext)
-	// Извлекаем из контекста
-	userData, ok := ctx.Value(global.UserKey).(UserContext)
-	// ~~~~~ 				~~~~~
-
-	// Достаём userID из контекста
-	// userID, ok := r.Context().Value(global.UserKey).(string)
+	// Извлекаем userData из контекста
+	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
 	if !ok {
 		slog.Info("err: userID not found in context")
 		// TODO: Дописать отправку модели ошибки "Недопустимый ID пользователя" с err.msg
@@ -71,7 +53,6 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 		}
 		slog.Info(fmt.Sprintf("profile get | in %v", op))
 	}
-	fmt.Println(profile)
 
 	// создаём объект Profile на основе полученных данных из  БД
 	profileData := models.Profile{
