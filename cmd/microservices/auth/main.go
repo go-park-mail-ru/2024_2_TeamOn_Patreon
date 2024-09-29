@@ -1,13 +1,12 @@
 package main
 
 import (
-	"net/http"
-
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/auth/api"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior"
 	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/repositories"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
 	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/middlewares"
+	"net/http"
 )
 
 func main() {

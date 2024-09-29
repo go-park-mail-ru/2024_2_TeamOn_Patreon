@@ -5,7 +5,7 @@ const (
 	ReaderStatus = "Reader"
 )
 
-// Profile модель репозитория
+// Repository модель Profile
 type Profile struct {
 	UserID        UserID
 	Username      string

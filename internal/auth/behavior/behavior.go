@@ -2,7 +2,6 @@ package behavior
 
 import (
 	"fmt"
-
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/hasher"
 	bJWT "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/jwt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/interfaces"

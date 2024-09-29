@@ -5,7 +5,7 @@ const (
 	ReaderStatus = "Reader"
 )
 
-// Модель профиля пользователя
+// API Модель профиля пользователя
 type Profile struct {
 	// Имя пользователя
 	Username string `json:"username"`

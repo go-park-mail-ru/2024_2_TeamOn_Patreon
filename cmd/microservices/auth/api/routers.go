@@ -5,15 +5,13 @@ package api
 
 import (
 	"fmt"
-	"strings"
-
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/api"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	"strings"
 
 	// The "net/http" library has methods to implement HTTP clients and servers
-	"net/http"
-
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 type Route struct {

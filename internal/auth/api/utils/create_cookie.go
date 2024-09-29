@@ -1,11 +1,10 @@
 package utils
 
 import (
-	"net/http"
-	"time"
-
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/jwt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
+	"net/http"
+	"time"
 )
 
 func CreateCookie(tokenString jwt.TokenString) http.Cookie {

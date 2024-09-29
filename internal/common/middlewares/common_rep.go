@@ -3,11 +3,10 @@ package middlewares
 import (
 	"context"
 	"fmt"
-	"net/http"
-
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/interfaces"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	"net/http"
 )
 
 // CreateMiddlewareWithCommonRepository - создает мидлваре, который использует единый объект репозитория, во всех обработчиках

@@ -2,10 +2,9 @@ package logger
 
 import (
 	"fmt"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
 	"log/slog"
 	"os"
-
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
 )
 
 func New() {
@@ -55,4 +54,12 @@ func StandardDebug(msg string, op string) {
 
 func standardInput(msg string, op string) string {
 	return fmt.Sprintf("{%v}                 | in %v", msg, op)
+}
+
+func StandardResponse(msg string, status int, host string, op string) {
+	StandardInfo(fmt.Sprintf("Response sent, status ='%v', message={%v} to host=%v", status, msg, host), op)
+}
+
+func StandardSendModel(msg, op string) {
+	StandardInfo(fmt.Sprintf("Sent model '%v'", msg), op)
 }

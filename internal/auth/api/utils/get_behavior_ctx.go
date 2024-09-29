@@ -2,12 +2,11 @@ package utils
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/errors"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	"net/http"
 )
 
 func GetBehaviorCtx(r *http.Request, op string) (*behavior.Behavior, *errors.MsgError) {

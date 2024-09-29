@@ -1,10 +1,9 @@
 package jwt
 
 import (
-	"time"
-
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/buisness/models"
 	"github.com/golang-jwt/jwt/v5"
+	"time"
 )
 
 // ПОКА ТАК, потом будем парсить из конфига

@@ -18,10 +18,9 @@ package middlewares
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func Logging(handler http.Handler) http.Handler {

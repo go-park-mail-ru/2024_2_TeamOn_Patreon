@@ -2,11 +2,10 @@ package jwt
 
 import (
 	"fmt"
-	"net/http"
-	"time"
-
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
 	"github.com/golang-jwt/jwt/v5"
+	"net/http"
+	"time"
 )
 
 // ParseJWTFromCookie

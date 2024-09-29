@@ -1,9 +1,9 @@
 package models
 
 import (
-	"regexp"
-
+	"fmt"
 	er "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/errors"
+	"regexp"
 )
 
 // Reg - модель для фронта
@@ -12,6 +12,10 @@ type Reg struct {
 	Username string `json:"username"`
 	// Пароль. должен содержать хотя бы 1 заглавную, 1 строчную латинские буквы, 1 цифру, 1 спец символ.
 	Password string `json:"password"`
+}
+
+func (reg *Reg) String() string {
+	return fmt.Sprintf("Reg model {username: %s, password: %s}", reg.Username, reg.Password)
 }
 
 func (reg *Reg) Validate() (bool, *er.MsgError) {

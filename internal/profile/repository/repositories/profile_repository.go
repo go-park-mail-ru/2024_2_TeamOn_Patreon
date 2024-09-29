@@ -4,6 +4,7 @@ import (
 	"errors"
 	// Модель репозитория взаимодействует с БД напрямую
 
+	busModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/buisness/models"
 	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/models"
 )
 
@@ -20,13 +21,15 @@ func New() *Profiles {
 }
 
 // SaveProfile сохраняет профиль в базу данных
-func (r *Profiles) SaveProfile(userID int, username string, role int) (*repModel.Profile, error) {
+func (r *Profiles) SaveProfile(userID int, username string, role busModels.Role) (*repModel.Profile, error) {
 	// создание нового профиля
+
 	profile := repModel.Profile{
 		UserID:        repModel.UserID(userID),
 		Username:      username,
 		Email:         "",
 		AvatarUrl:     "",
+		Role:          busModels.RoleToString(role),
 		Followers:     0,
 		Subscriptions: 0,
 	}

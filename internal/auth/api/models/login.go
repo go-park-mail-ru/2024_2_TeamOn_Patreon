@@ -2,10 +2,9 @@ package models
 
 import (
 	"fmt"
-	"regexp"
-
 	er "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/errors"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	"regexp"
 )
 
 type Login struct {
@@ -13,6 +12,10 @@ type Login struct {
 	Username string `json:"username"`
 	// Пароль пользователя
 	Password string `json:"password"`
+}
+
+func (lg *Login) String() string {
+	return fmt.Sprintf("Login model {Username: %s, Password: %s}", lg.Username, lg.Password)
 }
 
 func (lg *Login) Validate() (bool, *er.MsgError) {
@@ -25,7 +28,6 @@ func (lg *Login) Validate() (bool, *er.MsgError) {
 	if err != nil || !passValid {
 		return false, err
 	}
-
 	return true, nil
 }
 
