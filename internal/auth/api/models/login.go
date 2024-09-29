@@ -33,7 +33,7 @@ func (lg *Login) Validate() (bool, *er.MsgError) {
 
 func (lg *Login) validateUsername() (bool, *er.MsgError) {
 	op := "auth.api.login.validateUsername"
-	validErr := InitValidErrorInField("username", op)
+	validErr := NewValidationFieldError("username", op)
 
 	// Длина не менее 4 символов
 	if len(lg.Username) < 4 {
@@ -66,7 +66,7 @@ func (lg *Login) validateUsername() (bool, *er.MsgError) {
 
 func (lg *Login) validatePassword() (bool, *er.MsgError) {
 	op := "auth.api.login.validatePassword"
-	validErr := InitValidErrorInField("password", op)
+	validErr := NewValidationFieldError("password", op)
 
 	// Длина не меньше 8 символов
 	if len(lg.Password) < 8 {

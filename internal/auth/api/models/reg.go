@@ -34,7 +34,7 @@ func (reg *Reg) Validate() (bool, *er.MsgError) {
 
 func (reg *Reg) validateUsername() (bool, *er.MsgError) {
 	op := "auth.api.reg.validateUsername"
-	validErr := InitValidErrorInField("username", op)
+	validErr := NewValidationFieldError("username", op)
 
 	// Длина не менее 4 символов
 	if len(reg.Username) < 4 {
@@ -67,7 +67,7 @@ func (reg *Reg) validateUsername() (bool, *er.MsgError) {
 
 func (reg *Reg) validatePassword() (bool, *er.MsgError) {
 	op := "auth.api.reg.validatePassword"
-	validErr := InitValidErrorInField("password", op)
+	validErr := NewValidationFieldError("password", op)
 
 	// Длина не меньше 8 символов
 	if len(reg.Password) < 8 {
