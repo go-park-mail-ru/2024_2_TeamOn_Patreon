@@ -4,11 +4,13 @@ import (
 	"errors"
 	imModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/models"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/buisness/models"
+	"sync"
 )
 
 // ImaginaryRepository реализует интерфейс AuthRepository
 type ImaginaryRepository struct {
 	users  map[imModels.UserID]*imModels.User
+	mu     sync.RWMutex
 	lastID imModels.UserID
 }
 
@@ -30,8 +32,10 @@ func (r *ImaginaryRepository) SaveUser(username string, role int, passwordHash s
 		PasswordHash: passwordHash,
 	}
 
+	r.mu.Lock()
 	// сохранение пользователя в бд
 	r.users[user.UserID] = &user
+	r.mu.Unlock()
 
 	// мапим в бизнес модель user
 	bUser := imModels.MapImUserToBUser(user)
@@ -40,18 +44,22 @@ func (r *ImaginaryRepository) SaveUser(username string, role int, passwordHash s
 
 // UserExists проверяет, существует ли пользователь с указанным именем.
 func (r *ImaginaryRepository) UserExists(username string) (bool, error) {
+	r.mu.RLock()
 	for _, user := range r.users {
 
 		if user.Username == username {
 			return true, nil
 		}
 	}
+	r.mu.RUnlock()
 	return false, nil
 }
 
 // GetUserByID получает пользователя по его ID.
 func (r *ImaginaryRepository) GetUserByID(userID int) (*bModels.User, error) {
+	r.mu.RLock()
 	imUser := r.users[imModels.UserID(userID)]
+	r.mu.RUnlock()
 
 	if imUser == nil {
 		return nil, errors.New("user not found")
@@ -63,7 +71,9 @@ func (r *ImaginaryRepository) GetUserByID(userID int) (*bModels.User, error) {
 
 // GetPasswordHashByID получает хэш пароля пользователя по его ID.
 func (r *ImaginaryRepository) GetPasswordHashByID(userID int) (string, error) {
+	r.mu.RLock()
 	imUser := r.users[imModels.UserID(userID)]
+	r.mu.RUnlock()
 
 	if imUser == nil {
 		return "", errors.New("user not found")
@@ -79,6 +89,8 @@ func (r *ImaginaryRepository) generateID() imModels.UserID {
 // GetUserByUsername возвращает пользователя по имени.
 func (r *ImaginaryRepository) GetUserByUsername(username string) (*bModels.User, error) {
 	var imUser *imModels.User
+
+	r.mu.RLock()
 	for _, user := range r.users {
 
 		if user.Username == username {
@@ -86,6 +98,8 @@ func (r *ImaginaryRepository) GetUserByUsername(username string) (*bModels.User,
 			break
 		}
 	}
+	r.mu.RUnlock()
+
 	if imUser == nil {
 		return nil, errors.New("user not found")
 	}
