@@ -20,24 +20,36 @@ func New() {
 	StandardInfo("created logger", op)
 }
 
-func Debug(msg string, args ...any) {
-	slog.Info(msg, args...)
-}
-
 func StandardInfo(msg string, op string) {
 	slog.Info(standardInput(msg, op))
+}
+
+func StandardInfoF(op string, format string, a ...any) {
+	StandardInfo(fmt.Sprintf(format, a...), op)
 }
 
 func StandardWarn(msg string, op string) {
 	slog.Warn(standardInput(msg, op))
 }
 
+func StandardWarnF(op string, format string, a ...any) {
+	StandardWarn(fmt.Sprintf(format, a...), op)
+}
+
 func StandardError(msg string, op string) {
 	slog.Error(standardInput(msg, op))
 }
 
+func Debug(msg string, args ...any) {
+	slog.Debug(msg, args...)
+}
+
 func StandardDebug(msg string, op string) {
-	slog.Debug(standardInput(msg, op))
+	Debug(standardInput(msg, op))
+}
+
+func StandardDebugF(op string, msg string, a ...any) {
+	StandardDebug(op, fmt.Sprintf(msg, a...))
 }
 
 func standardInput(msg string, op string) string {
@@ -45,9 +57,9 @@ func standardInput(msg string, op string) string {
 }
 
 func StandardResponse(msg string, status int, host string, op string) {
-	StandardInfo(fmt.Sprintf("Response sent, status ='%v', message={%v} to host=%v", status, msg, host), op)
+	StandardInfoF(op, "Response sent, status ='%v', message={%v} to host=%v", status, msg, host)
 }
 
 func StandardSendModel(msg, op string) {
-	StandardInfo(fmt.Sprintf("Sent model '%v'", msg), op)
+	StandardInfoF(op, "Sent model '%v'", msg)
 }

@@ -26,7 +26,7 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 
 	// Валидация полей модели
 	if _, errV := p.Validate(); errV != nil {
-		logger.StandardWarn(fmt.Sprintf("Received validation error {%v}", errV.Error()), op)
+		logger.StandardWarnF(op, "Received validation error {%v}", errV.Error())
 		// проставляем http.StatusBadRequest
 		logger.StandardResponse(errV.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
@@ -38,7 +38,7 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 	// Получаем Behavior из контекста
 	b, errM := utils.GetBehaviorCtx(r, op)
 	if errM != nil {
-		logger.StandardWarn(fmt.Sprintf("Received validation error {%v}", errM.Error()), op)
+		logger.StandardWarnF(op, "Received validation error {%v}", errM.Error())
 		// проставляем http.StatusBadRequest
 		logger.StandardResponse(errM.Error(), http.StatusInternalServerError, r.Host, op)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -50,7 +50,7 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 	// Создание пользователя и генерация токена
 	tokenString, err := b.RegisterNewUser(p.Username, p.Password) // передаем username и password
 	if err != nil {
-		logger.StandardDebug(fmt.Sprintf("Received register error {%v}", err), op)
+		logger.StandardDebugF(op, "Received register error {%v}", err)
 		// проставляем http.StatusBadRequest
 		logger.StandardResponse(err.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)

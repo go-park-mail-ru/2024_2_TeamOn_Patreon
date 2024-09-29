@@ -24,6 +24,6 @@ func GetBehaviorCtx(r *http.Request, op string) (*behavior.Behavior, *errors.Msg
 		logger.StandardError(errM.Error(), op)
 		return nil, errM
 	}
-	logger.StandardDebug(fmt.Sprintf("Getted behavior={%v}", b), op)
+	logger.StandardDebugF(op, "Getted behavior={%v}", b)
 	return b, nil
 }

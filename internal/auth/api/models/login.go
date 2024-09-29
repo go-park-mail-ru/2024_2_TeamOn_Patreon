@@ -38,7 +38,7 @@ func (lg *Login) validateUsername() (bool, *er.MsgError) {
 	// Длина не менее 4 символов
 	if len(lg.Username) < 4 {
 		msg := "логин должен быть не меньше 4 символов"
-		logger.StandardDebug(fmt.Sprintf("login isn't valid: '%v'", lg.Username), op)
+		logger.StandardDebugF(op, "login isn't valid: '%v'", lg.Username)
 		return false, validErr(msg)
 	}
 

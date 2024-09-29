@@ -26,7 +26,7 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 
 	// Валидация полей вводных данных модели логина
 	if _, errV := l.Validate(); errV != nil {
-		logger.StandardWarn(fmt.Sprintf("Recevied validation error={%v}", errV), op)
+		logger.StandardWarnF(op, "Received validation error={%v}", errV)
 		// проставляем http.StatusBadRequest
 		logger.StandardResponse(errV.Error(), http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)

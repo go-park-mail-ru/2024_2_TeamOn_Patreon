@@ -1,7 +1,6 @@
 package behavior
 
 import (
-	"fmt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/hasher"
 	bJWT "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/jwt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/interfaces"
@@ -65,32 +64,32 @@ func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenSt
 	exists, err := b.isUserExists(username)
 	// если не существует или какая-то ошибка, выходим
 	if exists == nil || !*exists {
-		logger.Debug(fmt.Sprintf("Authorisation failed: user %s does not exist or err", username), op)
+		logger.StandardDebugF(op, "Authorisation failed: user %s does not exist or err", username)
 		return "", err
 	}
 
 	// получаем модельку юзера по username
 	user, errM := b.getUser(username)
 	if errM != nil {
-		logger.Debug(fmt.Sprintf("Authorisation failed: user %s does not exist", username), op)
+		logger.StandardDebugF(op, "Authorisation failed: user %s does not exist", username)
 		return "", errM
 	}
 
 	// сравниваем пароли
 	ok, errM := b.comparePassword(*user, password)
 	if errM != nil || !ok {
-		logger.Debug(fmt.Sprintf("Authorisation failed: user %s does not match", username), op)
+		logger.StandardDebugF(op, "Authorisation failed: user %s does not match", username)
 		return "", errM
 	}
 
 	// сгенерировать для пользователя токен
 	token, err := createJWT(user)
 	if err != nil {
-		logger.Debug(fmt.Sprintf("Authorisation failed: user %s generation token failed", username), op)
+		logger.StandardDebugF(op, "Authorisation failed: user %s generation token failed", username)
 		return "", err
 	}
 
-	logger.StandardDebug(fmt.Sprintf("Login user={%v} with token={%v}", username, token), op)
+	logger.StandardDebugF(op, "Login user={%v} with token={%v}", username, token)
 
 	return token, nil
 }
