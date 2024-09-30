@@ -9,7 +9,7 @@ import (
 )
 
 // AuthRegisterPost - ручка регистрации
-func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 	op := "auth.api.api_auth.AuthRegisterPost"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -35,20 +35,20 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Получаем Behavior из контекста
-	b, errM := utils.GetBehaviorCtx(r, op)
-	if errM != nil {
-		logger.StandardWarnF(op, "Received validation error {%v}", errM.Error())
-		// проставляем http.StatusBadRequest
-		logger.StandardResponse(errM.Error(), http.StatusInternalServerError, r.Host, op)
-		w.WriteHeader(http.StatusInternalServerError)
-		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: errM.GetMsg()}, w, op)
-		return
-	}
+	//// Получаем Behavior из контекста
+	//b, errM := utils.GetBehaviorCtx(r, op)
+	//if errM != nil {
+	//	logger.StandardWarnF(op, "Received validation error {%v}", errM.Error())
+	//	// проставляем http.StatusBadRequest
+	//	logger.StandardResponse(errM.Error(), http.StatusInternalServerError, r.Host, op)
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	// отправляем структуру ошибки
+	//	utils.SendModel(&tModels.ModelError{Message: errM.GetMsg()}, w, op)
+	//	return
+	//}
 
 	// Создание пользователя и генерация токена
-	tokenString, err := b.RegisterNewUser(p.Username, p.Password) // передаем username и password
+	tokenString, err := handler.b.RegisterNewUser(p.Username, p.Password) // передаем username и password
 	if err != nil {
 		logger.StandardDebugF(op, "Received register error {%v}", err)
 		// проставляем http.StatusBadRequest

@@ -9,7 +9,7 @@ import (
 )
 
 // LoginPost - ручка аутентификации
-func LoginPost(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) LoginPost(w http.ResponseWriter, r *http.Request) {
 	op := "auth.api.api_auth.LoginPost"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -35,20 +35,20 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// достаем behavior из контекста
-	b, errM := utils.GetBehaviorCtx(r, op)
-	if errM != nil {
-		// проставляем http.StatusBadRequest
-		logger.StandardResponse(errM.Error(), http.StatusInternalServerError, r.Host, op)
-		w.WriteHeader(http.StatusInternalServerError)
-		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: errM.GetMsg()}, w, op)
-		return
-	}
+	//// достаем behavior из контекста
+	//b, errM := utils.GetBehaviorCtx(r, op)
+	//if errM != nil {
+	//	// проставляем http.StatusBadRequest
+	//	logger.StandardResponse(errM.Error(), http.StatusInternalServerError, r.Host, op)
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	// отправляем структуру ошибки
+	//	utils.SendModel(&tModels.ModelError{Message: errM.GetMsg()}, w, op)
+	//	return
+	//}
 
 	// достаем инфу по пользователю по username
 	// создаем токен пользователя
-	tokenString, errM := b.AuthoriseUser(l.Username, l.Password)
+	tokenString, errM := handler.b.AuthoriseUser(l.Username, l.Password)
 	if errM != nil {
 		// проставляем http.StatusBadRequest
 		logger.StandardResponse(errM.Error(), http.StatusBadRequest, r.Host, op)

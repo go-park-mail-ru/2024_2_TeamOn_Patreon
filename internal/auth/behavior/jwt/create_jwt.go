@@ -1,7 +1,7 @@
 package jwt
 
 import (
-	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/buisness/models"
+	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )

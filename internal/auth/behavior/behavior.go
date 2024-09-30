@@ -1,27 +1,30 @@
 package behavior
 
 import (
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/hasher"
+	hasher "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/hasher"
 	bJWT "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/jwt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/interfaces"
-	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/buisness/models"
+	rInterfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/interfaces"
+	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
 	cErrors "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/errors"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
-	absInterface "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/interfaces"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
+	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
 )
 
 type Behavior struct {
-	rep interfaces.AuthRepository
+	rep rInterfaces.AuthRepository
 }
 
-func New(repInterface absInterface.Repository) absInterface.Behavior {
-	switch rep := repInterface.(type) {
-	case interfaces.AuthRepository:
-		return &Behavior{rep}
-	default:
-		return nil
-	}
+//func New(repInterface absInterface.Repository) absInterface.Behavior {
+//	switch rep := repInterface.(type) {
+//	case interfaces.AuthRepository:
+//		return &Behavior{rep}
+//	default:
+//		return nil
+//	}
+//}
+
+func New(repository rInterfaces.AuthRepository) *Behavior {
+	return &Behavior{repository}
 }
 
 // RegisterNewUser - регистрация | добавление нового пользователя, генерация для него jwt

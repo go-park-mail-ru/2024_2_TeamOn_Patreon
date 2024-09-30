@@ -21,12 +21,13 @@ type TestServer struct {
 // SetupTestServer инициализирует сервер и роутер
 func SetupTestServer() *TestServer {
 	rep := repositories.New()
-	router := api.NewRouter()
-	commonHandler := middlewares.CreateMiddlewareWithCommonRepository(rep, behavior.New)
+	beh := behavior.New(rep)
+	router := api.NewRouter(beh)
+	//commonHandler := middlewares.CreateMiddlewareWithCommonRepository(rep, behavior.New)
 
 	// Добавляет миддлваре
 	router.Use(middlewares.Logging)
-	router.Use(commonHandler)
+	//router.Use(commonHandler)
 
 	// Создание тестового сервера
 	ts := httptest.NewServer(router)

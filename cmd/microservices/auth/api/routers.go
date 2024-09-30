@@ -6,7 +6,8 @@ package api
 import (
 	"fmt"
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/api"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	bInterfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/interfaces"
+	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
 	"strings"
 
 	// The "net/http" library has methods to implement HTTP clients and servers
@@ -23,8 +24,26 @@ type Route struct {
 
 type Routes []Route
 
-func NewRouter() *mux.Router {
+func NewRouter(behavior bInterfaces.AuthBehavior) *mux.Router {
 	op := "auth.routers.NewRouter"
+
+	handler := api.New(behavior)
+
+	var routes = Routes{
+		Route{
+			"LoginPost",
+			strings.ToUpper("Post"),
+			"/auth/login",
+			handler.LoginPost,
+		},
+
+		Route{
+			"AuthRegisterPost",
+			strings.ToUpper("Post"),
+			"/auth/register",
+			handler.AuthRegisterPost,
+		},
+	}
 
 	// Declare a new router
 	router := mux.NewRouter().StrictSlash(true)
@@ -45,20 +64,4 @@ func NewRouter() *mux.Router {
 	}
 
 	return router
-}
-
-var routes = Routes{
-	Route{
-		"LoginPost",
-		strings.ToUpper("Post"),
-		"/auth/login",
-		api.LoginPost,
-	},
-
-	Route{
-		"AuthRegisterPost",
-		strings.ToUpper("Post"),
-		"/auth/register",
-		api.AuthRegisterPost,
-	},
 }
