@@ -53,7 +53,6 @@ func (ts *TestServer) TestUserRegisterWithCookie(t *testing.T) {
 	assert.Equal(t, registerData["username"], claims.Username, "Имя пользователя должно совпадать с ожидаемым")
 	assert.NotZero(t, claims.UserID, "ID пользователя должен быть задан")
 	assert.Equal(t, bModels.Reader, claims.Role, "Роль пользователя должна быть 'user'")
-
 }
 
 func (ts *TestServer) TestUserLoginWithCookie(t *testing.T) {

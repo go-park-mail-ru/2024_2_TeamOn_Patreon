@@ -3,6 +3,7 @@ package errors
 import (
 	"fmt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	"net/http"
 )
 
 func UnknownError(err error, op string) *MsgError {
@@ -11,5 +12,5 @@ func UnknownError(err error, op string) *MsgError {
 		err = fmt.Errorf("unknown error in %v", op)
 	}
 	logger.StandardError(err.Error(), op)
-	return New(err.Error(), errMsg)
+	return NewCode(err.Error(), errMsg, http.StatusInternalServerError)
 }

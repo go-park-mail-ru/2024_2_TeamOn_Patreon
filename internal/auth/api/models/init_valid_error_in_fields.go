@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	er "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/errors"
+	"net/http"
 )
 
 // NewValidationFieldError - возвращает функцию для генерации ошибок
@@ -12,8 +13,8 @@ import (
 // формат op: service.dir_1.dir_2.MyValidateFunction
 func NewValidationFieldError(field string, op string) func(msg string) *er.MsgError {
 	return func(msg string) *er.MsgError {
-		return er.New(
+		return er.NewCode(
 			fmt.Sprintf("%v is not valid msg={%v}| in %v", field, msg, op),
-			msg)
+			msg, http.StatusBadRequest)
 	}
 }

@@ -8,6 +8,7 @@ import (
 	cErrors "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/errors"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	"net/http"
 )
 
 type Behavior struct {
@@ -110,9 +111,9 @@ func (b *Behavior) isUserExists(username string) (*bool, *cErrors.MsgError) {
 	ok := true
 	nOk := false
 	if exists {
-		return &ok, cErrors.New("user already exists", "пользователь уже существует")
+		return &ok, cErrors.NewCode("user already exists", "пользователь уже существует", http.StatusBadRequest)
 	}
-	return &nOk, cErrors.New("user doesn't exist", "пользователя не существует")
+	return &nOk, cErrors.NewCode("user doesn't exist", "пользователя не существует", http.StatusBadRequest)
 }
 
 func hashPassword(password string) (string, *cErrors.MsgError) {
@@ -168,7 +169,7 @@ func (b *Behavior) comparePassword(user bModels.User, password string) (bool, *c
 	// Сравниваем введённый пароль с сохранённым хэшем
 	err = hasher.CheckPasswordHash(password, userHash)
 	if err != nil {
-		return false, cErrors.New("hash mismatch", "некорректные данные")
+		return false, cErrors.NewCode("hash mismatch", "некорректные данные", http.StatusBadRequest)
 	} else {
 		return true, nil
 	}
