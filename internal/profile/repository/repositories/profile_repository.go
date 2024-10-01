@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"errors"
+	"time"
+
 	// Модель репозитория взаимодействует с БД напрямую
 
 	busModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/buisness/models"
@@ -45,6 +47,9 @@ func (r *Profiles) SaveProfile(userID int, username string, role busModels.Role)
 		Followers:     0,
 		Subscriptions: 0,
 		PostsAmount:   0,
+		PostTitle:     "Здесь будет пост с монетизацией",
+		PostContent:   "Здесь будет интересный контент",
+		PostDate:      time.Now().Format("2006-01-02"),
 	}
 
 	// сохранение профиля в бд

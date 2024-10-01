@@ -18,9 +18,13 @@ type Profile struct {
 	// Роль: читатель или автор
 	Role string `json:"role"`
 	// Количество подписчиков
-	Followers int `json:"followers"`
+	Followers uint `json:"followers"`
 	// Количество подписок
-	Subscriptions int `json:"subscriptions"`
+	Subscriptions uint `json:"subscriptions"`
 	// Количество постов
-	PostsAmount int `json:"posts_amount"`
+	PostsAmount uint `json:"posts_amount"`
+	// TODO: сделать ProfilePostGet()
+	PostTitle   string `json:"posts_title"`
+	PostContent string `json:"posts_content"`
+	PostDate    string `json:"posts_date"`
 }

@@ -13,9 +13,12 @@ type Profile struct {
 	Status        string
 	AvatarUrl     string
 	Role          string
-	Followers     int
-	Subscriptions int
-	PostsAmount   int
+	Followers     uint
+	Subscriptions uint
+	PostsAmount   uint
+	PostTitle     string
+	PostContent   string
+	PostDate      string
 }
 
 // UserID - ключ map`ы profiles

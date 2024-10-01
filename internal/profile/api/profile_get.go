@@ -50,7 +50,13 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 	// Если такой записи нет, значит профиль новый, поэтому создаём новую запись в БД
 	// Иначе возвращаем существующий профиль с запрашиваемым userID
 	if !isUserExist {
-		profile, _ = rep.SaveProfile(userData.UserID, userData.Username, userData.Role)
+		profile, err = rep.SaveProfile(userData.UserID, userData.Username, userData.Role)
+		if err != nil {
+			// проставляем http.StatusInternalServerError
+			logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		logger.StandardResponse(
 			fmt.Sprintf("create new profile user=%v with userID='%v'", userData.Username, userData.UserID),
 			http.StatusOK, r.Host, op)
