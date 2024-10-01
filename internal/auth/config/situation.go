@@ -55,7 +55,7 @@ type ErrorHttpInfo struct {
 // ВРЕМЕННО ЗДЕСЬ
 var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrSmallLogin: {msg: "логин должен быть не меньше 4 символов", code: http.StatusBadRequest},
-	ErrSmallLogin: {msg: "логин должен быть не меньше 4 символов", code: http.StatusBadRequest},
+	ErrLongLogin:  {msg: "логин должен быть не более 10 символов", code: http.StatusBadRequest},
 
 	ErrLoginWithSpecChar: {msg: "логин должен содержать только латинские символы, цифры и символы '-', '_'",
 		code: http.StatusBadRequest},
