@@ -79,9 +79,13 @@ func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenSt
 
 	// сравниваем пароли
 	ok, errM := b.comparePassword(*user, password)
-	if errM != nil || !ok {
+	if errM != nil {
 		logger.StandardDebugF(op, "Authorisation failed: user %s does not match", username)
 		return "", errM
+	}
+	if !ok {
+		logger.StandardDebugF(op, "Authorisation failed: user %s does not match", username)
+		return "", cErrors.New("Authorisation failed", "некорректные данные")
 	}
 
 	// сгенерировать для пользователя токен
