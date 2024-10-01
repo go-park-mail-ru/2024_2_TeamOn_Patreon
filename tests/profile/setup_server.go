@@ -9,8 +9,8 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/profile/api"
 	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior"
-	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/repositories"
 	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/middlewares"
+	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/repositories"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -44,7 +44,7 @@ func (ts *TestServer) TearDown() {
 }
 
 // MakeRequest создает запрос к тестовому серверу
-func (ts *TestServer) MakeRequest(t *testing.T, method, path string, body interface{}) *http.Response {
+func (ts *TestServer) MakeRequest(t *testing.T, method, path string, body interface{}, cookies []*http.Cookie) *http.Response {
 	var jsonBody []byte
 	var err error
 	if body != nil {
@@ -58,6 +58,8 @@ func (ts *TestServer) MakeRequest(t *testing.T, method, path string, body interf
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
+
+	AddCookiesToRequest(req, cookies)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
