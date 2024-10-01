@@ -1,23 +1,38 @@
 package main
 
 import (
-	"fmt"
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/auth/api"
+	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior"
+	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/repositories"
+	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/middlewares"
 	"net/http"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Main page")
-}
-
-func authHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Авторизация:", r.URL.String())
-}
-
 func main() {
-	http.HandleFunc("/auth/", authHandler)
+	op := "cmd.microservices.auth.main"
 
-	http.HandleFunc("/", handler)
+	// config
 
-	fmt.Println("starting server at: 8080")
-	http.ListenAndServe(":8080", nil)
+	// logger
+	logger.New()
+
+	// repository
+	rep := repositories.New()
+
+	// behavior
+	beh := behavior.New(rep)
+
+	// routers
+	router := api.NewRouter(beh)
+
+	// регистрируем middlewares
+	//commonHandler := middlewares.CreateMiddlewareWithCommonRepository(rep, behavior.New)
+	router.Use(middlewares.Logging) // 1
+	// router.Use(middlewares.HandlerAuth) // 2 только для ручек, где требуется аутентификация
+	//router.Use(commonHandler) // 3
+
+	// run server
+	logger.StandardInfo("Starting server at: 8081", op)
+	http.ListenAndServe(":8081", router)
 }
