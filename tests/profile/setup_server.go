@@ -8,9 +8,7 @@ import (
 	"testing"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/profile/api"
-	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior"
 	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/middlewares"
-	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/repositories"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -22,16 +20,12 @@ type TestServer struct {
 
 // SetupTestServer инициализирует сервер и роутер
 func SetupTestServer() *TestServer {
-	rep := repositories.New()
-
 	// routers
 	router := api.NewRouter()
 
 	// регистрируем middlewares
-	commonHandler := middlewares.CreateMiddlewareWithCommonRepository(rep, behavior.New)
 	router.Use(middlewares.Logging)
 	router.Use(middlewares.HandlerAuth)
-	router.Use(commonHandler)
 
 	// Создание тестового сервера
 	ts := httptest.NewServer(router)
