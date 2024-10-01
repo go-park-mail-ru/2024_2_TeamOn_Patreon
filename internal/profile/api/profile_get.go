@@ -82,13 +82,3 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(profileData)
 	w.WriteHeader(http.StatusOK)
 }
-
-func ProfilePaymentsGet(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-}
-
-func ProfilePostsGet(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-}
