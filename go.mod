@@ -13,6 +13,7 @@ require github.com/stretchr/testify v1.9.0 // indirect  | >> go get github.com/s
 require github.com/davecgh/go-spew v1.1.1 // indirect; indirect | >> go get github.com/davecgh/go-spew/spew
 
 require ( // | >> go mod tidy
+	github.com/pkg/errors v0.9.1 // indirect 	|| >> go get github.com/pkg/errors
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

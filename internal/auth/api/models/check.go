@@ -4,5 +4,5 @@ package models
 // нужна для удобного хранения паттернов для регулярок и сообщений о них вместе
 type check struct {
 	pattern string
-	msg     string
+	err     error
 }

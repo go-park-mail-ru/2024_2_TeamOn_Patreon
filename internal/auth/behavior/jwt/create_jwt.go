@@ -1,8 +1,10 @@
 package jwt
 
 import (
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -13,6 +15,7 @@ var jwtKey = []byte("secret-key-456764459876")
 // Функция создания JWT токена по данным
 // ttl - время жизни в ЧАСАХ
 func CreateJWT(user bModels.User, ttl int) (TokenString, error) {
+	op := "internal.behavior.jwt.CreateJWT"
 	// по умолчанию 24 часа
 	if ttl == 0 {
 		ttl = 24
@@ -33,7 +36,7 @@ func CreateJWT(user bModels.User, ttl int) (TokenString, error) {
 	// Создаем токен
 	tokenString, err := createToken(claims)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, op)
 	}
 
 	return tokenString, nil
@@ -49,7 +52,7 @@ func createToken(tokenClaims TokenClaims) (TokenString, error) {
 	// Подписываем токен с использованием секретного ключа
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		return "", err
+		return "", config.ErrServer
 	}
 
 	return TokenString(tokenString), nil

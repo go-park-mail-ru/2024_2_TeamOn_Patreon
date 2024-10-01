@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	imModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/models"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
 	"sync"
@@ -62,7 +63,7 @@ func (r *ImaginaryRepository) GetUserByID(userID int) (*bModels.User, error) {
 	r.mu.RUnlock()
 
 	if imUser == nil {
-		return nil, errors.New("user not found")
+		return nil, config.ErrUserNotFound
 	}
 
 	bUser := imModels.MapImUserToBUser(*imUser)
@@ -101,7 +102,7 @@ func (r *ImaginaryRepository) GetUserByUsername(username string) (*bModels.User,
 	r.mu.RUnlock()
 
 	if imUser == nil {
-		return nil, errors.New("user not found")
+		return nil, config.ErrUserNotFound
 	}
 
 	bUser := imModels.MapImUserToBUser(*imUser)
