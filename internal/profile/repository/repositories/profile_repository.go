@@ -5,8 +5,11 @@ import (
 	// Модель репозитория взаимодействует с БД напрямую
 
 	busModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/buisness/models"
+	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/buisness/models"
 	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/models"
 )
+
+var profilesInstance *Profiles
 
 // Profiles реализует интерфейс ProfilesRepository
 type Profiles struct {
@@ -15,9 +18,17 @@ type Profiles struct {
 
 // New создает новый экземпляр Profiles.
 func New() *Profiles {
-	return &Profiles{
+	profilesInstance = &Profiles{
 		profiles: make(map[repModel.UserID]*repModel.Profile),
 	}
+	return profilesInstance
+}
+
+func Get() *Profiles {
+	if profilesInstance == nil {
+		profilesInstance = New()
+	}
+	return profilesInstance
 }
 
 // SaveProfile сохраняет профиль в базу данных
@@ -30,7 +41,7 @@ func (r *Profiles) SaveProfile(userID int, username string, role busModels.Role)
 		Email:         "",
 		AvatarUrl:     "",
 		Status:        "Создан, чтоб творить! Новая глава, новые вибрации!",
-		Role:          busModels.RoleToString(role),
+		Role:          RoleToString(role),
 		Followers:     0,
 		Subscriptions: 0,
 		PostsAmount:   0,
@@ -43,7 +54,7 @@ func (r *Profiles) SaveProfile(userID int, username string, role busModels.Role)
 }
 
 // UserExists проверяет, существует ли пользователь с указанным ID
-func (r *Profiles) UserExists(userID int) (bool, error) {
+func (r *Profiles) UserExist(userID int) (bool, error) {
 	for _, profile := range r.profiles {
 
 		if profile.UserID == repModel.UserID(userID) {
@@ -56,11 +67,28 @@ func (r *Profiles) UserExists(userID int) (bool, error) {
 // GetProfileByID получает профиль по ID пользователя
 func (r *Profiles) GetProfileByID(userID int) (*repModel.Profile, error) {
 	key := repModel.UserID(userID)
-	foundedProfile := r.profiles[key]
+	foundProfile, ok := r.profiles[key]
 
-	if foundedProfile == nil {
-		return nil, errors.New("failed to get user")
+	if !ok {
+		return nil, errors.New("profile not found")
 	}
 
-	return foundedProfile, nil
+	if foundProfile == nil {
+		return nil, errors.New("profile is nil")
+	}
+
+	return foundProfile, nil
+}
+
+// RoleToString
+// Функция для отображения роли в виде строки
+func RoleToString(role models.Role) string {
+	switch role {
+	case models.Reader:
+		return "Reader"
+	case models.Author:
+		return "Author"
+	default:
+		return "Unknown"
+	}
 }

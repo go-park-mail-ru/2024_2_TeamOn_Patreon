@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -22,40 +21,40 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 	// Извлекаем userData из контекста
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
 	if !ok {
-		err := errors.New("userData not found in context")
 		// проставляем http.StatusUnauthorized 401
-		logger.StandardResponse(err.Error(), http.StatusUnauthorized, r.Host, op)
+		logger.StandardResponse("userData not found in context", http.StatusUnauthorized, r.Host, op)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	// Валидация userID
 	if userData.UserID <= 0 {
-		err := errors.New("invalid userID format")
 		// проставляем http.StatusBadRequest 400
-		logger.StandardResponse(err.Error(), http.StatusBadRequest, r.Host, op)
+		logger.StandardResponse("invalid userID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// Достаём данные Profile из DB по userID
 	// Проверяем, что пользователь с userID существует
-	rep := repository.New()
-	isUserExist, _ := rep.UserExists(userData.UserID)
+	rep := repository.Get()
+	isUserExist, err := rep.UserExist(userData.UserID)
+	if err != nil {
+		// проставляем http.StatusInternalServerError
+		logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	profile := &repModel.Profile{}
 	// Если такой записи нет, значит профиль новый, поэтому создаём новую запись в БД
-	// Иначе возвращаем профиль с запрашиваемым userID
+	// Иначе возвращаем существующий профиль с запрашиваемым userID
 	if !isUserExist {
 		profile, _ = rep.SaveProfile(userData.UserID, userData.Username, userData.Role)
 		logger.StandardResponse(
 			fmt.Sprintf("create new profile user=%v with userID='%v'", userData.Username, userData.UserID),
 			http.StatusOK, r.Host, op)
 	} else {
-		// Сообщение о том, что профиль найден
-		logger.StandardResponse(
-			fmt.Sprintf("profile found for user=%v with userID='%v'", userData.Username, userData.UserID),
-			http.StatusOK, r.Host, op)
-
 		var err error
 		profile, err = rep.GetProfileByID(userData.UserID)
 		// Если не удалось получить профиль

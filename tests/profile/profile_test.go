@@ -83,10 +83,20 @@ func TestProfile(t *testing.T) {
 	ts := SetupTestServer()
 	defer ts.TearDown()
 
-	// Run cookie tests
-	ts.TestContextNotExist(t)
-	ts.TestInvalidID(t)
-	ts.TestGetProfileFromReg(t)
-	ts.TestGetProfileFromAuth(t)
+	t.Run("Context does not exist", func(t *testing.T) {
+		ts.TestContextNotExist(t)
+	})
+
+	t.Run("Invalid ID", func(t *testing.T) {
+		ts.TestInvalidID(t)
+	})
+
+	t.Run("Get profile for exist (auth) user", func(t *testing.T) {
+		ts.TestGetProfileFromReg(t)
+	})
+
+	t.Run("Get profile for new (reg) user", func(t *testing.T) {
+		ts.TestGetProfileFromAuth(t)
+	})
 
 }

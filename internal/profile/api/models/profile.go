@@ -18,9 +18,9 @@ type Profile struct {
 	// Роль: читатель или автор
 	Role string `json:"role"`
 	// Количество подписчиков
-	Followers int32 `json:"followers"`
+	Followers int `json:"followers"`
 	// Количество подписок
-	Subscriptions int32 `json:"subscriptions"`
+	Subscriptions int `json:"subscriptions"`
 	// Количество постов
-	PostsAmount int32 `json:"posts_amount"`
+	PostsAmount int `json:"posts_amount"`
 }
