@@ -85,6 +85,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
+        '400':
+          description: Неверный формат userID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: Неверный или отсутствующий JWT-токен
           content:
@@ -273,6 +279,10 @@ components:
           description: Почта пользователя (если есть)
           example: "normand1999@mail.ru"
           nullable: true
+        status: 
+          type: string
+          description: Статус пользователя "О себе"
+          example: "Создан, чтоб творить! Новая глава, новые вибрации!"
         role:
           type: string
           description: Роль пользователя (читатель/автор)
@@ -290,6 +300,10 @@ components:
           type: integer
           description: Количество подписок
           example: 5
+        posts_amount:
+          type: integer
+          description: Количество постов
+          example: 12
     UpdateProfile:
       type: object
       properties:

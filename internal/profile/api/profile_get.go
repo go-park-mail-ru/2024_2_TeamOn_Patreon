@@ -65,9 +65,6 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		// logger.StandardResponse(
-		// 	fmt.Sprintf("successful get user=%v with userID='%v'", userData.Username, userData.UserID),
-		// 	http.StatusOK, r.Host, op)
 	}
 	logger.StandardResponse(
 		fmt.Sprintf("successful get user=%v with userID='%v'", userData.Username, userData.UserID),
