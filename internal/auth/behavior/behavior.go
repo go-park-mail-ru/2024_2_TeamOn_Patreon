@@ -8,21 +8,11 @@ import (
 	cErrors "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/errors"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
-	"net/http"
 )
 
 type Behavior struct {
 	rep rInterfaces.AuthRepository
 }
-
-//func New(repInterface absInterface.Repository) absInterface.Behavior {
-//	switch rep := repInterface.(type) {
-//	case interfaces.AuthRepository:
-//		return &Behavior{rep}
-//	default:
-//		return nil
-//	}
-//}
 
 func New(repository rInterfaces.AuthRepository) *Behavior {
 	return &Behavior{repository}
@@ -34,8 +24,12 @@ func (b *Behavior) RegisterNewUser(username string, password string) (bJWT.Token
 	// Проверка есть ли такой username
 	// если произошла ошибка, вернуть её
 	exists, errM := b.isUserExists(username)
-	if exists == nil || *exists {
+	if errM != nil {
 		return "", errM
+	}
+	if exists {
+		return "", cErrors.New("user already exists", "пользователь уже существует")
+
 	}
 
 	// хэширование пароля
@@ -67,9 +61,13 @@ func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenSt
 	// проверяем существует ли пользователь
 	exists, err := b.isUserExists(username)
 	// если не существует или какая-то ошибка, выходим
-	if exists == nil || !*exists {
+	if err != nil {
 		logger.StandardDebugF(op, "Authorisation failed: user %s does not exist or err", username)
 		return "", err
+	}
+	if !exists {
+		logger.StandardDebugF(op, "Authorisation failed: user %s does not exist", username)
+		return "", cErrors.New("user doesn't exist", "пользователя не существует")
 	}
 
 	// получаем модельку юзера по username
@@ -98,22 +96,20 @@ func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenSt
 	return token, nil
 }
 
-func (b *Behavior) isUserExists(username string) (*bool, *cErrors.MsgError) {
+func (b *Behavior) isUserExists(username string) (bool, *cErrors.MsgError) {
 	op := "auth.behavior.IsUserExists"
 
 	// Проверка есть ли такой username
 	// если произошла ошибка, вернуть её
 	exists, err := b.rep.UserExists(username)
 	if err != nil {
-		return nil, cErrors.UnknownError(err, op)
+		return false, cErrors.UnknownError(err, op)
 	}
 
-	ok := true
-	nOk := false
 	if exists {
-		return &ok, cErrors.NewCode("user already exists", "пользователь уже существует", http.StatusBadRequest)
+		return true, nil
 	}
-	return &nOk, cErrors.NewCode("user doesn't exist", "пользователя не существует", http.StatusBadRequest)
+	return exists, nil
 }
 
 func hashPassword(password string) (string, *cErrors.MsgError) {
@@ -169,7 +165,7 @@ func (b *Behavior) comparePassword(user bModels.User, password string) (bool, *c
 	// Сравниваем введённый пароль с сохранённым хэшем
 	err = hasher.CheckPasswordHash(password, userHash)
 	if err != nil {
-		return false, cErrors.NewCode("hash mismatch", "некорректные данные", http.StatusBadRequest)
+		return false, cErrors.New("hash mismatch", "некорректные данные")
 	} else {
 		return true, nil
 	}

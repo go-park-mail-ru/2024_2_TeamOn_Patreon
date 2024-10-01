@@ -102,7 +102,6 @@ func TestInvalidInput(t *testing.T) {
 				// Статус 400
 				assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "Expected status code 400")
 			}
-
 		})
 	}
 }
