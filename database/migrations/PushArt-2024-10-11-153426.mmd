@@ -1,0 +1,149 @@
+erDiagram    
+    User }|--|| Role : role_id
+    Page |o--|| User : user_id
+    Avatar |o--|| User : user_id
+    Role
+
+    CustomSubscription |o--|| User : author_id
+    CustomSubscription }|--|| SubscriptionLayer : layer_id
+    SubscriptionLayer 
+
+    Post 
+    Post }o--|| User: author_id
+    Post }o--|| SubscriptionLayer: subscription_layer_id
+    Post ||--o| Content: content_id
+    Content
+
+    Comment |o--|{ Post: post_id
+    Comment |o--|{ User: user_id
+
+    LikePost |o--|{ Post: post_id
+    LikePost |o--|{ User: user_id
+
+    LikeComment |o--|{ Post: post_id
+    LikeComment |o--|{ User: user_id
+
+    Subcription }o--|| User: user_id
+    Subcription }o--|| CustomSubcription: custom_subcription_id
+
+    Tip }o--|| User: user_id
+    Author }o--|| User: author_id
+
+    Session }o--|| User: user_id
+
+    User {
+        integer user_id
+        string username
+        integer email
+        string role_id
+        string hash_password
+    }
+    Page {
+        integer page_id
+        integer user_id
+        string info
+        url background_picture
+    }
+    Avatar {
+        integer avatar_id
+        url avatar_url
+    }
+    Role{
+        integer role_id
+        string default_role_name
+    }
+
+    CustomSubscription {
+        integer subscription_id
+        integer author_id
+        string custom_name
+        string info
+        integer subscription_layer_id
+        datetime created_at
+    }
+
+    SubscriptionLayer {
+        integer subscription_layer_id
+        string default_layer_name 
+    }
+
+    Subscription {
+        integer subscription_id
+        integer user_id
+        integer custom_subscription_id
+        datetime started_at
+        datetime finished_at
+    }
+    Tip {
+        integer tip_id
+        integer user_id
+        integer author_id
+        integer value
+        string message
+        datetime payed_at
+    }
+
+
+    Post {
+        integer post_id
+        integer user_id
+        string title
+        string title
+        integer content_id
+        datetime created_at
+        datetime updated_at
+    }
+    Content {
+        integer content_id
+        integer content_type_id
+        url content_url
+    }
+    ContentType {
+        integer content_type_id
+        string default_content_type_name
+    }
+    LikePost {
+        integer like_id
+        integer post_id
+        integer user_id
+        datetime posted_at
+    }
+    Comment {
+        integer comment_id
+        integer post_id
+        integer user_id
+        string text
+        datetime created_at
+        datetime updated_at
+    }
+    LikeComment {
+        integer like_id
+        integer comment_id
+        integer user_id
+        datetime posted_at
+    }
+
+    Notification {
+        integer notification_id
+        integer user_id
+        integer event_id
+        datetime sent_at
+    }
+    Event {
+        integer event_id
+        integer event_type_id
+        string text
+        datetime happened_at
+    }
+    EventType {
+        integer event_type_id
+        string default_event_type_name
+    }
+
+
+    Session {
+        integer session_id
+        integer user_id
+        datetime created_at
+        datetime finished_at
+    }
