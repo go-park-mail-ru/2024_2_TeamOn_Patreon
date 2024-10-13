@@ -1,7 +1,7 @@
 import requests     # pip install requests
 from dataclasses import dataclass
 
-# Define the URL of the server
+# Define the URL of the end-to-end
 BASE_URL = "http://localhost:8081/"
 
 

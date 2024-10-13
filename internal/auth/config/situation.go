@@ -40,7 +40,7 @@ var (
 	// database
 
 	ErrDatabaseDead = errors.New("database is not responding")
-	ErrServer       = errors.New("server error")
+	ErrServer       = errors.New("end-to-end error")
 
 	// json is incorrect
 
@@ -78,7 +78,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrUserAlreadyExists:       {msg: "пользователь уже существует", code: http.StatusBadRequest},
 	ErrInvalidJSON:             {msg: "невалидный запрос", code: http.StatusBadRequest},
 	ErrDatabaseDead:            {msg: "ошибка сервера", code: http.StatusInternalServerError},
-	ErrServer:                  {msg: "server error", code: http.StatusInternalServerError},
+	ErrServer:                  {msg: "end-to-end error", code: http.StatusInternalServerError},
 }
 
 func GetMsgError(err error) string {

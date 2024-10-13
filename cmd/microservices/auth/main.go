@@ -2,10 +2,10 @@ package main
 
 import (
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/auth/api"
-	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior"
 	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/repositories"
-	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
-	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/middlewares"
+	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service"
+	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 	"net/http"
 )
 
@@ -20,19 +20,17 @@ func main() {
 	// repository
 	rep := repositories.New()
 
-	// behavior
+	// service
 	beh := behavior.New(rep)
 
 	// routers
 	router := api.NewRouter(beh)
 
 	// регистрируем middlewares
-	//commonHandler := middlewares.CreateMiddlewareWithCommonRepository(rep, behavior.New)
 	router.Use(middlewares.Logging) // 1
 	// router.Use(middlewares.HandlerAuth) // 2 только для ручек, где требуется аутентификация
-	//router.Use(commonHandler) // 3
 
-	// run server
+	// run end-to-end
 	logger.StandardInfo("Starting server at: 8081", op)
 	http.ListenAndServe(":8081", router)
 }

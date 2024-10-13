@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	imModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/models"
-	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
+	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"sync"
 )
 

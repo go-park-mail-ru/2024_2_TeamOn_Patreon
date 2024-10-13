@@ -1,7 +1,7 @@
 package models
 
 import (
-	models2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
+	models2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 )
 
 // User модель репозитория
