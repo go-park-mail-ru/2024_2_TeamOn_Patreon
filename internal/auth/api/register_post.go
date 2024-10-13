@@ -37,7 +37,7 @@ func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Создание пользователя и генерация токена
-	tokenString, err := handler.b.RegisterNewUser(p.Username, p.Password) // передаем username и password
+	sessionString, err := handler.b.RegisterNewUser(p.Username, p.Password) // передаем username и password
 	if err != nil {
 		logger.StandardDebugF(op, "Received register error {%v}", err)
 		// проставляем http.StatusBadRequest
@@ -49,13 +49,13 @@ func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Сохранение токена в куки
-	cookie := utils.CreateCookie(tokenString)
+	cookie := utils.CreateCookie(sessionString)
 
 	// Устанавливаем токен в куку
 	http.SetCookie(w, &cookie)
 
 	logger.StandardResponse(
-		fmt.Sprintf("Successful register user=%v with token='%v'", p.Username, tokenString),
+		fmt.Sprintf("Successful register user=%v with token='%v'", p.Username, sessionString),
 		http.StatusOK, r.Host, op)
 
 	w.WriteHeader(http.StatusOK)

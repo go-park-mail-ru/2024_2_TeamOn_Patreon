@@ -40,7 +40,7 @@ func (handler *Handler) LoginPost(w http.ResponseWriter, r *http.Request) {
 	// создаем токен пользователя
 	// authorise
 	// authorize
-	tokenString, err := handler.b.AuthoriseUser(l.Username, l.Password)
+	sessionString, err := handler.b.AuthoriseUser(l.Username, l.Password)
 	if err != nil {
 		// проставляем http.StatusBadRequest
 		logger.StandardResponse(err.Error(), config.GetCodeError(err), r.Host, op)
@@ -51,13 +51,13 @@ func (handler *Handler) LoginPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Сохранение токена в куки
-	cookie := utils.CreateCookie(tokenString)
+	cookie := utils.CreateCookie(sessionString)
 
 	// Устанавливаем токен в куку
 	http.SetCookie(w, &cookie)
 
 	logger.StandardResponse(
-		fmt.Sprintf("Successful authorisated user=%v with token='%v'", l.Username, tokenString),
+		fmt.Sprintf("Successful authorisated user=%v with token='%v'", l.Username, sessionString),
 		http.StatusOK, r.Host, op)
 
 	w.WriteHeader(http.StatusOK)

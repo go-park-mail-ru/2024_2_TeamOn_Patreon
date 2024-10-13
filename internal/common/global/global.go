@@ -9,6 +9,11 @@ import (
 const CookieJWT = "JWT"
 const TTL = 24
 
+// Cookie Session
+
+const CookieSession = "Session"
+const SessionTimeH = 24
+
 // logger
 
 const LoggerLevel = slog.LevelDebug

@@ -8,7 +8,7 @@ import (
 // TokenClaims
 // Структура, которая содержит поля для JWT токена
 type TokenClaims struct {
-	UserID   int         `json:"userID"`
+	UserID   string      `json:"userID"`
 	Username string      `json:"username"`
 	Role     models.Role `json:"role"`
 	jwt.RegisteredClaims

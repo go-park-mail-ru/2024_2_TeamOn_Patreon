@@ -2,31 +2,34 @@ package repositories
 
 import (
 	"errors"
+	bSession "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/session"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/uuid"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
-	imModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/models"
+	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/models"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
 	"sync"
 )
 
 // ImaginaryRepository реализует интерфейс AuthRepository
 type ImaginaryRepository struct {
-	users  map[imModels.UserID]*imModels.User
-	mu     sync.RWMutex
-	lastID imModels.UserID
+	users map[repModels.UserID]*repModels.User
+	mu    sync.RWMutex
+
+	sessions map[repModels.UserID]*repModels.Session
 }
 
 // New создает новый экземпляр ImaginaryRepository.
 func New() *ImaginaryRepository {
 	return &ImaginaryRepository{
-		users:  make(map[imModels.UserID]*imModels.User),
-		lastID: 1,
+		users:    make(map[repModels.UserID]*repModels.User),
+		sessions: make(map[repModels.UserID]*repModels.Session),
 	}
 }
 
 // SaveUser сохраняет пользователя в базу данных.
 func (r *ImaginaryRepository) SaveUser(username string, role int, passwordHash string) (*bModels.User, error) {
 	// создание нового пользователя
-	user := imModels.User{
+	user := repModels.User{
 		UserID:       r.generateID(),
 		Username:     username,
 		Role:         role,
@@ -39,7 +42,7 @@ func (r *ImaginaryRepository) SaveUser(username string, role int, passwordHash s
 	r.mu.Unlock()
 
 	// мапим в бизнес модель user
-	bUser := imModels.MapImUserToBUser(user)
+	bUser := repModels.MapImUserToBUser(user)
 	return &bUser, nil
 }
 
@@ -57,23 +60,23 @@ func (r *ImaginaryRepository) UserExists(username string) (bool, error) {
 }
 
 // GetUserByID получает пользователя по его ID.
-func (r *ImaginaryRepository) GetUserByID(userID int) (*bModels.User, error) {
+func (r *ImaginaryRepository) GetUserByID(userID string) (*bModels.User, error) {
 	r.mu.RLock()
-	imUser := r.users[imModels.UserID(userID)]
+	imUser := r.users[repModels.UserID(userID)]
 	r.mu.RUnlock()
 
 	if imUser == nil {
 		return nil, config.ErrUserNotFound
 	}
 
-	bUser := imModels.MapImUserToBUser(*imUser)
+	bUser := repModels.MapImUserToBUser(*imUser)
 	return &bUser, nil
 }
 
 // GetPasswordHashByID получает хэш пароля пользователя по его ID.
-func (r *ImaginaryRepository) GetPasswordHashByID(userID int) (string, error) {
+func (r *ImaginaryRepository) GetPasswordHashByID(userID string) (string, error) {
 	r.mu.RLock()
-	imUser := r.users[imModels.UserID(userID)]
+	imUser := r.users[repModels.UserID(userID)]
 	r.mu.RUnlock()
 
 	if imUser == nil {
@@ -82,14 +85,14 @@ func (r *ImaginaryRepository) GetPasswordHashByID(userID int) (string, error) {
 	return imUser.PasswordHash, nil
 }
 
-func (r *ImaginaryRepository) generateID() imModels.UserID {
-	r.lastID++
-	return r.lastID
+func (r *ImaginaryRepository) generateID() repModels.UserID {
+	newID := uuid.GenerateUUID()
+	return repModels.UserID(newID)
 }
 
 // GetUserByUsername возвращает пользователя по имени.
 func (r *ImaginaryRepository) GetUserByUsername(username string) (*bModels.User, error) {
-	var imUser *imModels.User
+	var imUser *repModels.User
 
 	r.mu.RLock()
 	for _, user := range r.users {
@@ -105,6 +108,41 @@ func (r *ImaginaryRepository) GetUserByUsername(username string) (*bModels.User,
 		return nil, config.ErrUserNotFound
 	}
 
-	bUser := imModels.MapImUserToBUser(*imUser)
+	bUser := repModels.MapImUserToBUser(*imUser)
 	return &bUser, nil
+}
+
+func (r *ImaginaryRepository) RemoveUserByID(userID string) error {
+	r.mu.Lock()
+	delete(r.users, repModels.UserID(userID))
+	r.mu.Unlock()
+	return nil
+}
+
+func (r *ImaginaryRepository) SaveSession(session bSession.SessionModel) (string, error) {
+	repSession := repModels.MapBehaviorSessionToRepositorySession(session)
+	r.mu.Lock()
+	r.sessions[repSession.UserID] = repSession
+	r.mu.Unlock()
+
+	return session.SessionID, nil
+}
+
+func (r *ImaginaryRepository) DeleteSession(session bSession.SessionModel) error {
+	repSession := repModels.MapBehaviorSessionToRepositorySession(session)
+	r.mu.Lock()
+	delete(r.sessions, repSession.UserID)
+	r.mu.Unlock()
+	return nil
+}
+
+func (r *ImaginaryRepository) CheckSession(session bSession.SessionModel) (bool, error) {
+	repSession := repModels.MapBehaviorSessionToRepositorySession(session)
+	r.mu.RLock()
+	_, ok := r.sessions[repSession.UserID]
+	r.mu.RUnlock()
+	if !ok {
+		return false, nil
+	}
+	return true, nil
 }

@@ -3,6 +3,7 @@ package behavior
 import (
 	hasher "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/hasher"
 	bJWT "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/jwt"
+	session "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/session"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	rInterfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/interfaces"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
@@ -20,14 +21,14 @@ func New(repository rInterfaces.AuthRepository) *Behavior {
 }
 
 // RegisterNewUser - регистрация | добавление нового пользователя, генерация для него jwt
-func (b *Behavior) RegisterNewUser(username string, password string) (bJWT.TokenString, error) {
+func (b *Behavior) RegisterNewUser(username string, password string) (string, error) {
 	op := "internal.behavior.behavior.RegisterNewUsername"
 
 	// Проверка есть ли такой username
 	// если произошла ошибка, вернуть её
-	exists, errM := b.isUserExists(username)
-	if errM != nil {
-		return "", errors.Wrap(errM, op)
+	exists, err := b.isUserExists(username)
+	if err != nil {
+		return "", errors.Wrap(err, op)
 	}
 	if exists {
 		return "", errors.Wrap(config.ErrUserAlreadyExists, op)
@@ -45,18 +46,21 @@ func (b *Behavior) RegisterNewUser(username string, password string) (bJWT.Token
 		return "", errors.Wrap(err, op)
 	}
 
-	// сгенерировать для пользователя токен
-	token, err := createJWT(user)
+	// создаем сессию
+	sessionModel := session.CreateSession(user.UserID)
+
+	// сохраняем сессию
+	sessionString, err := b.saveSession(sessionModel)
 	if err != nil {
 		return "", errors.Wrap(err, op)
 	}
 
-	// вернуть токен
-	return token, nil
+	// возвращаем sessionID
+	return sessionString, nil
 }
 
 // AuthoriseUser - авторизация | проверяет существует ли пользователь, верный ли пароль, генерирует jwt для него
-func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenString, error) {
+func (b *Behavior) AuthoriseUser(username string, password string) (string, error) {
 	op := "auth.api.AuthoriseUser"
 
 	// проверяем существует ли пользователь
@@ -89,16 +93,25 @@ func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenSt
 		return "", errors.Wrap(config.ErrNotValidUserAndPassword, op)
 	}
 
-	// сгенерировать для пользователя токен
-	token, err := createJWT(user)
+	//// сгенерировать для пользователя токен
+	//token, err := createJWT(user)
+	//if err != nil {
+	//	logger.StandardDebugF(op, "Authorisation failed: user %s generation token failed", username)
+	//	return "", errors.Wrap(err, op)
+	//}
+
+	// создаем сессию
+	sessionModel := session.CreateSession(user.UserID)
+
+	// сохраняем сессию
+	sessionString, err := b.saveSession(sessionModel)
 	if err != nil {
-		logger.StandardDebugF(op, "Authorisation failed: user %s generation token failed", username)
 		return "", errors.Wrap(err, op)
 	}
 
-	logger.StandardDebugF(op, "Login user={%v} with token={%v}", username, token)
+	logger.StandardDebugF(op, "Login user={%v} with token={%v}", username, sessionString)
 
-	return token, nil
+	return sessionString, nil
 }
 
 func (b *Behavior) isUserExists(username string) (bool, error) {
@@ -171,4 +184,23 @@ func (b *Behavior) comparePassword(user bModels.User, password string) (bool, er
 	} else {
 		return true, nil
 	}
+}
+
+//func (b *Behavior) DeleteUser(username string) error {
+//	op := "auth.behavior.DeleteUser"
+//	user, err := b.rep.GetUserByUsername(username)
+//	if err != nil {
+//		return errors.Wrap(err, op)
+//	}
+//
+//}
+
+func (b *Behavior) saveSession(sessionModel *session.SessionModel) (string, error) {
+	op := "auth.behavior.SaveSession"
+
+	sessionString, err := b.rep.SaveSession(*sessionModel)
+	if err != nil {
+		return "", errors.Wrap(err, op)
+	}
+	return sessionString, nil
 }

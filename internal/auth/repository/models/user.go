@@ -13,12 +13,12 @@ type User struct {
 }
 
 // UserID - ключ мапы users
-type UserID int
+type UserID string
 
 // MapImUserToBUser конвертирует модель репозитория в модель бизнес логики
 func MapImUserToBUser(user User) models2.User {
 	return models2.User{
-		UserID:   int(user.UserID),
+		UserID:   string(user.UserID),
 		Username: user.Username,
 		Role:     models2.Role(user.Role),
 	}

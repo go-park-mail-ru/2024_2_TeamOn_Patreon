@@ -80,7 +80,7 @@ func (reg *Reg) validatePassword() error {
 		check{pattern: `[A-Z]`, err: config.ErrPasswordWithoutUpperChar},
 		check{pattern: `[a-z]`, err: config.ErrPasswordWithoutLowerChar},
 		check{pattern: `[0-9]`, err: config.ErrPasswordWithoutNumberChar},
-		check{pattern: `^[a-zA-Z0-9!@#$%^&*()_+={}:|,.?]+$`, err: config.ErrPasswordWithDifferentChar},
+		check{pattern: `^[a-zA-Z0-9!@#$%&*()_+=:,.?]+$`, err: config.ErrPasswordWithDifferentChar},
 	}
 
 	for _, chk := range checks {
