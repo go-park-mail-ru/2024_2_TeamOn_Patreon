@@ -3,6 +3,7 @@
 Все id - uuid, генерируются СУБД.
 
 Базовая информация о пользователях (читателях и авторах)
+
 1. User - базовые сведения о пользователе
    - username - имя пользователя 
    - email - почта
@@ -21,6 +22,7 @@
     - background_picture  - ссылка на изображение на фон страницы автора
 
 Контент (посты, которые будут размещаться на странице автора и выдаваться в ленте пользователя)
+
 5. Post - пост
     - user_id - FK пользователя (автора), который выложил пост
     - title - заголовок поста
@@ -52,6 +54,7 @@
 Системы поддержки авторов.
 Подписки - читатель подписывается на автора по одному из планов подписок
 (их максимум три у автора), и может видеть все посты, доступные для этого уровня.
+
 11. CustomSubscription - кастомные подписки (авторов)
     - author_id - FK на автора
     - custom_name - имя собственной подписки, созданное автором
@@ -67,7 +70,9 @@
 13. SubscriptionLayer - уровни подписки
     - layer - приоритет уровня (1, 2, 3)
     - default_layer_name - имя уровня подписки
+    
 Единоразовая поддержка - возможность поддержать автора единоразово без получения привилегий за донат.
+
 14. Tip - донат
     - user_id - FK на пользователя, который оставляет донат
     - author_id - FK на автора, которому отправили донат
@@ -76,6 +81,7 @@
     - payed_at - время совершения платежа
 
 Уведомления и события. 
+
 15. Notification - сущность события
     - user_id - FK на пользователя, которому приходит уведомление
     - event_id - FK на событие, которое произошло
@@ -88,14 +94,18 @@
     - default_event_type_name - внутреннее имя события. (Например, LikePost, LikeComment)
 
 Сессия
+
 18. Session
     - user_id - FK на пользователя, чья сессия
     - created_at - время создания сессии
     - finished_at - время окончания сессии (определяется заранее, может быть уменьшено)
 
 ### Отношения и нормализация
+
 Пользователи
+
 1. User:
+
 {user_id} -> username, email, role_id, avatar_id, hash_password
 
 Потенциальные ключи
@@ -103,36 +113,50 @@
 {email} -> username, role_id, avatar_id, hash_password
 
 2. Role
+
 {role_id} -> default_role_name
+
 3. Avatar
+
 {avatar_id} -> avatar_url
-4. Page
+
+5. Page
+
 {page_id} -> user_id, info, background_picture
 
 Потенциальные ключи
 {user_id} -> info, background_picture
 
 Контент
+
 5. Post
+
 {post_id} -> user_id, title, text, content_id, layer_id, created_at, updated_at
 
 6. Comment
+
 {comment_id} -> - post_id, user_id, text, created_at, updated_at
 
 7. LikePost 
+
 {like_post_id} -> post_id, user_id, posted_at
 
 8. LikeComment
+
 {like_comment_id} -> comment_id, user_id, posted_at 
 
 9. Content
+
 {content_id} -> content_type_id, content_url 
 
 10. ContentType 
+
 {content_type_id} -> default_content_type_name
 
 Системы поддержки авторов.
+
 11. CustomSubscription 
+
 {custom_subscription_id} -> author_id, custom_name, info, cost,
 subscription_layer_id, created_at
 
@@ -141,26 +165,35 @@ subscription_layer_id, created_at
 {author_id, subscription_layer_id} -> info, cost, custom_name, created_at
 
 12. Subscription
+
 {subscription_id} -> user_id, custom_subscription_id, started_at, finished_at
 
 Потенциальные...
 
 13. SubscriptionLayer 
+
 {subscription_layer_id} -> layer, default_layer_name
     
 14. Tip
+
 {tip_id} -> user_id, author_id, cost, message, payed_at 
 
 Уведомления и события.
+
 15. Notification 
+
 {notification_id} -> user_id, event_id, sent_at 
 
 16. Event
+
 {event_id} -> event_type_id, text, happened_at
 
 17. EventType
+
 {event_type_id} -> default_event_type_name
 
 Сессия
+
 18. Session
+
 {session_id} -> user_id, created_at, finished_at
