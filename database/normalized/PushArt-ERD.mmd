@@ -36,17 +36,17 @@ erDiagram
         string username
         integer email
         uuid role_id
-        uuid avatar_id
         string hash_password
     }
     Page {
         uuid page_id
         uuid user_id
         string info
-        url background_picture
+        url background_picture_url
     }
     Avatar {
         uuid avatar_id
+        uuid user_id
         url avatar_url
     }
     Role{
@@ -61,7 +61,7 @@ erDiagram
         int cost
         string info
         uuid subscription_layer_id
-        datetime created_at
+        datetime created_date
     }
 
     SubscriptionLayer {
@@ -74,8 +74,8 @@ erDiagram
         uuid subscription_id
         uuid user_id
         uuid custom_subscription_id
-        datetime started_at
-        datetime finished_at
+        datetime started_date
+        datetime finished_date
     }
     Tip {
         uuid tip_id
@@ -83,7 +83,7 @@ erDiagram
         uuid author_id
         integer cost
         string message
-        datetime payed_at
+        datetime payed_date
     }
 
 
@@ -91,11 +91,11 @@ erDiagram
         uuid post_id
         uuid user_id
         string title
-        string text
+        string about
         uuid content_id
-        uuid layer_id
-        datetime created_at
-        datetime updated_at
+        uuid subscription_layer_id
+        datetime created_date
+        datetime updated_date
     }
     Content {
         uuid content_id
@@ -111,15 +111,15 @@ erDiagram
         uuid like_id
         uuid post_id
         uuid user_id
-        datetime posted_at
+        datetime posted_date
     }
     Comment {
         uuid comment_id
         uuid post_id
         uuid user_id
-        string text
-        datetime created_at
-        datetime updated_at
+        string about
+        datetime created_date
+        datetime updated_date
     }
     LikeComment {
         uuid like_id
@@ -133,16 +133,16 @@ erDiagram
     Notification {
         uuid notification_id
         uuid user_id
-        string event_id
-        datetime sent_at
+        uuid event_id
+        datetime sent_date
     }
     Notification }o--|| User: user_id
     Notification }|--o| Event: event_id
     Event {
         uuid event_id
         uuid event_type_id
-        string text
-        datetime happened_at
+        string about
+        datetime happened_date
     }
     Event }o--|| EventType: event_type_id
     EventType {
@@ -155,7 +155,7 @@ erDiagram
     Session {
         uuid session_id
         uuid user_id
-        datetime created_at
-        datetime finished_at
+        datetime created_date
+        datetime finished_date
     }
     Session }o--|| User: user_id

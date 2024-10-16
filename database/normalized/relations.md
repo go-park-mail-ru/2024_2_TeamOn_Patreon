@@ -8,43 +8,44 @@
    - username - имя пользователя 
    - email - почта
    - role_id - FK роли
-   - avatar_id - FK фото профиля
    - hash_password - хэш пароля
 2. Role - роль пользователя
     - default_role_name
         "READER" - читатель, человек, который донатит, дается всем по дефолту
         "AUTHOR" - автор, человек, который выкладывает контент, включает возможности reader
 3. Avatar - фото профиля
+    - user_id - FK на ID пользователя, чья фотография
     - avatar_url -  ссылка на фотографию пользователя
 4. Page - страница автора
     - user_id - FK пользователя
     - info - раздел "О себе"
-    - background_picture  - ссылка на изображение на фон страницы автора
+    - background_picture_url  - ссылка на изображение на фон страницы автора
+    - background_picture_url  - ссылка на изображение на фон страницы автора
 
 Контент (посты, которые будут размещаться на странице автора и выдаваться в ленте пользователя)
 
 5. Post - пост
     - user_id - FK пользователя (автора), который выложил пост
     - title - заголовок поста
-    - text - текст поста
+    - about - текст поста
     - content_id - FK контента
     - layer_id - минимальный уровень подписки, на котором можно смотреть этот контент
-    - created_at - дата создания поста
-    - updated_at - дата последнего изменения поста
+    - created_date - дата создания поста
+    - updated_date - дата последнего изменения поста
 6. Comment - комментарии
     - post_id - FK поста
     - user_id - FK пользователя, который оставил комментарий
-    - text - текст комментария
-    - created_at - дата оставления комментария
-    - updated_at - дата последнего изменения комментария
+    - about - текст комментария
+    - created_date - дата оставления комментария
+    - updated_date - дата последнего изменения комментария
 7. LikePost - информация о лайке на пост
     - post_id - FK на пост, на котором оставила лайк
     - user_id - FK на пользователя, который оставил лайк на пост
-    - posted_at - дата, когда поставили лайк на пост
+    - posted_date - дата, когда поставили лайк на пост
 8. LikeComment - информация о лайке на комментарий
     - comment_id - FK на коммент
     - user_id - FK юзера
-    - posted_at - дата, когда поставили лайк на комментарий
+    - posted_date - дата, когда поставили лайк на комментарий
 9. Content - контент поста
     - content_type_id - FK на тип контента
     - content_url - url на медиа, которое приложено к посту 
@@ -61,12 +62,12 @@
     - info - описание подписки
     - cost - стоимость подписки (в рублях)
     - subscription_layer_id - FK на уровень подписок
-    - created_at - время создания подписки
+    - created_date - время создания подписки
 12. Subscription - подписки пользователей на кастомные подписки авторов
     - user_id - FK на пользователя, который подписывается
     - custom_subscription_id - FK на кастомною подписку автора
-    - started_at - дата, когда человек подписался
-    - finished_at - дата, по которою включительно, была оплачена подписка
+    - started_date - дата, когда человек подписался
+    - finished_date - дата, по которою включительно, была оплачена подписка
 13. SubscriptionLayer - уровни подписки
     - layer - приоритет уровня (1, 2, 3)
     - default_layer_name - имя уровня подписки
@@ -78,18 +79,18 @@
     - author_id - FK на автора, которому отправили донат
     - cost - сумма доната (в рублях)
     - message - сообщение от пользователя автору
-    - payed_at - время совершения платежа
+    - payed_date - время совершения платежа
 
 Уведомления и события. 
 
 15. Notification - сущность события
     - user_id - FK на пользователя, которому приходит уведомление
     - event_id - FK на событие, которое произошло
-    - sent_at - время, когда уведомление было отправлено
+    - sent_date - время, когда уведомление было отправлено
 16. Event
     - event_type_id - FK на тип события
-    - text - словесное описание события
-    - happened_at - время, когда событие произошло
+    - about - словесное описание события
+    - happened_date - время, когда событие произошло
 17. EventType
     - default_event_type_name - внутреннее имя события. (Например, LikePost, LikeComment)
 
@@ -97,8 +98,8 @@
 
 18. Session
     - user_id - FK на пользователя, чья сессия
-    - created_at - время создания сессии
-    - finished_at - время окончания сессии (определяется заранее, может быть уменьшено)
+    - created_date - время создания сессии
+    - finished_date - время окончания сессии (определяется заранее, может быть уменьшено)
 
 ### Отношения и нормализация
 
@@ -116,11 +117,11 @@
 
 1. User:
 
-{user_id} -> username, email, role_id, avatar_id, hash_password
+{user_id} -> username, email, role_id, hash_password
 
 Потенциальные ключи
-{username} -> email, role_id, avatar_id, hash_password
-{email} -> username, role_id, avatar_id, hash_password
+{username} -> email, role_id, hash_password
+{email} -> username, role_id, hash_password
 
 2. Role
 
@@ -128,32 +129,35 @@
 
 3. Avatar
 
-{avatar_id} -> avatar_url
+{avatar_id} -> avatar_url, user_id
+
+Потенциальные ключи:
+{user_id} -> avatar_url
 
 5. Page
 
-{page_id} -> user_id, info, background_picture
+{page_id} -> user_id, info, background_picture_url
 
 Потенциальные ключи
-{user_id} -> info, background_picture
+{user_id} -> info, background_picture_url
 
 Контент
 
 5. Post
 
-{post_id} -> user_id, title, text, content_id, layer_id, created_at, updated_at
+{post_id} -> user_id, title, about, content_id, subscription_layer_id, created_date, updated_date
 
 6. Comment
 
-{comment_id} -> - post_id, user_id, text, created_at, updated_at
+{comment_id} -> - post_id, user_id, about, created_date, updated_date
 
 7. LikePost 
 
-{like_post_id} -> post_id, user_id, posted_at
+{like_post_id} -> post_id, user_id, posted_date
 
 8. LikeComment
 
-{like_comment_id} -> comment_id, user_id, posted_at 
+{like_comment_id} -> comment_id, user_id, posted_date
 
 9. Content
 
@@ -168,18 +172,18 @@
 11. CustomSubscription 
 
 {custom_subscription_id} -> author_id, custom_name, info, cost,
-subscription_layer_id, created_at
+subscription_layer_id, created_date
 
 Потенциальные ключи
-{author_id, custom_name} -> info, cost, subscription_layer_id, created_at
-{author_id, subscription_layer_id} -> info, cost, custom_name, created_at
+{author_id, custom_name} -> info, cost, subscription_layer_id, created_date
+{author_id, subscription_layer_id} -> info, cost, custom_name, created_date
 
 12. Subscription
 
-{subscription_id} -> user_id, custom_subscription_id, started_at, finished_at
+{subscription_id} -> user_id, custom_subscription_id, started_date, finished_date
 
 Потенциальные ключи
-{user_id, custom_subscription_id} -> started_ad, finished_ad
+{user_id, custom_subscription_id} -> started_date, finished_date
 
 13. SubscriptionLayer 
 
@@ -187,17 +191,17 @@ subscription_layer_id, created_at
     
 14. Tip
 
-{tip_id} -> user_id, author_id, cost, message, payed_at 
+{tip_id} -> user_id, author_id, cost, message, payed_date
 
 Уведомления и события.
 
 15. Notification 
 
-{notification_id} -> user_id, event_id, sent_at 
+{notification_id} -> user_id, event_id, sent_date
 
 16. Event
 
-{event_id} -> event_type_id, text, happened_at
+{event_id} -> event_type_id, about, happened_date
 
 17. EventType
 
@@ -207,4 +211,4 @@ subscription_layer_id, created_at
 
 18. Session
 
-{session_id} -> user_id, created_at, finished_at
+{session_id} -> user_id, created_date, finished_date
