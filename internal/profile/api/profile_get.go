@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
-	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/api/models"
 	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/models"
 	repository "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/repositories"
@@ -38,7 +38,7 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 	// Достаём данные Profile из DB по userID
 	// Проверяем, что пользователь с userID существует
 	rep := repository.Get()
-	isUserExist, err := rep.UserExist(userData.UserID)
+	isUserExist, err := rep.UserExist(int(userData.UserID))
 	if err != nil {
 		// проставляем http.StatusInternalServerError
 		logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
@@ -50,7 +50,7 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 	// Если такой записи нет, значит профиль новый, поэтому создаём новую запись в БД
 	// Иначе возвращаем существующий профиль с запрашиваемым userID
 	if !isUserExist {
-		profile, err = rep.SaveProfile(userData.UserID, userData.Username, userData.Role)
+		profile, err = rep.SaveProfile(int(userData.UserID), userData.Username, userData.Role)
 		if err != nil {
 			// проставляем http.StatusInternalServerError
 			logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
@@ -62,7 +62,7 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 			http.StatusOK, r.Host, op)
 	} else {
 		var err error
-		profile, err = rep.GetProfileByID(userData.UserID)
+		profile, err = rep.GetProfileByID(int(userData.UserID))
 		// Если не удалось получить профиль
 		if err != nil {
 			// проставляем http.StatusInternalServerError

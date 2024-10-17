@@ -43,6 +43,13 @@ func NewRouter(behavior bInterfaces.AuthBehavior) *mux.Router {
 			"/auth/register",
 			handler.AuthRegisterPost,
 		},
+
+		Route{
+			"LogoutPost",
+			strings.ToUpper("Post"),
+			"/auth/logout",
+			handler.LogoutPost,
+		},
 	}
 
 	// Declare a new router

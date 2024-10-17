@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 
-	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/logger"
+	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/api"
 
 	"net/http"

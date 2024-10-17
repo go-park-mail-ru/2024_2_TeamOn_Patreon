@@ -13,10 +13,10 @@ type AuthRepository interface {
 	UserExists(username string) (bool, error)
 
 	// GetUserByID получает пользователя по его ID
-	GetUserByID(userID int) (*bModels.User, error)
+	GetUserByID(userID bModels.UserID) (*bModels.User, error)
 
 	// GetPasswordHashByID получает хэш пароля пользователя по его ID
-	GetPasswordHashByID(userID int) (string, error)
+	GetPasswordHashByID(userID bModels.UserID) (string, error)
 
 	// GetUserByUsername возвращает пользователя по имени.
 	GetUserByUsername(username string) (*bModels.User, error)

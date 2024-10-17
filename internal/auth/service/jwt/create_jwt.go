@@ -23,7 +23,7 @@ func CreateJWT(user bModels.User, ttl int) (TokenString, error) {
 
 	// создаем структуру токена claims
 	claims := TokenClaims{
-		UserID:   user.UserID,
+		UserID:   int(user.UserID),
 		Username: user.Username,
 		Role:     user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{

@@ -2,7 +2,7 @@ package models
 
 // User бизнес-модель пользователя
 type User struct {
-	UserID   int
+	UserID   UserID
 	Username string
 	Role     Role
 }

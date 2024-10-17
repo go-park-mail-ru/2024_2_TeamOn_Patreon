@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/api/utils"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/behavior/jwt"
-	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/global"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/utils"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/repositories"
 	"github.com/stretchr/testify/assert"
 )

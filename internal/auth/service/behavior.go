@@ -172,3 +172,10 @@ func (b *Behavior) comparePassword(user bModels.User, password string) (bool, er
 		return true, nil
 	}
 }
+
+func (b *Behavior) LogoutUser(userID bModels.UserID) error {
+	op := "auth.service.behavior.LogoutUser"
+
+	logger.StandardInfoF(op, "LogoutUser user={%v}", userID)
+	return nil
+}

@@ -9,7 +9,7 @@ import (
 // Функция для маппинга
 func MapTokenToUser(token *jwt.TokenClaims) bModels.User {
 	return bModels.User{
-		UserID:   token.UserID,
+		UserID:   bModels.UserID(token.UserID),
 		Username: token.Username,
 		Role:     token.Role,
 	}

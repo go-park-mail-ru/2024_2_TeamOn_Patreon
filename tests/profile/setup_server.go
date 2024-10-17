@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/profile/api"
-	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/middlewares"
+	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 
 	"github.com/stretchr/testify/assert"
 )

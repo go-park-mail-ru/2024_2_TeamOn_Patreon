@@ -10,15 +10,15 @@ import (
 
 // ImaginaryRepository реализует интерфейс AuthRepository
 type ImaginaryRepository struct {
-	users  map[imModels.UserID]*imModels.User
+	users  map[bModels.UserID]*imModels.User
 	mu     sync.RWMutex
-	lastID imModels.UserID
+	lastID bModels.UserID
 }
 
 // New создает новый экземпляр ImaginaryRepository.
 func New() *ImaginaryRepository {
 	return &ImaginaryRepository{
-		users:  make(map[imModels.UserID]*imModels.User),
+		users:  make(map[bModels.UserID]*imModels.User),
 		lastID: 1,
 	}
 }
@@ -57,9 +57,9 @@ func (r *ImaginaryRepository) UserExists(username string) (bool, error) {
 }
 
 // GetUserByID получает пользователя по его ID.
-func (r *ImaginaryRepository) GetUserByID(userID int) (*bModels.User, error) {
+func (r *ImaginaryRepository) GetUserByID(userID bModels.UserID) (*bModels.User, error) {
 	r.mu.RLock()
-	imUser := r.users[imModels.UserID(userID)]
+	imUser := r.users[bModels.UserID(userID)]
 	r.mu.RUnlock()
 
 	if imUser == nil {
@@ -71,9 +71,9 @@ func (r *ImaginaryRepository) GetUserByID(userID int) (*bModels.User, error) {
 }
 
 // GetPasswordHashByID получает хэш пароля пользователя по его ID.
-func (r *ImaginaryRepository) GetPasswordHashByID(userID int) (string, error) {
+func (r *ImaginaryRepository) GetPasswordHashByID(userID bModels.UserID) (string, error) {
 	r.mu.RLock()
-	imUser := r.users[imModels.UserID(userID)]
+	imUser := r.users[userID]
 	r.mu.RUnlock()
 
 	if imUser == nil {
@@ -82,7 +82,7 @@ func (r *ImaginaryRepository) GetPasswordHashByID(userID int) (string, error) {
 	return imUser.PasswordHash, nil
 }
 
-func (r *ImaginaryRepository) generateID() imModels.UserID {
+func (r *ImaginaryRepository) generateID() bModels.UserID {
 	r.lastID++
 	return r.lastID
 }

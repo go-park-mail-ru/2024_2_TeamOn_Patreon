@@ -37,6 +37,10 @@ var (
 	ErrUserNotFound            = errors.New("user not found")
 	ErrNotValidUserAndPassword = errors.New("not valid user and password")
 
+	// logout
+
+	ErrUserNotAuthorized = errors.New("user not authorized")
+
 	// database
 
 	ErrDatabaseDead = errors.New("database is not responding")
@@ -79,6 +83,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrInvalidJSON:             {msg: "невалидный запрос", code: http.StatusBadRequest},
 	ErrDatabaseDead:            {msg: "ошибка сервера", code: http.StatusInternalServerError},
 	ErrServer:                  {msg: "end-to-end error", code: http.StatusInternalServerError},
+	ErrUserNotAuthorized:       {msg: "пользователь не авторизован", code: http.StatusUnauthorized},
 }
 
 func GetMsgError(err error) string {

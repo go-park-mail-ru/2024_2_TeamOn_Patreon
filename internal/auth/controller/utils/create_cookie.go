@@ -22,3 +22,19 @@ func CreateCookie(tokenString jwt.TokenString) http.Cookie {
 	}
 	return cookie
 }
+
+func CreateEmptyCookieJWT() http.Cookie {
+	// Сохранение токена в куки
+	// Устанавливаем пустую куку
+	expirationTime := time.Now() // Время жизни надо бы еще отнять
+	cookie := http.Cookie{
+		Name:     global.CookieJWT, // Имя куки
+		Value:    "",               // Значение куки — наш сгенерированный токен
+		Expires:  expirationTime,   // Время истечения куки
+		HttpOnly: true,             // Кука доступна только через HTTP (не через JS)
+		Path:     "/",
+		// Domain:   "example.com",       // Домен, на котором будет действовать кука
+		// Secure:   true,                // Кука передаётся только по HTTPS
+	}
+	return cookie
+}

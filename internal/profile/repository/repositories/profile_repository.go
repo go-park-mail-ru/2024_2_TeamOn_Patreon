@@ -6,8 +6,8 @@ import (
 
 	// Модель репозитория взаимодействует с БД напрямую
 
-	busModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
-	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/common/business/models"
+	busModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/models"
 )
 

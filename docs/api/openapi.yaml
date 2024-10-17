@@ -54,6 +54,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /auth/logout:
+    post:
+      tags:
+        - auth
+      summary: Разлогин пользователя
+      description: Закрытие пользовательской сессии
+      responses:
+        '200':
+          description: Успешная разлогин
+        '400':
+          description: Невалидные куки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /profile:
     get:
       tags:
