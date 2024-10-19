@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/api"
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/controller"
 
 	"net/http"
 
