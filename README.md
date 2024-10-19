@@ -1,15 +1,24 @@
 # 2024_2_TeamOn_Patreon
-Репозиторий go api команды TeamOn. Проект Patreon
 
-## Состав команды
+## Backend репозиторий команды TeamOn
 
-1. Алексей Нарыжный
-2. Ольга Ховен
-3. Данил Злобин
-4. Полина Тикунова
+**Проект PushArt**
 
-Менторы:
-Александра Глазкова, Илья Мочалов, Никита Рыжков
+**Участники команды:**
+
+1. [Алексей Нарыжный](https://github.com/AlexeyBMSTU)
+2. [Ольга Ховен](https://github.com/KhovenOlya)
+3. [Данил Злобин](https://github.com/Danil-Zlo)
+4. [Полина Тикунова](https://github.com/PtFux)
+
+**Менторы:**
+
+1. [Илья Мочалов](https://github.com/GodofRussia)
+2. Никита Рыжков
+3. Александра Глазкова
+
+## Деплой
+[pushart.online](http://pushart.online)
 
 ## Frontend репозиторий
 https://github.com/frontend-park-mail-ru/2024_2_TeamOn
