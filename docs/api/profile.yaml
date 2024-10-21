@@ -5,17 +5,18 @@ info:
     API для профиля и страницы автора.
   version: 1.0.5
 paths:
-  /profile:
+  /account:
     get:
       tags:
-        - profile
-      summary: Получение профиля пользователя
+        - account
+      summary: Получение данных пользователя
       description: >
+        **Доступно только владельцу аккаунта**.
         Возвращает данные профиля на основе JWT-токена, переданного в Cookie.
         
         <p>В качестве подписок возвращает массив идентификаторов авторов, которых поддерживает пользователь, на основе пользовательского идентификатора. По author_id необходимо затем получить author_username и author_avatar с помощью соотвествующих запросов.</p>
         
-        <p><strong>Вызывается всегда при переходе в свой профиль вне зависимости от роли.</strong></p>
+        <p><strong>Вызывается всегда при переходе в настройки вне зависимости от роли.</strong></p>
       security:
         - cookieAuth: []
       responses:
@@ -37,14 +38,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /profile/{userID}/avatar:
+  /account/{userID}/avatar:
     get:
       tags:
-        - profile
+        - account
       summary: Получение аватарки пользователя
       description: >-
         Возвращает на основе идентификатора профиля его аватарку в формате `multipart/form-data`.
         Поддерживаемые форматы: JPG, JPEG.
+        
+        <p><strong>При userID == 'me' запрос работает для самого пользователя.</strong></p>
       parameters:
       - in: path
         name: userID
@@ -73,53 +76,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /profile/{userID}/username:
-    get:
-      tags:
-        - profile
-      summary: Получение только имени пользователя
-      description: >-
-        **Используется только для получения имени чужого профиля.** Возвращает username пользователя на основе его идентификатора.
-        <p><strong>Вызывается для отображения имени пользователя в комментарии, посте, подписке.</strong></p>
-      parameters:
-      - in: path
-        name: userID
-        required: true
-        schema:
-          type: string
-        description: Идентификатор автора
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: Успешное получение данных
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  author_username:
-                    type: string
-                    description: Имя автора
-        '401':
-          description: Неверный или отсутствующий JWT-токен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'  
-        '500':
-          description: Внутренняя ошибка сервера
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /profile/update:
+  /account/update:
     post:
       tags:
-        - profile
+        - account
       summary: Изменение профиля пользователя
       description: >-
-        **Доступно только владельцу страницы**.
+        **Доступно только владельцу аккаунта**.
         Позволяет обновить отдельные поля профиля. Требует JWT-токен в Cookie. Требует валидации полей.
       security:
         - cookieAuth: []
@@ -156,13 +119,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /profile/update/avatar:
+  /account/update/avatar:
     post:
       tags:
-        - profile
+        - account
       summary: Изменение аватарки профиля
       description: >-
-        **Доступно только владельцу страницы**.
+        **Доступно только владельцу аккаунта**.
         Позволяет пользователю изменить аватар с использованием `multipart/form-data`.
         Поддерживаемые форматы: JPG, JPEG.
         Требует JWT-токен в Cookie.
@@ -201,8 +164,9 @@ paths:
         - author
       summary: Получение данных об авторе
       description: >-
-        **Для страницы автора.** Возвращает основную информацию об авторе на основе его идентификатора. 
-        <p><strong>Вызывается и для своей странички, и для чужой.</strong></p>
+        Возвращает основную информацию об авторе на основе его идентификатора. 
+        <p><strong>Работает и для своей странички, и для чужой.</strong></p>
+        <p><strong>При userID == 'me' запрос работает для самого пользователя.</strong></p>
       parameters:
       - in: path
         name: authorID
@@ -233,15 +197,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /author/{authorID}/background:
+  /author/{authorID}/media:
     get:
       tags:
         - author
-      summary: Получение фона страницы автора
+      summary: Получение аватарки и фона страницы автора
       description: >-
-        Возвращает на основе идентификатора автора его фон страницы в формате `multipart/form-data`.
+        Возвращает на основе идентификатора автора его аватарку и фон страницы в формате `multipart/form-data`.
         Поддерживаемые форматы: JPG, JPEG.
-        <p><strong>Вызывается и для своей странички, и для чужой.</strong></p>
+        <p><strong>Работает и для своей странички, и для чужой.</strong></p>
+        <p><strong>При userID == 'me' запрос работает для самого пользователя.</strong></p>
       parameters:
       - in: path
         name: authorID
@@ -253,11 +218,11 @@ paths:
         - cookieAuth: []
       responses:
         '200':
-          description: Успешное получение фона страницы
+          description: Успешное получение медиа-файлов страницы
           content:
             multipart/form-data:
               schema:
-                $ref: '#/components/schemas/Picture'
+                $ref: '#/components/schemas/AuthorPictures'
         '401':
           description: Неверный или отсутствующий JWT-токен
           content:
@@ -270,22 +235,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /author/{authorID}/payments:
+  /author/payments:
     get:
       tags:
         - author
       summary: Получение суммы выплат автора
       description: >-
-        Возвращает сумму выплат автору на основе его идентификатора. 
-        **Сумму могут увидеть все**.
-        <p><strong>Вызывается и для своей странички, и для чужой.</strong></p>
-      parameters:
-      - in: path
-        name: authorID
-        required: true
-        schema:
-          type: string
-        description: Идентификатор автора
+        **Доступно только владельцу страницы**.
+        Возвращает сумму выплат автора.
       security:
         - cookieAuth: []
       responses:
@@ -307,109 +264,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /author/{authorId}/posts:
-      get:
-        tags:
-          - author
-        summary: Получение ленты постов автора
-        description: >-
-          Возвращает ленту постов по authorId. Если authorId == me, то айди брать из куков
-          Если нет, то парсить урл и вытаскивать authorId и уже даем данные относительно authorId.
-          <p><strong>Вызывается и для своей странички, и для чужой.</strong></p>
-        security:
-          - cookieAuth: []
-        parameters:
-        - in: path
-          name: authorId
-          required: true
-          schema:
-            type: string
-          description: Идентификатор автора, чью ленту постов нужно получить
-        responses:
-          '200':
-            description: Успешное получение поста
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/AuthorPosts'
-          '404':
-            description: Пост не найден
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-          '500':
-            description: Внутренняя ошибка сервера
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-  /author/{authorId}/media:
-    get:
+  /author/update/info:
+    post:
       tags:
         - author
-      summary: Получение медиа-контента поста на странице
+      summary: Изменение статуса автора
       description: >-
-        Возвращает загруженный медиа-контент на своей странице или автора.
-        Если authorId == me, то айди брать из куков
-        Если нет, то парсить урл и вытаскивать authorId и уже даем данные относительно authorId.
+        **Доступно только владельцу страницы**.
+        Позволяет автору обновить содержимое поля "О себе".
+        Требует JWT-токен в Cookie.
       security:
         - cookieAuth: []
-      parameters:
-      - in: path
-        name: authorId
+      requestBody:
         required: true
-        schema:
-          type: string
-        description: Идентификатор автора, чью ленту медиа контента к постам нужно получить
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                info:
+                  type: string
+                  example: "О себе"
       responses:
         '200':
-          description: Медиа-контент успешно получен
-          content:
-           multipart/form-data:
-              schema:
-               type: array
-               items:
-                  $ref: '#/components/schemas/MediaGetSuccessResponse'
-        '404':
-          description: Медиа-контент не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /author/{authorID}/subscriptions:
-    get:
-      tags:
-        - author
-      summary: Получение подписок автора
-      description: >-
-        Возвращает массив идентификаторов авторов, которых поддерживает автор, на основе его идентификатора. По author_id необходимо затем получить author_username и author_avatar с помощью соотвествующих запросов.
-        <p>**Подписки автора могут увидеть все**.
-        <p>**Применять при получении только чужой странички**.
-      security:
-        - cookieAuth: []
-      parameters:
-      - in: path
-        name: authorID
-        required: true
-        schema:
-          type: string
-        description: Идентификатор пользователя
-      responses:
-        '200':
-          description: Список авторов
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Subscription'
+          description: Успешное обновление статуса профиля
         '401':
           description: Неверный или отсутствующий JWT-токен
           content:
@@ -417,7 +295,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: Внутренняя ошибка сервера
+          description: Ошибка сервера
           content:
             application/json:
               schema:
@@ -506,6 +384,15 @@ components:
         followers:
           type: number
           description: Количество подписчиков автора
+        subscriptions:
+          type: array
+          description: Подписки пользователя
+          items:
+            type: object
+            properties:
+              authorId:
+                type: string
+                description: Идентификатор автора          
     UpdateProfile:
       type: object
       properties:
@@ -558,6 +445,17 @@ components:
           description: Загружаемый файл (JPG, JPEG)
       required:
         - file
+    AuthorPictures:
+      type: object
+      properties:
+        avatar:
+          type: string
+          format: binary
+          description: Загружаемый файл (JPG, JPEG)
+        background:
+          type: string
+          format: binary
+          description: Загружаемый файл (JPG, JPEG)
     AuthorPosts:
       type: object
       properties:
