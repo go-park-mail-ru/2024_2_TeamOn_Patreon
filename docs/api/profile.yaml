@@ -37,45 +37,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /profile/{userID}/username:
-    get:
-      tags:
-        - profile
-      summary: Получение только имени пользователя
-      description: >-
-        **Применимо для чужого профиля.** Возвращает username пользователя на основе его идентификатора.
-      parameters:
-      - in: path
-        name: userID
-        required: true
-        schema:
-          type: string
-        description: Идентификатор автора
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: Успешное получение данных
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  author_username:
-                    type: string
-                    description: Имя автора
-        '401':
-          description: Неверный или отсутствующий JWT-токен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'  
-        '500':
-          description: Внутренняя ошибка сервера
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /profile/{userID}/avatar:
     get:
       tags:
@@ -100,6 +61,46 @@ paths:
             multipart/form-data:
               schema:
                 $ref: '#/components/schemas/Picture'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'  
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /profile/{userID}/username:
+    get:
+      tags:
+        - profile
+      summary: Получение только имени пользователя
+      description: >-
+        **Используется только для получения имени чужого профиля.** Возвращает username пользователя на основе его идентификатора.
+        <p><strong>Вызывается для отображения имени пользователя в комментарии, посте, подписке.</strong></p>
+      parameters:
+      - in: path
+        name: userID
+        required: true
+        schema:
+          type: string
+        description: Идентификатор автора
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешное получение данных
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  author_username:
+                    type: string
+                    description: Имя автора
         '401':
           description: Неверный или отсутствующий JWT-токен
           content:
@@ -217,43 +218,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Author'
-        '401':
-          description: Неверный или отсутствующий JWT-токен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'  
-        '500':
-          description: Внутренняя ошибка сервера
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /author/{authorID}/avatar:
-    get:
-      tags:
-        - author
-      summary: Получение аватарки автора
-      description: >-
-        Возвращает на основе идентификатора автора его аватарку в формате `multipart/form-data`.
-        Поддерживаемые форматы: JPG, JPEG.
-      parameters:
-      - in: path
-        name: authorID
-        required: true
-        schema:
-          type: string
-        description: Идентификатор автора
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: Успешное получение аватарки
-          content:
-            multipart/form-data:
-              schema:
-                $ref: '#/components/schemas/Picture'
+                oneOf:
+                  - $ref: '#/components/schemas/Author'
+                  - $ref: '#/components/schemas/Profile'
         '401':
           description: Неверный или отсутствующий JWT-токен
           content:
@@ -449,46 +416,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        '500':
-          description: Внутренняя ошибка сервера
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /author/{authorID}/username:
-    get:
-      tags:
-        - author
-      summary: Получение только имени автора
-      description: >-
-        Возвращает author_username автора на основе его идентификатора.
-        <p><strong>Вызывается для отображения имени автора в его посте или подписке.</strong></p>
-      parameters:
-      - in: path
-        name: authorID
-        required: true
-        schema:
-          type: string
-        description: Идентификатор автора
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: Успешное получение данных
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  author_username:
-                    type: string
-                    description: Имя автора
-        '401':
-          description: Неверный или отсутствующий JWT-токен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'  
         '500':
           description: Внутренняя ошибка сервера
           content:
