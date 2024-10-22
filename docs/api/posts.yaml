@@ -239,29 +239,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /post/{postId}:
+  /author/post/{authorId}:
     get:
       tags:
         - post
-      summary: Получение поста
+      summary: Получение ленты постов на страничке автора или своей
       description: >-
-        Возвращает пост
+        Возвращает ленту постов по authorId. Если authorId == me, то айди брать из куков
+        Если нет, то парсить урл и вытаскивать authorId и уже даем данные относительно authorId.
+        **Используется в сервисе "Профиль"**
       security:
         - cookieAuth: []
       parameters:
-        - in: path
-          name: postId
-          required: true
-          schema:
-            type: integer
-          description: Идентификатор поста, который нужно получить
+      - in: path
+        name: authorId
+        required: true
+        schema:
+          type: string
+        description: Идентификатор автора, чью ленту постов нужно получить
       responses:
         '200':
           description: Успешное получение поста
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorPosts'
         '404':
           description: Пост не найден
           content:
@@ -307,28 +311,23 @@ paths:
                 $ref: '#/components/schemas/Error'
 
 
-  /post/media/{postId}:
+  /post/media:
     get:
       tags:
         - post
-      summary: Получение медиа-контента поста
-      description: Возвращает загруженный медиа-контент по его идентификатору.
+      summary: Получение медиа-контента поста в ленте
+      description: Возвращает загруженный медиа-контент в ленте.
       security:
         - cookieAuth: []
-      parameters:
-        - in: path
-          name: postId
-          required: true
-          schema:
-            type: string
-          description: Уникальный идентификатор медиа-файла
       responses:
         '200':
           description: Медиа-контент успешно получен
           content:
             multipart/form-data:
               schema:
-                $ref: '#/components/schemas/MediaGetSuccessResponse'
+               type: array
+               items:
+                  $ref: '#/components/schemas/MediaGetSuccessResponse'
         '404':
           description: Медиа-контент не найден
           content:
@@ -349,6 +348,21 @@ components:
       in: cookie
       name: JWT
   schemas:
+    AuthorPosts:
+      type: object
+      properties:
+        postId:
+          type: string
+          description: Идентификатор поста
+        title:
+          type: string
+          description: Заголовок поста
+        content:
+          type: string
+          description: Содержимое поста
+        likes:
+          type: integer
+          description: Количество лайков поста
     Post:
       type: object
       properties:
@@ -361,6 +375,9 @@ components:
         content:
           type: string
           description: Содержимое поста
+        authorUsername:
+          type: string
+          description: Имя автора поста
         authorId:
           type: string
           description: Идентификатор автора поста
@@ -417,6 +434,9 @@ components:
     MediaUploadRequest:
       type: object
       properties:
+        postId:
+          type: string
+          description: Айди поста, в котором нужно редактировать медиа
         file:
           type: string
           format: binary
@@ -440,16 +460,23 @@ components:
     MediaGetSuccessResponse:
       type: object
       properties:
-        mediaId:
+        postId:
           type: string
-        mediaType:
-          type: string
-          enum: [PDF, JPG, JPEG, MP3, MP4, jpg, jpeg]
-          description: Формат файла
-        description:
-          type: string
-          example: "Описание медиа-контента"
-        file:
-          type: string
-          format: binary
-          description: Загрузка медиа-файла
+        mediaContent:
+          type: array
+          items:
+            type: object
+            properties:
+              mediaId:
+                type: string
+              mediaType:
+                type: string
+                enum: [PDF, JPG, JPEG, MP3, MP4, jpg, jpeg]
+                description: Формат файла
+              description:
+                type: string
+                example: "Описание медиа-контента"
+              file:
+                type: string
+                format: binary
+                description: Загрузка медиа-файла
