@@ -1,4 +1,4 @@
-erDiagram    
+erDiagram
     User }|--|| Role : role_id
     Page |o--|| User : user_id
     Avatar |o--|| User : user_id
@@ -11,8 +11,7 @@ erDiagram
     Post
     Post }o--|| User: author_id
     Post }o--|| SubscriptionLayer: subscription_layer_id
-    PostContent ||--o| Content: content_id
-    PostContent ||--o| Post: post_id
+    Post ||--o{ Content: post_id
     Content
 
     Comment |o--|{ Post: post_id
@@ -93,17 +92,11 @@ erDiagram
         uuid user_id
         string title
         string about
+        uuid content_id
         uuid subscription_layer_id
         datetime created_date
         datetime updated_date
     }
-
-    PostContent {
-        uuid post_content_id
-        uuid post_id
-        uuid content_id
-    }
-
     Content {
         uuid content_id
         uuid content_type_id
