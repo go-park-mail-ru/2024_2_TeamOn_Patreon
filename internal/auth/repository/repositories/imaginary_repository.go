@@ -12,7 +12,7 @@ import (
 type ImaginaryRepository struct {
 	users  map[bModels.UserID]*imModels.User
 	mu     sync.RWMutex
-	lastID bModels.UserID
+	lastID int
 }
 
 // New создает новый экземпляр ImaginaryRepository.
@@ -84,7 +84,7 @@ func (r *ImaginaryRepository) GetPasswordHashByID(userID bModels.UserID) (string
 
 func (r *ImaginaryRepository) generateID() bModels.UserID {
 	r.lastID++
-	return r.lastID
+	return bModels.UserID(r.lastID)
 }
 
 // GetUserByUsername возвращает пользователя по имени.
