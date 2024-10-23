@@ -25,5 +25,12 @@ services:
     depends_on:
       - postgres
 
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile-migrate
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:

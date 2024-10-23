@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	// Укажите параметры подключения
+	// Параметры подключения
 	conn, err := pgx.Connect(context.Background(), "postgres://admin:adminpass@localhost:5432/testdb")
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// Добавление строки
-	// _, err = conn.Exec(context.Background(), "INSERT INTO messages (text) VALUES ('Hello, PostgreSQL!');")
+	_, err = conn.Exec(context.Background(), "INSERT INTO messages (text) VALUES ('Hello, PostgreSQL!');")
 	// Очистить таблицу messages:
 	// _, err = conn.Exec(context.Background(), "TRUNCATE TABLE messages;")
 
