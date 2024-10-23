@@ -4,17 +4,17 @@ import (
 	"net/http"
 	"testing"
 
+	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/repositories"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/utils"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
-	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/repositories"
 	"github.com/stretchr/testify/assert"
 )
 
 func (ts *TestServer) TestContextNotExist(t *testing.T) {
 	// Создаем новый GET запрос для неавторизованного пользователя
-	req := ts.MakeRequest(t, "GET", "/profile", nil, nil)
+	req := ts.MakeRequest(t, "GET", "/account", nil, nil)
 	defer req.Body.Close()
 	assert.Equal(t, http.StatusUnauthorized, req.StatusCode, "Expected status code 401")
 }
@@ -32,12 +32,12 @@ func (ts *TestServer) TestInvalidID(t *testing.T) {
 	cookie := utils.CreateCookie(tokenStr)
 
 	// Создаем новый GET запрос для авторизованного пользователя
-	req := ts.MakeRequest(t, "GET", "/profile", nil, []*http.Cookie{&cookie})
+	req := ts.MakeRequest(t, "GET", "/account", nil, []*http.Cookie{&cookie})
 	defer req.Body.Close()
 	assert.Equal(t, http.StatusBadRequest, req.StatusCode, "Expected status code 400")
 }
 
-func (ts *TestServer) TestGetProfileFromReg(t *testing.T) {
+func (ts *TestServer) TestGetAccountFromReg(t *testing.T) {
 	// Создание JWT
 	user := bModels.User{
 		UserID:   1001,
@@ -50,15 +50,15 @@ func (ts *TestServer) TestGetProfileFromReg(t *testing.T) {
 	cookie := utils.CreateCookie(tokenStr)
 
 	// Создаем новый GET запрос для авторизованного пользователя
-	req := ts.MakeRequest(t, "GET", "/profile", nil, []*http.Cookie{&cookie})
+	req := ts.MakeRequest(t, "GET", "/account", nil, []*http.Cookie{&cookie})
 	defer req.Body.Close()
 	assert.Equal(t, http.StatusOK, req.StatusCode, "Expected status code 200")
 }
 
-func (ts *TestServer) TestGetProfileFromAuth(t *testing.T) {
+func (ts *TestServer) TestGetAccountFromAuth(t *testing.T) {
 	// Тест на GET существующего пользователя
 	rep := repositories.New()
-	rep.SaveProfile(125, "Great Gatsby", 1)
+	rep.SaveAccount(125, "Great Gatsby", 1)
 
 	// Создание JWT
 	user := bModels.User{
@@ -72,13 +72,13 @@ func (ts *TestServer) TestGetProfileFromAuth(t *testing.T) {
 	cookie := utils.CreateCookie(tokenStr)
 
 	// Создаем новый GET запрос для авторизованного пользователя
-	req := ts.MakeRequest(t, "GET", "/profile", nil, []*http.Cookie{&cookie})
+	req := ts.MakeRequest(t, "GET", "/account", nil, []*http.Cookie{&cookie})
 	defer req.Body.Close()
 	assert.Equal(t, http.StatusOK, req.StatusCode, "Expected status code 200")
 }
 
 // Запуск всех GET профиль тестов
-func TestProfile(t *testing.T) {
+func TestAccount(t *testing.T) {
 	// test server
 	ts := SetupTestServer()
 	defer ts.TearDown()
@@ -91,12 +91,12 @@ func TestProfile(t *testing.T) {
 		ts.TestInvalidID(t)
 	})
 
-	t.Run("Get profile for exist (auth) user", func(t *testing.T) {
-		ts.TestGetProfileFromReg(t)
+	t.Run("Get account for exist (auth) user", func(t *testing.T) {
+		ts.TestGetAccountFromReg(t)
 	})
 
-	t.Run("Get profile for new (reg) user", func(t *testing.T) {
-		ts.TestGetProfileFromAuth(t)
+	t.Run("Get account for new (reg) user", func(t *testing.T) {
+		ts.TestGetAccountFromAuth(t)
 	})
 
 }
