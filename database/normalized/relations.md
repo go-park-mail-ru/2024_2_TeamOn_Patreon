@@ -28,7 +28,6 @@
     - user_id - FK пользователя (автора), который выложил пост
     - title - заголовок поста
     - about - текст поста
-    - content_id - FK контента
     - layer_id - минимальный уровень подписки, на котором можно смотреть этот контент
     - created_date - дата создания поста
     - updated_date - дата последнего изменения поста
@@ -47,6 +46,7 @@
     - user_id - FK юзера
     - posted_date - дата, когда поставили лайк на комментарий
 9. Content - контент поста
+    - post_id - FK поста
     - content_type_id - FK на тип контента
     - content_url - url на медиа, которое приложено к посту 
 10. ContentType - тип контента
@@ -145,7 +145,7 @@
 
 5. Post
 
-{post_id} -> user_id, title, about, content_id, subscription_layer_id, created_date, updated_date
+{post_id} -> user_id, title, about, subscription_layer_id, created_date, updated_date
 
 6. Comment
 
@@ -161,7 +161,7 @@
 
 9. Content
 
-{content_id} -> content_type_id, content_url 
+{content_id} -> content_type_id, content_url, post_id
 
 10. ContentType 
 

@@ -11,7 +11,7 @@ erDiagram
     Post
     Post }o--|| User: author_id
     Post }o--|| SubscriptionLayer: subscription_layer_id
-    Post ||--o| Content: content_id
+    Post ||--o{ Content: post_id
     Content
 
     Comment |o--|{ Post: post_id
