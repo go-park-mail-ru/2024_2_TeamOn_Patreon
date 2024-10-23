@@ -22,7 +22,7 @@ func (ts *TestServer) TestContextNotExist(t *testing.T) {
 func (ts *TestServer) TestInvalidID(t *testing.T) {
 	// Создание JWT
 	user := bModels.User{
-		UserID:   -12,
+		UserID:   "-12",
 		Username: "Great Gatsby",
 		Role:     1,
 	}
@@ -40,7 +40,7 @@ func (ts *TestServer) TestInvalidID(t *testing.T) {
 func (ts *TestServer) TestGetAccountFromReg(t *testing.T) {
 	// Создание JWT
 	user := bModels.User{
-		UserID:   1001,
+		UserID:   "9dc785df-17e3-43b9-9475-cf26ec4ac08b",
 		Username: "PotrOJ",
 		Role:     2,
 	}
@@ -58,11 +58,11 @@ func (ts *TestServer) TestGetAccountFromReg(t *testing.T) {
 func (ts *TestServer) TestGetAccountFromAuth(t *testing.T) {
 	// Тест на GET существующего пользователя
 	rep := repositories.New()
-	rep.SaveAccount(125, "Great Gatsby", 1)
+	rep.SaveAccount("9dc785df-17e3-43b9-9475-cf26ec4ac08b", "Great Gatsby", 1)
 
 	// Создание JWT
 	user := bModels.User{
-		UserID:   125,
+		UserID:   "9dc785df-17e3-43b9-9475-cf26ec4ac08b",
 		Username: "Great Gatsby",
 		Role:     1,
 	}

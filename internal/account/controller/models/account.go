@@ -13,6 +13,6 @@ type Account struct {
 	Email string `json:"email,omitempty"`
 	// Роль: читатель или автор
 	Role string `json:"role"`
-	// Количество подписок
-	Subscriptions uint `json:"subscriptions"`
+	// Подписки пользователя
+	Subscriptions []Subscription `json:"subscriptions"`
 }

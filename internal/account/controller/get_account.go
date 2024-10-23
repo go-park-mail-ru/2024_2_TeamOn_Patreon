@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
 
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
 	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
@@ -13,7 +14,7 @@ import (
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 )
 
-// GetAccount - ручка получения данных профиля
+// HandlerGetAccount - ручка получения данных профиля
 func HandlerGetAccount(w http.ResponseWriter, r *http.Request) {
 	op := "account.api.api_account"
 
@@ -30,7 +31,7 @@ func HandlerGetAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Валидация userID
-	if userData.UserID <= 0 {
+	if !isValidUUIDv4(string(userData.UserID)) {
 		// проставляем http.StatusBadRequest 400
 		logger.StandardResponse("invalid userID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
@@ -40,7 +41,7 @@ func HandlerGetAccount(w http.ResponseWriter, r *http.Request) {
 	// Достаём данные Account из DB по userID
 	// Проверяем, что пользователь с userID существует
 	rep := repository.Get()
-	isUserExist, err := rep.UserExist(int(userData.UserID))
+	isUserExist, err := rep.UserExist(string(userData.UserID))
 	if err != nil {
 		// проставляем http.StatusInternalServerError
 		logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
@@ -52,7 +53,7 @@ func HandlerGetAccount(w http.ResponseWriter, r *http.Request) {
 	// Если такой записи нет, значит профиль новый, поэтому создаём новую запись в БД
 	// Иначе возвращаем существующий профиль с запрашиваемым userID
 	if !isUserExist {
-		account, err = rep.SaveAccount(int(userData.UserID), userData.Username, userData.Role)
+		account, err = rep.SaveAccount(string(userData.UserID), userData.Username, userData.Role)
 		if err != nil {
 			// проставляем http.StatusInternalServerError
 			logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
@@ -64,7 +65,7 @@ func HandlerGetAccount(w http.ResponseWriter, r *http.Request) {
 			http.StatusOK, r.Host, op)
 	} else {
 		var err error
-		account, err = rep.GetAccountByID(int(userData.UserID))
+		account, err = rep.GetAccountByID(string(userData.UserID))
 		// Если не удалось получить профиль
 		if err != nil {
 			// проставляем http.StatusInternalServerError
@@ -77,11 +78,17 @@ func HandlerGetAccount(w http.ResponseWriter, r *http.Request) {
 		fmt.Sprintf("successful get user=%v with userID='%v'", userData.Username, userData.UserID),
 		http.StatusOK, r.Host, op)
 	accountData := models.Account{
-		Username:      account.Username,
-		Email:         account.Email,
-		Role:          account.Role,
-		Subscriptions: account.Subscriptions,
+		Username: account.Username,
+		Email:    account.Email,
+		Role:     account.Role,
+		// Subscriptions: account.Subscriptions,
 	}
 	json.NewEncoder(w).Encode(accountData)
 	w.WriteHeader(http.StatusOK)
+}
+
+func isValidUUIDv4(uuid string) bool {
+	// Регулярное выражение для проверки формата UUID v4
+	re := regexp.MustCompile(`^([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$`)
+	return re.MatchString(uuid)
 }

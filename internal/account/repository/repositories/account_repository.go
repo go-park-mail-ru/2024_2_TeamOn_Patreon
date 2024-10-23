@@ -34,7 +34,7 @@ func Get() *Accounts {
 }
 
 // SaveAccount сохраняет профиль в базу данных
-func (r *Accounts) SaveAccount(userID int, username string, role busModels.Role) (*repModel.Account, error) {
+func (r *Accounts) SaveAccount(userID string, username string, role busModels.Role) (*repModel.Account, error) {
 	// создание нового профиля
 
 	account := repModel.Account{
@@ -59,7 +59,7 @@ func (r *Accounts) SaveAccount(userID int, username string, role busModels.Role)
 }
 
 // UserExists проверяет, существует ли пользователь с указанным ID
-func (r *Accounts) UserExist(userID int) (bool, error) {
+func (r *Accounts) UserExist(userID string) (bool, error) {
 	for _, account := range r.accounts {
 
 		if account.UserID == repModel.UserID(userID) {
@@ -70,7 +70,7 @@ func (r *Accounts) UserExist(userID int) (bool, error) {
 }
 
 // GetAccountByID получает профиль по ID пользователя
-func (r *Accounts) GetAccountByID(userID int) (*repModel.Account, error) {
+func (r *Accounts) GetAccountByID(userID string) (*repModel.Account, error) {
 	key := repModel.UserID(userID)
 	foundAccount, ok := r.accounts[key]
 
