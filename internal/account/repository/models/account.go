@@ -22,4 +22,4 @@ type Account struct {
 }
 
 // UserID - ключ map`ы Accounts
-type UserID int
+type UserID string

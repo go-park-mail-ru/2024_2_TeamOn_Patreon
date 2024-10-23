@@ -1,11 +1,12 @@
 package jwt
 
 import (
+	"time"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/pkg/errors"
-	"time"
 )
 
 // ПОКА ТАК, потом будем парсить из конфига
@@ -23,7 +24,7 @@ func CreateJWT(user bModels.User, ttl int) (TokenString, error) {
 
 	// создаем структуру токена claims
 	claims := TokenClaims{
-		UserID:   int(user.UserID),
+		UserID:   string(user.UserID),
 		Username: user.Username,
 		Role:     user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
