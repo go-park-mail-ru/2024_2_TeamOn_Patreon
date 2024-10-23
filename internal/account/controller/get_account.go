@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"regexp"
 
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
 	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
@@ -12,6 +11,7 @@ import (
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
 // HandlerGetAccount - ручка получения данных профиля
@@ -31,7 +31,7 @@ func HandlerGetAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Валидация userID
-	if !isValidUUIDv4(string(userData.UserID)) {
+	if !utils.IsValidUUIDv4(string(userData.UserID)) {
 		// проставляем http.StatusBadRequest 400
 		logger.StandardResponse("invalid userID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
@@ -85,10 +85,4 @@ func HandlerGetAccount(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(accountData)
 	w.WriteHeader(http.StatusOK)
-}
-
-func isValidUUIDv4(uuid string) bool {
-	// Регулярное выражение для проверки формата UUID v4
-	re := regexp.MustCompile(`^([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$`)
-	return re.MatchString(uuid)
 }
