@@ -5,8 +5,8 @@ const (
 	ReaderStatus = "Reader"
 )
 
-// Repository модель Profile
-type Profile struct {
+// Repository модель Account
+type Account struct {
 	UserID        UserID
 	Username      string
 	Email         string
@@ -21,5 +21,5 @@ type Profile struct {
 	PostDate      string
 }
 
-// UserID - ключ map`ы profiles
+// UserID - ключ map`ы Accounts
 type UserID int

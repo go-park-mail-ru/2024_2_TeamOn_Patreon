@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/profile/api"
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/account/api"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 )
@@ -21,7 +21,7 @@ func main() {
 
 	// регистрируем middlewares
 	router.Use(middlewares.Logging)     // 1
-	router.Use(middlewares.HandlerAuth) // 2 только для ручек, где требуется аутентификация
+	router.Use(middlewares.HandlerAuth) // 2 для ручек, где требуется аутентификация
 
 	// run server
 	logger.StandardInfo("Starting server at: 8082", op)

@@ -3,8 +3,8 @@ package api
 import (
 	"fmt"
 
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/controller"
 
 	"net/http"
 
@@ -21,8 +21,7 @@ type Route struct {
 type Routes []Route
 
 func NewRouter() *mux.Router {
-	op := "profile.routers.NewRouter"
-
+	op := "account.routers.NewRouter"
 	// Declare a new router
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -46,9 +45,9 @@ func NewRouter() *mux.Router {
 
 var routes = Routes{
 	Route{
-		"ProfileGet",
+		"GetAccount",
 		"GET",
-		"/profile",
-		api.ProfileGet,
+		"/account",
+		api.HandlerGetAccount,
 	},
 }

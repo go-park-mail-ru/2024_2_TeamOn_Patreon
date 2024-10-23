@@ -6,38 +6,38 @@ import (
 
 	// Модель репозитория взаимодействует с БД напрямую
 
+	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
 	busModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
-	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/models"
 )
 
-var profilesInstance *Profiles
+var accountsInstance *Accounts
 
-// Profiles реализует интерфейс ProfilesRepository
-type Profiles struct {
-	profiles map[repModel.UserID]*repModel.Profile
+// Accounts реализует интерфейс AccountsRepository
+type Accounts struct {
+	accounts map[repModel.UserID]*repModel.Account
 }
 
-// New создает новый экземпляр Profiles.
-func New() *Profiles {
-	profilesInstance = &Profiles{
-		profiles: make(map[repModel.UserID]*repModel.Profile),
+// New создает новый экземпляр Accounts.
+func New() *Accounts {
+	accountsInstance = &Accounts{
+		accounts: make(map[repModel.UserID]*repModel.Account),
 	}
-	return profilesInstance
+	return accountsInstance
 }
 
-func Get() *Profiles {
-	if profilesInstance == nil {
-		profilesInstance = New()
+func Get() *Accounts {
+	if accountsInstance == nil {
+		accountsInstance = New()
 	}
-	return profilesInstance
+	return accountsInstance
 }
 
-// SaveProfile сохраняет профиль в базу данных
-func (r *Profiles) SaveProfile(userID int, username string, role busModels.Role) (*repModel.Profile, error) {
+// SaveAccount сохраняет профиль в базу данных
+func (r *Accounts) SaveAccount(userID int, username string, role busModels.Role) (*repModel.Account, error) {
 	// создание нового профиля
 
-	profile := repModel.Profile{
+	account := repModel.Account{
 		UserID:        repModel.UserID(userID),
 		Username:      username,
 		Email:         "",
@@ -53,36 +53,36 @@ func (r *Profiles) SaveProfile(userID int, username string, role busModels.Role)
 	}
 
 	// сохранение профиля в бд
-	r.profiles[profile.UserID] = &profile
+	r.accounts[account.UserID] = &account
 
-	return &profile, nil
+	return &account, nil
 }
 
 // UserExists проверяет, существует ли пользователь с указанным ID
-func (r *Profiles) UserExist(userID int) (bool, error) {
-	for _, profile := range r.profiles {
+func (r *Accounts) UserExist(userID int) (bool, error) {
+	for _, account := range r.accounts {
 
-		if profile.UserID == repModel.UserID(userID) {
+		if account.UserID == repModel.UserID(userID) {
 			return true, nil
 		}
 	}
 	return false, nil
 }
 
-// GetProfileByID получает профиль по ID пользователя
-func (r *Profiles) GetProfileByID(userID int) (*repModel.Profile, error) {
+// GetAccountByID получает профиль по ID пользователя
+func (r *Accounts) GetAccountByID(userID int) (*repModel.Account, error) {
 	key := repModel.UserID(userID)
-	foundProfile, ok := r.profiles[key]
+	foundAccount, ok := r.accounts[key]
 
 	if !ok {
-		return nil, errors.New("profile not found")
+		return nil, errors.New("account not found")
 	}
 
-	if foundProfile == nil {
-		return nil, errors.New("profile is nil")
+	if foundAccount == nil {
+		return nil, errors.New("account is nil")
 	}
 
-	return foundProfile, nil
+	return foundAccount, nil
 }
 
 // RoleToString

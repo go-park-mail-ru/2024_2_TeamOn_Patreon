@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/profile/api"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/account/api"
 	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 
 	"github.com/stretchr/testify/assert"

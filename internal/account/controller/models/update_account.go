@@ -1,6 +1,6 @@
 package models
 
-type UpdateProfile struct {
+type UpdateAccount struct {
 	// Новое имя пользователя
 	Username string `json:"username,omitempty"`
 	// Новая почта пользователя
