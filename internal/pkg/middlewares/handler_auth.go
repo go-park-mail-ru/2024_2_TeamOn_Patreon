@@ -3,11 +3,12 @@ package middlewares
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/mapper"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"net/http"
 )
 
 // HandlerAuth - middleware, обрабатывает JWT токен из cookie

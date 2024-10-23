@@ -5,21 +5,24 @@ import (
 	"fmt"
 	"net/http"
 
+	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
+	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
+	repository "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/repositories"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
-	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/controller/models"
-	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/models"
-	repository "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/profile/repository/repositories"
+	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
-// ProfileGet - ручка получения данных профиля
-func ProfileGet(w http.ResponseWriter, r *http.Request) {
-	op := "profile.api.api_profile"
+// HandlerGetAccount - ручка получения данных профиля
+func HandlerGetAccount(w http.ResponseWriter, r *http.Request) {
+	op := "account.api.api_account"
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Извлекаем userData из контекста
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
+
 	if !ok {
 		// проставляем http.StatusUnauthorized 401
 		logger.StandardResponse("userData not found in context", http.StatusUnauthorized, r.Host, op)
@@ -28,17 +31,17 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Валидация userID
-	if userData.UserID <= 0 {
+	if !utils.IsValidUUIDv4(string(userData.UserID)) {
 		// проставляем http.StatusBadRequest 400
 		logger.StandardResponse("invalid userID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// Достаём данные Profile из DB по userID
+	// Достаём данные Account из DB по userID
 	// Проверяем, что пользователь с userID существует
 	rep := repository.Get()
-	isUserExist, err := rep.UserExist(int(userData.UserID))
+	isUserExist, err := rep.UserExist(string(userData.UserID))
 	if err != nil {
 		// проставляем http.StatusInternalServerError
 		logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
@@ -46,11 +49,11 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profile := &repModel.Profile{}
+	account := &repModel.Account{}
 	// Если такой записи нет, значит профиль новый, поэтому создаём новую запись в БД
 	// Иначе возвращаем существующий профиль с запрашиваемым userID
 	if !isUserExist {
-		profile, err = rep.SaveProfile(int(userData.UserID), userData.Username, userData.Role)
+		account, err = rep.SaveAccount(string(userData.UserID), userData.Username, userData.Role)
 		if err != nil {
 			// проставляем http.StatusInternalServerError
 			logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
@@ -58,11 +61,11 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		logger.StandardResponse(
-			fmt.Sprintf("create new profile user=%v with userID='%v'", userData.Username, userData.UserID),
+			fmt.Sprintf("create new account user=%v with userID='%v'", userData.Username, userData.UserID),
 			http.StatusOK, r.Host, op)
 	} else {
 		var err error
-		profile, err = rep.GetProfileByID(int(userData.UserID))
+		account, err = rep.GetAccountByID(string(userData.UserID))
 		// Если не удалось получить профиль
 		if err != nil {
 			// проставляем http.StatusInternalServerError
@@ -74,16 +77,12 @@ func ProfileGet(w http.ResponseWriter, r *http.Request) {
 	logger.StandardResponse(
 		fmt.Sprintf("successful get user=%v with userID='%v'", userData.Username, userData.UserID),
 		http.StatusOK, r.Host, op)
-	profileData := models.Profile{
-		Username:      profile.Username,
-		Email:         profile.Email,
-		AvatarUrl:     profile.AvatarUrl,
-		Status:        profile.Status,
-		Role:          profile.Role,
-		Followers:     profile.Followers,
-		Subscriptions: profile.Subscriptions,
-		PostsAmount:   profile.PostsAmount,
+	accountData := models.Account{
+		Username: account.Username,
+		Email:    account.Email,
+		Role:     account.Role,
+		// Subscriptions: account.Subscriptions,
 	}
-	json.NewEncoder(w).Encode(profileData)
+	json.NewEncoder(w).Encode(accountData)
 	w.WriteHeader(http.StatusOK)
 }
