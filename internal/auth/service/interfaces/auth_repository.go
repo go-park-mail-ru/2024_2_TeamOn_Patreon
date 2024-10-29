@@ -7,7 +7,7 @@ import (
 // AuthRepository - описывает методы для работы с пользователями.
 type AuthRepository interface {
 	// SaveUser сохраняет пользователя в базу данных
-	SaveUser(username string, role int, passwordHash string) (*bModels.User, error)
+	SaveUser(username string, role string, passwordHash string) (*bModels.User, error)
 
 	// UserExists проверяет, существует ли пользователь с указанным именем
 	UserExists(username string) (bool, error)

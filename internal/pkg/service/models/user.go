@@ -4,5 +4,5 @@ package models
 type User struct {
 	UserID   UserID
 	Username string
-	Role     string
+	Role     Role
 }
