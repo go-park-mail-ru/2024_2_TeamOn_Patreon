@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/pkg/errors"
 	"regexp"
 )
@@ -38,19 +38,19 @@ func (reg *Reg) Validate() (bool, error) {
 func (reg *Reg) validateUsername() error {
 	// Длина не менее 4 символов
 	if len(reg.Username) < 4 {
-		return config.ErrSmallLogin
+		return global.ErrSmallLogin
 	}
 
 	// Длина не более 10 символов
 	if len(reg.Username) > 10 {
-		return config.ErrLongLogin
+		return global.ErrLongLogin
 	}
 
 	checks := []check{
 		check{pattern: `^[a-zA-Z0-9_-]+$`,
-			err: config.ErrLoginWithSpecChar},
-		check{pattern: `|\s|`, err: config.ErrLoginWithSpace},
-		check{pattern: `^[a-zA-Z]`, err: config.ErrLoginMustStartWithChar},
+			err: global.ErrLoginWithSpecChar},
+		check{pattern: `|\s|`, err: global.ErrLoginWithSpace},
+		check{pattern: `^[a-zA-Z]`, err: global.ErrLoginMustStartWithChar},
 	}
 
 	for _, chk := range checks {
@@ -67,20 +67,20 @@ func (reg *Reg) validatePassword() error {
 
 	// Длина не меньше 8 символов
 	if len(reg.Password) < 8 {
-		return config.ErrSmallPassword
+		return global.ErrSmallPassword
 	}
 
 	// Длина не больше 64 символов
 	if len(reg.Password) > 64 {
-		return config.ErrLongPassword
+		return global.ErrLongPassword
 	}
 
 	checks := []check{
-		check{pattern: `[!@#$%^&*()_+={}:|,.?]`, err: config.ErrPasswordWithoutSpecChar},
-		check{pattern: `[A-Z]`, err: config.ErrPasswordWithoutUpperChar},
-		check{pattern: `[a-z]`, err: config.ErrPasswordWithoutLowerChar},
-		check{pattern: `[0-9]`, err: config.ErrPasswordWithoutNumberChar},
-		check{pattern: `^[a-zA-Z0-9!@#$%^&*()_+={}:|,.?]+$`, err: config.ErrPasswordWithDifferentChar},
+		check{pattern: `[!@#$%^&*()_+={}:|,.?]`, err: global.ErrPasswordWithoutSpecChar},
+		check{pattern: `[A-Z]`, err: global.ErrPasswordWithoutUpperChar},
+		check{pattern: `[a-z]`, err: global.ErrPasswordWithoutLowerChar},
+		check{pattern: `[0-9]`, err: global.ErrPasswordWithoutNumberChar},
+		check{pattern: `^[a-zA-Z0-9!@#$%^&*()_+={}:|,.?]+$`, err: global.ErrPasswordWithDifferentChar},
 	}
 
 	for _, chk := range checks {

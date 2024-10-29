@@ -2,29 +2,28 @@ package repositories
 
 import (
 	"errors"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	imModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+	"github.com/gofrs/uuid"
 	"sync"
 )
 
 // ImaginaryRepository реализует интерфейс AuthRepository
 type ImaginaryRepository struct {
-	users  map[bModels.UserID]*imModels.User
-	mu     sync.RWMutex
-	lastID int
+	users map[bModels.UserID]*imModels.User
+	mu    sync.RWMutex
 }
 
 // New создает новый экземпляр ImaginaryRepository.
 func New() *ImaginaryRepository {
 	return &ImaginaryRepository{
-		users:  make(map[bModels.UserID]*imModels.User),
-		lastID: 1,
+		users: make(map[bModels.UserID]*imModels.User),
 	}
 }
 
 // SaveUser сохраняет пользователя в базу данных.
-func (r *ImaginaryRepository) SaveUser(username string, role int, passwordHash string) (*bModels.User, error) {
+func (r *ImaginaryRepository) SaveUser(username string, role string, passwordHash string) (*bModels.User, error) {
 	// создание нового пользователя
 	user := imModels.User{
 		UserID:       r.generateID(),
@@ -63,7 +62,7 @@ func (r *ImaginaryRepository) GetUserByID(userID bModels.UserID) (*bModels.User,
 	r.mu.RUnlock()
 
 	if imUser == nil {
-		return nil, config.ErrUserNotFound
+		return nil, global.ErrUserNotFound
 	}
 
 	bUser := imModels.MapImUserToBUser(*imUser)
@@ -83,8 +82,9 @@ func (r *ImaginaryRepository) GetPasswordHashByID(userID bModels.UserID) (string
 }
 
 func (r *ImaginaryRepository) generateID() bModels.UserID {
-	r.lastID++
-	return bModels.UserID(r.lastID)
+	id, _ := uuid.NewV4()
+
+	return bModels.UserID(id.String())
 }
 
 // GetUserByUsername возвращает пользователя по имени.
@@ -102,7 +102,7 @@ func (r *ImaginaryRepository) GetUserByUsername(username string) (*bModels.User,
 	r.mu.RUnlock()
 
 	if imUser == nil {
-		return nil, config.ErrUserNotFound
+		return nil, global.ErrUserNotFound
 	}
 
 	bUser := imModels.MapImUserToBUser(*imUser)

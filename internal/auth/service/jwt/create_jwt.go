@@ -1,9 +1,9 @@
 package jwt
 
 import (
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"time"
 
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/pkg/errors"
@@ -53,7 +53,7 @@ func createToken(tokenClaims TokenClaims) (TokenString, error) {
 	// Подписываем токен с использованием секретного ключа
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		return "", config.ErrServer
+		return "", global.ErrServer
 	}
 
 	return TokenString(tokenString), nil

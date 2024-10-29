@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/pkg/errors"
 	"regexp"
@@ -40,17 +40,17 @@ func (lg *Login) validateUsername() error {
 	// Длина не менее 4 символов
 	if len(lg.Username) < 4 {
 		logger.StandardDebugF(op, "login isn't valid: '%v'", lg.Username)
-		return config.ErrSmallLogin
+		return global.ErrSmallLogin
 	}
 
 	// Длина не более 10 символов
 	if len(lg.Username) > 10 {
-		return config.ErrLongLogin
+		return global.ErrLongLogin
 	}
 
 	checks := []check{
-		check{pattern: `^[a-zA-Z0-9_-]+$`, err: config.ErrLoginWithSpecChar},
-		check{pattern: `|\s|`, err: config.ErrLoginWithSpace},
+		check{pattern: `^[a-zA-Z0-9_-]+$`, err: global.ErrLoginWithSpecChar},
+		check{pattern: `|\s|`, err: global.ErrLoginWithSpace},
 	}
 
 	for _, chk := range checks {
@@ -68,16 +68,16 @@ func (lg *Login) validatePassword() error {
 
 	// Длина не меньше 8 символов
 	if len(lg.Password) < 8 {
-		return config.ErrSmallPassword
+		return global.ErrSmallPassword
 	}
 
 	// Длина не больше 64 символов
 	if len(lg.Password) > 64 {
-		return config.ErrLongPassword
+		return global.ErrLongPassword
 	}
 
 	checks := []check{
-		check{pattern: `^[a-zA-Z0-9!@#$%^&*()_+={}:|,.?]+$`, err: config.ErrPasswordWithDifferentChar},
+		check{pattern: `^[a-zA-Z0-9!@#$%^&*()_+={}:|,.?]+$`, err: global.ErrPasswordWithDifferentChar},
 	}
 
 	for _, chk := range checks {
