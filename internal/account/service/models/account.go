@@ -1,4 +1,4 @@
-package models
+package bmodels
 
 const (
 	AuthorStatus = "Author"
@@ -10,15 +10,8 @@ type Account struct {
 	UserID        UserID
 	Username      string
 	Email         string
-	Status        string
-	AvatarUrl     string
 	Role          string
-	Followers     uint
-	Subscriptions uint
-	PostsAmount   uint
-	PostTitle     string
-	PostContent   string
-	PostDate      string
+	Subscriptions []Subscription
 }
 
 // UserID - ключ map`ы Accounts

@@ -3,10 +3,11 @@ package api
 import (
 	"fmt"
 
-	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller"
-	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-
 	"net/http"
+
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller"
+	interfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/interfaces"
+	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 
 	"github.com/gorilla/mux"
 )
@@ -20,14 +21,25 @@ type Route struct {
 
 type Routes []Route
 
-func NewRouter() *mux.Router {
+func NewRouter(service interfaces.AccountService) *mux.Router {
 	op := "account.routers.NewRouter"
+
+	handler := api.New(service)
+
+	var routes = Routes{
+		Route{
+			"GetAccount",
+			"GET",
+			"/account",
+			handler.GetAccount,
+		},
+	}
 	// Declare a new router
 	router := mux.NewRouter().StrictSlash(true)
 
 	for _, route := range routes {
-		var handler http.Handler
-		handler = route.HandlerFunc
+		// var handler http.Handler
+		// handler = route.HandlerFunc
 		logger.StandardInfo(
 			fmt.Sprintf("Registered: %s %s", route.Method, route.Pattern),
 			op,
@@ -37,17 +49,8 @@ func NewRouter() *mux.Router {
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(handler)
+			Handler(route.HandlerFunc)
 	}
 
 	return router
-}
-
-var routes = Routes{
-	Route{
-		"GetAccount",
-		"GET",
-		"/account",
-		api.HandlerGetAccount,
-	},
 }

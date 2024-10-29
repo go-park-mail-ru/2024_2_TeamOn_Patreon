@@ -4,6 +4,9 @@ import (
 	"net/http"
 
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/account/api"
+	postgres "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/postgres_db"
+	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository"
+	service "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 )
@@ -11,13 +14,20 @@ import (
 func main() {
 	op := "cmd.microservices.profile.main"
 
-	// config
-
 	// logger
 	logger.New()
 
+	// connect to DB
+	connect := postgres.InitPostgres()
+
+	// repository
+	rep := repositories.New(connect)
+
+	// service
+	serv := service.New(rep)
+
 	// routers
-	router := api.NewRouter()
+	router := api.NewRouter(serv)
 
 	// регистрируем middlewares
 	router.Use(middlewares.Logging)     // 1
