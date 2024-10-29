@@ -4,6 +4,7 @@ import (
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/interfaces"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strings"
@@ -19,44 +20,30 @@ type Route struct {
 type Routes []Route
 
 func NewRouter(behavior interfaces.ContentBehavior) *mux.Router {
-	op := "content.api.routers"
+	mainRouter := mux.NewRouter().StrictSlash(true)
+
+	authRouter := mainRouter.PathPrefix("/").Subrouter()
+	router := mainRouter.PathPrefix("/").Subrouter()
+
+	handleAuth(authRouter, behavior)
+	handleOther(router, behavior)
+
+	authRouter.Use(middlewares.HandlerAuth)
+	router.Use(middlewares.AuthMiddleware)
+	return mainRouter
+}
+
+func handleAuth(router *mux.Router, behavior interfaces.ContentBehavior) *mux.Router {
+	op := "content.api.routers.NewRouterWithAuth"
 
 	handler := api.New(behavior)
 
 	var routes = Routes{
 		Route{
-			"FeedPopularGet",
-			strings.ToUpper("Get"),
-			"/feed/popular",
-			handler.FeedPopularGet,
-		},
-
-		Route{
-			"FeedSubscriptionsGet",
-			strings.ToUpper("Get"),
-			"/feed/subscriptions",
-			handler.FeedSubscriptionsGet,
-		},
-
-		Route{
-			"AuthorPostAuthorIdGet",
-			strings.ToUpper("Get"),
-			"/author/post/{authorId}",
-			handler.AuthorPostAuthorIdGet,
-		},
-
-		Route{
 			"PostLikePost",
 			strings.ToUpper("Post"),
 			"/post/like",
 			handler.PostLikePost,
-		},
-
-		Route{
-			"PostMediaGet",
-			strings.ToUpper("Get"),
-			"/post/media",
-			handler.PostMediaGet,
 		},
 
 		Route{
@@ -83,12 +70,10 @@ func NewRouter(behavior interfaces.ContentBehavior) *mux.Router {
 		Route{
 			"PostsPostIdDelete",
 			strings.ToUpper("Delete"),
-			"/posts/{postId}",
+			"/post/{postId}",
 			handler.PostsPostIdDelete,
 		},
 	}
-
-	router := mux.NewRouter().StrictSlash(true)
 
 	for _, route := range routes {
 		var handler http.Handler
@@ -103,4 +88,52 @@ func NewRouter(behavior interfaces.ContentBehavior) *mux.Router {
 	}
 
 	return router
+}
+
+func handleOther(router *mux.Router, behavior interfaces.ContentBehavior) {
+	op := "content.api.routers.NewRouterWithAuth"
+
+	handler := api.New(behavior)
+
+	var routes = Routes{
+		Route{
+			"FeedPopularGet",
+			strings.ToUpper("Get"),
+			"/feed/popular",
+			handler.FeedPopularGet,
+		},
+
+		Route{
+			"FeedSubscriptionsGet",
+			strings.ToUpper("Get"),
+			"/feed/subscriptions",
+			handler.FeedSubscriptionsGet,
+		},
+
+		Route{
+			"AuthorPostAuthorIdGet",
+			strings.ToUpper("Get"),
+			"/author/post/{authorId}",
+			handler.AuthorPostAuthorIdGet,
+		},
+
+		Route{
+			"PostMediaGet",
+			strings.ToUpper("Get"),
+			"/post/media",
+			handler.PostMediaGet,
+		},
+	}
+
+	for _, route := range routes {
+		var handler http.Handler
+		handler = route.HandlerFunc
+		logger.StandardInfoF(op, "Registered: %s %s", route.Method, route.Pattern)
+
+		router.
+			Methods(route.Method).
+			Path(route.Pattern).
+			Name(route.Name).
+			Handler(handler)
+	}
 }
