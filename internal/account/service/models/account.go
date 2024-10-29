@@ -1,18 +1,15 @@
-package bmodels
+package models
 
 const (
 	AuthorStatus = "Author"
 	ReaderStatus = "Reader"
 )
 
-// Repository модель Account
-type Account struct {
-	UserID        UserID
+// Service модель User
+type User struct {
+	UserID        string
 	Username      string
 	Email         string
 	Role          string
-	Subscriptions []Subscription
+	Subscriptions []Subscription // ?? оставить здесь или вынести отдельно ??
 }
-
-// UserID - ключ map`ы Accounts
-type UserID string
