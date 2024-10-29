@@ -7,5 +7,5 @@ package models
 
 type Likes struct {
 	// Количество лайков
-	Count int32 `json:"count,omitempty"`
+	Count int `json:"count"`
 }
