@@ -31,6 +31,6 @@ func main() {
 	// router.Use(middlewares.HandlerAuth) // 2 только для ручек, где требуется аутентификация
 
 	// run end-to-end
-	logger.StandardInfo("Starting server at: 8081", op)
-	http.ListenAndServe(":8081", router)
+	logger.StandardInfo("Starting server at: 8082", op)
+	http.ListenAndServe(":8082", router)
 }

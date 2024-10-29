@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	hasher "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/hasher"
 	rInterfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/interfaces"
 	bJWT "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
@@ -30,7 +29,7 @@ func (b *Behavior) RegisterNewUser(username string, password string) (bJWT.Token
 		return "", errors.Wrap(errM, op)
 	}
 	if exists {
-		return "", errors.Wrap(config.ErrUserAlreadyExists, op)
+		return "", errors.Wrap(global.ErrUserAlreadyExists, op)
 	}
 
 	// хэширование пароля
@@ -68,7 +67,7 @@ func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenSt
 	}
 	if !exists {
 		logger.StandardDebugF(op, "Authorisation failed: user %s does not exist", username)
-		return "", config.ErrNotValidUserAndPassword
+		return "", global.ErrNotValidUserAndPassword
 	}
 
 	// получаем модельку юзера по username
@@ -86,7 +85,7 @@ func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenSt
 	}
 	if !ok {
 		logger.StandardDebugF(op, "Authorisation failed: user %s does not match", username)
-		return "", errors.Wrap(config.ErrNotValidUserAndPassword, op)
+		return "", errors.Wrap(global.ErrNotValidUserAndPassword, op)
 	}
 
 	// сгенерировать для пользователя токен
@@ -119,7 +118,7 @@ func hashPassword(password string) (string, error) {
 
 	hash, err := hasher.HashPassword(password)
 	if err != nil {
-		return "", errors.Wrap(config.ErrServer, op)
+		return "", errors.Wrap(global.ErrServer, op)
 	}
 	return hash, nil
 }
@@ -128,7 +127,7 @@ func (b *Behavior) saveUser(username string, hash string) (*bModels.User, error)
 	op := "auth.service.SaveUser"
 
 	role := bModels.Reader
-	user, err := b.rep.SaveUser(username, int(role), hash)
+	user, err := b.rep.SaveUser(username, string(role), hash)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
@@ -167,7 +166,7 @@ func (b *Behavior) comparePassword(user bModels.User, password string) (bool, er
 	// Сравниваем введённый пароль с сохранённым хэшем
 	err = hasher.CheckPasswordHash(password, userHash)
 	if err != nil {
-		return false, errors.Wrap(config.ErrNotValidUserAndPassword, op)
+		return false, errors.Wrap(global.ErrNotValidUserAndPassword, op)
 	} else {
 		return true, nil
 	}

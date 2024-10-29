@@ -1,4 +1,4 @@
-package config
+package global
 
 import (
 	"github.com/pkg/errors"
@@ -36,6 +36,7 @@ var (
 
 	ErrUserNotFound            = errors.New("user not found")
 	ErrNotValidUserAndPassword = errors.New("not valid user and password")
+	ErrNotEnoughRights         = errors.New("not enough rights")
 
 	// logout
 
@@ -49,6 +50,21 @@ var (
 	// json is incorrect
 
 	ErrInvalidJSON = errors.New("invalid JSON format")
+
+	// content
+	// validate
+
+	ErrFieldTooLong             = errors.New("field too long")
+	ErrFieldTooShort            = errors.New("field too short")
+	ErrFieldContainsSpecialChar = errors.New("field contains special char")
+
+	// post
+
+	ErrPostDoesntExists = errors.New("post doesn't")
+
+	// uuid
+
+	ErrUuidIsInvalid = errors.New("uuid is invalid")
 )
 
 type ErrorHttpInfo struct {
@@ -84,6 +100,17 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrDatabaseDead:            {msg: "ошибка сервера", code: http.StatusInternalServerError},
 	ErrServer:                  {msg: "end-to-end error", code: http.StatusInternalServerError},
 	ErrUserNotAuthorized:       {msg: "пользователь не авторизован", code: http.StatusUnauthorized},
+
+	// content
+	ErrFieldTooLong:             {msg: "field too long", code: http.StatusBadRequest},
+	ErrFieldTooShort:            {msg: "field too short", code: http.StatusBadRequest},
+	ErrFieldContainsSpecialChar: {msg: "field contains special char", code: http.StatusBadRequest},
+
+	// uuid
+	ErrUuidIsInvalid: {msg: "uuiod is invalid", code: http.StatusBadRequest},
+
+	// rights
+	ErrNotEnoughRights: {msg: "not enough rights", code: http.StatusBadRequest},
 }
 
 func GetMsgError(err error) string {
