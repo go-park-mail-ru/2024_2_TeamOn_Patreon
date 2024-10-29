@@ -384,6 +384,12 @@ components:
         likes:
           type: integer
           description: Количество лайков поста
+        layer:
+          type: integer
+          description: Уровень, на котором можно смотреть пост
+        is_liked:
+          type: boolean
+          description: Поставил ли лайк текущий пользователь
     Likes:
       type: object
       properties:
