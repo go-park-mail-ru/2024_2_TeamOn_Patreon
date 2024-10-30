@@ -7,7 +7,10 @@ import (
 
 type ContentRepository interface {
 	InsertPost(userId uuid.UUID, postId uuid.UUID, title string, content string, layer int) error
+	// GetPopularPosts - возвращает популярные посты со смещением для анонима
 	GetPopularPosts(offset int, limits int) ([]models.Post, error)
+	GetPopularPostsForUser(userId uuid.UUID, offset int, limits int) ([]models.Post, error)
+
 	UpdatePost(authorId uuid.UUID, postID uuid.UUID, post models.Post) error
 	GetAuthorByPost(postID uuid.UUID) (uuid.UUID, error)
 
