@@ -144,3 +144,7 @@ func (b *Behavior) LikePost(userId, postId string) (int, error) {
 
 	return countLikes, nil
 }
+
+func DeletePost(postId, userId string) error {
+	return nil
+}

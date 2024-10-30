@@ -14,4 +14,6 @@ type ContentBehavior interface {
 	UpdatePost(authorId string, post models.Post) error
 
 	LikePost(userId, postId string) (int, error)
+
+	DeletePost(userId, postId string) error
 }
