@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	imModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/models"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+	"github.com/gofrs/uuid"
 )
 
 // ImaginaryRepository реализует интерфейс AuthRepository
@@ -84,8 +85,9 @@ func (r *ImaginaryRepository) GetPasswordHashByID(userID bModels.UserID) (string
 }
 
 func (r *ImaginaryRepository) generateID() bModels.UserID {
-	r.lastID++
-	return bModels.UserID(r.lastID)
+	id, _ := uuid.NewV4()
+
+	return bModels.UserID(id.String())
 }
 
 // GetUserByUsername возвращает пользователя по имени.

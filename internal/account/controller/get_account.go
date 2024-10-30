@@ -12,7 +12,7 @@ import (
 
 // GetAccount - ручка получения данных профиля
 func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
-	op := "internal.account.controller.get_account"
+	op := "internal.account.controller.getAccount"
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 

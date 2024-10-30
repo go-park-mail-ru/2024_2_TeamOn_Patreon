@@ -33,6 +33,12 @@ func NewRouter(service interfaces.AccountService) *mux.Router {
 			"/account",
 			handler.GetAccount,
 		},
+		Route{
+			"PostAccountUpdate",
+			"POST",
+			"/account/update",
+			handler.PostAccountUpdate,
+		},
 	}
 	// Declare a new router
 	router := mux.NewRouter().StrictSlash(true)
