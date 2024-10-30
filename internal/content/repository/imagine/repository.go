@@ -46,7 +46,7 @@ func (pr *ContentRepository) InsertPost(userId uuid.UUID, postId uuid.UUID, titl
 }
 
 func (pr *ContentRepository) GetPopularPosts(offset int, limits int) ([]models.Post, error) {
-	op := "content.repository.imagine.repository.GetPopularPosts"
+	op := "content.repository.imagine.repository.GetPopularPostsForUser"
 	logger.StandardDebugF(op, "offset=%v limits=%v", offset, limits)
 
 	pr.mu.Lock()
@@ -154,4 +154,28 @@ func (cr *ContentRepository) GetPostLikes(postID uuid.UUID) (int, error) {
 	op := "content.repository.imagine.repository.GetPostLikes"
 	logger.StandardDebugF(op, "post.PostId=%v", postID)
 	return 0, nil
+}
+
+func (cr *ContentRepository) GetPopularPostsForLayer(userId uuid.UUID, offset int, limit int) ([]models.Post, error) {
+	/*
+		потенциальный sql:
+			// сначала выборка по уровням для авторов для этого пользователя
+
+
+			select post.postId, post.Title, post.Content, author.userId, author.Username
+			from post
+				join people on people.userId == post.authorId as author
+				join layer on layer.layerId == post.layerId
+			where layer.layer >= (select layer.layer
+								from layer
+									join CustomSubscription on CustomSubscription.subscription_layer_id == layer.layer_id
+									join Subscription on Subscription.custom_subscription_id  == CustomSubscription.subscription_id
+								where Subscription.user_id == {userId} and CustomSubscription.author_id == author.userId
+								)
+			order by post.postId, post.Title, post.Content, author.userId, author.Username
+			sort by likes (??????)
+			limit {limits}
+			top {offset}
+	*/
+	return nil, nil
 }

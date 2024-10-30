@@ -53,7 +53,6 @@ func (h Handler) PostLikePost(w http.ResponseWriter, r *http.Request) {
 		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 	}
 
-	utils2.SendModel(models.Likes{Count: count}, w, op)
-
 	w.WriteHeader(http.StatusOK)
+	utils2.SendModel(models.Likes{Count: count}, w, op)
 }

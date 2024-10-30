@@ -10,21 +10,19 @@ import "fmt"
 
 type Post struct {
 	// Идентификатор поста
-	PostId string `json:"post_id"`
+	PostId string `json:"postId"`
 	// Заголовок поста
 	Title string `json:"title"`
 	// Содержимое пост
 	Content string `json:"content,omitempty"`
 	// Имя автора поста
-	AuthorUsername string `json:"author_username,omitempty"`
+	AuthorUsername string `json:"authorUsername,omitempty"`
 	// Идентификатор автора поста
-	AuthorId string `json:"author_id"`
+	AuthorId string `json:"authorId"`
 	// Количество лайков поста
 	Likes int `json:"likes"`
-	// Уровень подписки
-	Layer int `json:"layer"`
 	// Поставил ли лайк текущий пользователь
-	IsLiked bool `json:"is_liked"`
+	IsLiked bool `json:"isLiked"`
 }
 
 func (p *Post) String() string {

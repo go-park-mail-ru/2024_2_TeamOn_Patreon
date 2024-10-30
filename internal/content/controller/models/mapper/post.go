@@ -13,6 +13,14 @@ func MapInterfacePostToTransportPost(post models2.Post) *models.Post {
 		AuthorUsername: post.AuthorUsername,
 		AuthorId:       post.AuthorId,
 		Likes:          post.Likes,
-		Layer:          post.Layer,
+		IsLiked:        post.IsLiked,
 	}
+}
+
+func MapCommonPostsToControllerPosts(posts []models2.Post) []models.Post {
+	tPosts := make([]models.Post, 0, len(posts))
+	for _, post := range posts {
+		tPosts = append(tPosts, *MapInterfacePostToTransportPost(post))
+	}
+	return tPosts
 }

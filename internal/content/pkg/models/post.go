@@ -17,4 +17,6 @@ type Post struct {
 	Likes int
 	// Уровень подписки
 	Layer int
+	// Лайкнул ли текущий пользователь
+	IsLiked bool
 }

@@ -46,18 +46,6 @@ func (b *Behavior) CreatePost(authorId string, title string, content string, lay
 	return newPostId.String(), nil
 }
 
-func (b *Behavior) GetPopularPosts(offset, limits int) ([]models.Post, error) {
-	op := "service.behavior.GetPopularPosts"
-
-	// user -
-
-	posts, err := b.rep.GetPopularPosts(offset, limits)
-	if err != nil {
-		return nil, errors.Wrap(global.ErrServer, op)
-	}
-	return posts, nil
-}
-
 func (b *Behavior) UpdatePost(userID string, post models.Post) error {
 	op := "service.behavior.UpdatePost"
 
@@ -145,6 +133,6 @@ func (b *Behavior) LikePost(userId, postId string) (int, error) {
 	return countLikes, nil
 }
 
-func DeletePost(postId, userId string) error {
+func (b *Behavior) DeletePost(postId, userId string) error {
 	return nil
 }
