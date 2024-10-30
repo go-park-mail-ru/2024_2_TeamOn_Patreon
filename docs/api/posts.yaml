@@ -10,15 +10,10 @@ paths:
       tags:
         - feed
       summary: Лента популярных постов
-      description: Возвращает массив популярных постов с сортировкой по количеству лайков
+      description: >-
+        Возвращает массив популярных постов с сортировкой по количеству лайков
+        ***Запрос будет такой: /feed/popular?limit=10&offset=0***
       parameters:
-        - in: query
-          name: offset
-          description: Смещение для начала вывода постов
-          required: false
-          schema:
-            type: integer
-            default: 0
         - in: query
           name: limit
           description: Количество постов для вывода
@@ -26,6 +21,13 @@ paths:
           schema:
             type: integer
             default: 10
+        - in: query
+          name: offset
+          description: Смещение для пагинации (по умолчанию 0)
+          required: false
+          schema:
+            type: integer
+            default: 0
       responses:
         '200':
           description: Список постов
@@ -55,16 +57,10 @@ paths:
       description: >-
         Возвращает массив постов только тех авторов, на которых подписан пользователь,
         с сортировкой по времени публикации постов
+        ***Запрос будет такой: /feed/subscriptions?limit=10&offset=0***
       security:
         - cookieAuth: []
       parameters:
-        - in: query
-          name: offset
-          description: Смещение для начала вывода постов
-          required: false
-          schema:
-            type: integer
-            default: 0
         - in: query
           name: limit
           description: Количество постов для вывода
@@ -72,6 +68,13 @@ paths:
           schema:
             type: integer
             default: 10
+        - in: query
+          name: offset
+          description: Смещение для пагинации (по умолчанию 0)
+          required: false
+          schema:
+            type: integer
+            default: 0
       responses:
         '200':
           description: Список постов
@@ -245,9 +248,11 @@ paths:
         - post
       summary: Получение ленты постов на страничке автора или своей
       description: >-
-        Возвращает ленту постов по authorId. Если authorId == me, то айди брать из куков
+        Возвращает ленту постов по authorId. Если authorId == me, то айди брать из куков.
         Если нет, то парсить урл и вытаскивать authorId и уже даем данные относительно authorId.
         **Используется в сервисе "Профиль"**
+        
+        ***Запрос будет такой: /author/post/{authorId}?limit=10&offset=0***
       security:
         - cookieAuth: []
       parameters:
@@ -257,6 +262,20 @@ paths:
         schema:
           type: string
         description: Идентификатор автора, чью ленту постов нужно получить
+      - in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+          example: 10
+        description: Максимальное количество постов, которые нужно вернуть (по умолчанию 10)
+      - in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+          example: 0
+        description: Смещение для пагинации (по умолчанию 0)
       responses:
         '200':
           description: Успешное получение поста
@@ -297,6 +316,12 @@ paths:
       responses:
         '204':
           description: Пост успешно удален
+        '403':
+          description: У пользователя недостаточно прав для удаления поста
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: Пост не найден
           content:
@@ -363,6 +388,9 @@ components:
         likes:
           type: integer
           description: Количество лайков поста
+        isLiked:
+          type: boolean
+          description: Лайнкуто ли (отсутствует, если юзер не авторизован)
     Post:
       type: object
       properties:
@@ -384,12 +412,9 @@ components:
         likes:
           type: integer
           description: Количество лайков поста
-        layer:
-          type: integer
-          description: Уровень, на котором можно смотреть пост
-        is_liked:
+        isLiked:
           type: boolean
-          description: Поставил ли лайк текущий пользователь
+          description: Поставил ли лайк текущий пользователь (отсутствует, если юзер не авторизован)
     Likes:
       type: object
       properties:
@@ -431,10 +456,6 @@ components:
         content:
           type: string
           description: Содержимое поста (текст)
-        layer:
-          type: integer
-          description: Уровень на котором можно смотреть пост
-          example: 0  # 0 - доступно всем
       required:
         - postId
     MediaUploadRequest:
