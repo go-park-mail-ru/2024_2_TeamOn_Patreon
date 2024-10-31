@@ -344,6 +344,14 @@ paths:
       description: Возвращает загруженный медиа-контент в ленте.
       security:
         - cookieAuth: []
+      parameters:
+        - in: query
+          name: postId
+          required: true
+          schema:
+            type: string
+            example: 'some-uuid'
+          description: Id  поста
       responses:
         '200':
           description: Медиа-контент успешно получен
