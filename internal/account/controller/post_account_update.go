@@ -8,6 +8,7 @@ import (
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
 // PostAccountUpdate - ручка изменения данных профиля
@@ -38,12 +39,12 @@ func (handler *Handler) PostAccountUpdate(w http.ResponseWriter, r *http.Request
 	}
 
 	// Валидация userID на соответствие стандарту UUIDv4
-	// if ok := utils.IsValidUUIDv4(string(userData.UserID)); !ok {
-	// 	// Status 400
-	// 	logger.StandardResponse("invalid userID format", http.StatusBadRequest, r.Host, op)
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
+	if ok := utils.IsValidUUIDv4(string(userData.UserID)); !ok {
+		// Status 400
+		logger.StandardResponse("invalid userID format", http.StatusBadRequest, r.Host, op)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	// Обращение к service для записи данных (Может легче было передать сразу всю структуру?)
 	if err := handler.serv.PostAccUpdateByID(r.Context(), string(userData.UserID), newInfo.Username, newInfo.Password, newInfo.Email); err != nil {

@@ -26,10 +26,14 @@ func (p *Postgres) UserByID(ctx context.Context, userID string) (*sModels.User, 
 
 	// SQL-запрос для получения данных пользователя
 	query := `
-		SELECT p.user_id, p.username, p.email, r.role_id, 
-		FROM people p 
-		INNER JOIN role r ON p.role_id = r.role_id 
-		WHERE p.user_id = $1;
+		SELECT 
+			p.user_id, p.username, p.email, r.role_default_name
+		FROM
+			people p 
+		INNER JOIN
+			role r ON p.role_id = r.role_id 
+		WHERE
+			p.user_id = $1;
 	`
 
 	// rep модель пользователя, в дальнейшем конвертировать в service модель аккаунта
@@ -79,7 +83,7 @@ func (p *Postgres) UpdatePassword(ctx context.Context, userID string, hashPasswo
 	// SQL-запрос для изменения пароля
 	query := `
 		UPDATE people 
-		SET password = $1 
+		SET hash_password = $1 
 		WHERE user_id = $2;
 	`
 

@@ -22,7 +22,7 @@ func New(repository interfaces.AccountRepository) *Service {
 
 // GetAccDataByID - получение данных аккаунта по userID
 func (s *Service) GetAccDataByID(ctx context.Context, userID string) (cModels.Account, error) {
-	op := "internal.account.service.getAccDataByID"
+	op := "internal.account.service.GetAccDataByID"
 
 	// получаем данные пользователя в формате service model
 	user, err := s.rep.UserByID(ctx, userID)
@@ -38,7 +38,7 @@ func (s *Service) GetAccDataByID(ctx context.Context, userID string) (cModels.Ac
 	// по хорошему здесь должен быть маппер
 	accountData := cModels.Account{
 		Username: user.Username,
-		Email:    user.Email,
+		Email:    user.Email.String,
 		Role:     user.Role,
 		// Subscriptions:
 	}
@@ -54,7 +54,7 @@ func (s *Service) PostAccUpdateByID(ctx context.Context, userID string, username
 	if err := updatePassword(s, ctx, op, userID, password); err != nil {
 		return fmt.Errorf("fail update password | in %v", op)
 	}
-	if err := updateEmail(s, ctx, op, userID, password); err != nil {
+	if err := updateEmail(s, ctx, op, userID, email); err != nil {
 		return fmt.Errorf("fail update password | in %v", op)
 	}
 
@@ -85,7 +85,7 @@ func updatePassword(s *Service, ctx context.Context, op string, userID string, p
 			return err
 		}
 		logger.StandardInfo(
-			fmt.Sprintln("successful update password"),
+			fmt.Sprintf("successful update password: %v", hash),
 			op)
 	}
 	return nil

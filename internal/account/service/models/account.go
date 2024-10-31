@@ -1,5 +1,7 @@
 package models
 
+import "database/sql"
+
 const (
 	AuthorStatus = "Author"
 	ReaderStatus = "Reader"
@@ -9,7 +11,7 @@ const (
 type User struct {
 	UserID        string
 	Username      string
-	Email         string
+	Email         sql.NullString
 	Role          string
 	Subscriptions []Subscription // ?? оставить здесь или вынести отдельно ??
 }

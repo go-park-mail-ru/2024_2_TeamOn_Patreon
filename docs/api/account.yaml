@@ -158,6 +158,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /account/update/role:
+    post:
+      tags:
+        - account
+      summary: Изменение роли пользователя
+      description: >-
+        **Доступно только владельцу аккаунта**.
+        Позволяет пользователю стать автором. Процесс необратимый, стать читателем после смены роли невозможно. 
+        <p>Также создаёт пользователю "дефолтный" уровень бесплатной подписки.
+        <p>Требует JWT-токен в Cookie.
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешное изменение роли
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /author/{authorID}:
     get:
       tags:
