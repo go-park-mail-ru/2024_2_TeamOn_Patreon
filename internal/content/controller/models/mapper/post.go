@@ -17,10 +17,10 @@ func MapInterfacePostToTransportPost(post models2.Post) *models.Post {
 	}
 }
 
-func MapCommonPostsToControllerPosts(posts []models2.Post) []models.Post {
-	tPosts := make([]models.Post, 0, len(posts))
+func MapCommonPostsToControllerPosts(posts []*models2.Post) []*models.Post {
+	tPosts := make([]*models.Post, 0, len(posts))
 	for _, post := range posts {
-		tPosts = append(tPosts, *MapInterfacePostToTransportPost(post))
+		tPosts = append(tPosts, MapInterfacePostToTransportPost(*post))
 	}
 	return tPosts
 }

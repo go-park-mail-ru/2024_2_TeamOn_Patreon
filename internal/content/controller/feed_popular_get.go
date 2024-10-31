@@ -13,15 +13,13 @@ import (
 
 func (h *Handler) FeedPopularGet(w http.ResponseWriter, r *http.Request) {
 	op := "content.controller.post_post_id_delete.FeedPopularGet"
+	ctx := r.Context()
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Достаем юзера
-	user, ok := r.Context().Value(global.UserKey).(models.User)
-	if !ok {
-		// TODO: Отдать посты для неавторизованного
-		return
-	}
+	user, _ := r.Context().Value(global.UserKey).(models.User)
+
 	userId := string(user.UserID)
 
 	// Получение параметров `offset` и `limit` из запроса
@@ -30,7 +28,7 @@ func (h *Handler) FeedPopularGet(w http.ResponseWriter, r *http.Request) {
 
 	opt := models.NewFeedOpt(offsetStr, limitStr)
 
-	posts, err := h.b.GetPopularPostsForUser(userId, opt)
+	posts, err := h.b.GetPopularPosts(ctx, userId, opt)
 	if err != nil {
 		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))

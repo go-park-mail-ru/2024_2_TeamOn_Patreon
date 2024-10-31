@@ -2,6 +2,8 @@
 
 package models
 
+import "time"
+
 type Post struct {
 	// Идентификатор поста
 	PostId string
@@ -19,4 +21,6 @@ type Post struct {
 	Layer int
 	// Лайкнул ли текущий пользователь
 	IsLiked bool
+	// Когда создан
+	CreatedDate time.Time
 }
