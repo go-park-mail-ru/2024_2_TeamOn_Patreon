@@ -18,10 +18,9 @@ type ContentBehavior interface {
 	DeletePost(ctx context.Context, userId, postId string) error
 
 	// feed
-	GetPopularPosts(offset, limits int) ([]models.Post, error)
-	GetFeedSubscriptionGet(userId string, opt *models2.FeedOpt) ([]models.Post, error)
-	GetPopularPostsForAnon(opt *models2.FeedOpt) ([]models.Post, error)
-	GetPopularPostsForUser(userId string, opt *models2.FeedOpt) ([]models.Post, error)
+	GetPopularPosts(ctx context.Context, userId string, opt *models2.FeedOpt) ([]*models.Post, error)
+	GetFeedSubscriptionGet(userId string, opt *models2.FeedOpt) ([]*models.Post, error)
+
 	// страница автора
 
 	GetAuthorPostsForAnon(authorId string, offset, limit int) ([]models.Post, error)
