@@ -30,7 +30,7 @@ func (h *Handler) FeedPopularGet(w http.ResponseWriter, r *http.Request) {
 
 	opt := models.NewFeedOpt(offsetStr, limitStr)
 
-	posts, err := h.b.GetPopularPosts(userId, opt)
+	posts, err := h.b.GetPopularPostsForUser(userId, opt)
 	if err != nil {
 		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))

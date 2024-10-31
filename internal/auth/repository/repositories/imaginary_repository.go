@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"fmt"
 	imModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
@@ -36,6 +37,8 @@ func (r *ImaginaryRepository) SaveUser(username string, role string, passwordHas
 	// сохранение пользователя в бд
 	r.users[user.UserID] = &user
 	r.mu.Unlock()
+
+	fmt.Println("'", user.PasswordHash, "'")
 
 	// мапим в бизнес модель user
 	bUser := imModels.MapImUserToBUser(user)
