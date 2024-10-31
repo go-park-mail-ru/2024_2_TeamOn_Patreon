@@ -13,7 +13,7 @@ type ContentBehavior interface {
 
 	UpdatePost(ctx context.Context, userId string, postId string, title string, about string) error
 
-	LikePost(userId, postId string) (int, error)
+	LikePost(ctx context.Context, userId, postId string) (int, error)
 
 	DeletePost(ctx context.Context, userId, postId string) error
 

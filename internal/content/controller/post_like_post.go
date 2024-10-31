@@ -13,6 +13,7 @@ import (
 func (h Handler) PostLikePost(w http.ResponseWriter, r *http.Request) {
 	op := "content.controller.post_like_post"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	ctx := r.Context()
 
 	// Достаем юзера
 	user, ok := r.Context().Value(global.UserKey).(bModels.User)
@@ -46,7 +47,7 @@ func (h Handler) PostLikePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Ставим лайки
-	count, err := h.b.LikePost(string(user.UserID), plb.PostId)
+	count, err := h.b.LikePost(ctx, string(user.UserID), plb.PostId)
 	if err != nil {
 		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))

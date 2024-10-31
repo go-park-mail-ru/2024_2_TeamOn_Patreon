@@ -133,7 +133,7 @@ func (r *ContentRepository) UpdatePost(authorId uuid.UUID, postId uuid.UUID, upd
 // LikePost
 
 func (cr *ContentRepository) IsLikePutPost(userId uuid.UUID, postID uuid.UUID) (bool, error) {
-	op := "content.repository.imagine.repository.IsLikePutPost"
+	op := "content.repository.imagine.repository.GetPostLike"
 	logger.StandardDebugF(op, "post.PostId=%v", postID)
 	return false, nil
 }

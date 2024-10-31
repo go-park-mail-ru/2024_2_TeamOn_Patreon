@@ -19,43 +19,6 @@ func New(repository interfaces.ContentRepository) *Behavior {
 	return &Behavior{repository}
 }
 
-func (b *Behavior) LikePost(userId, postId string) (int, error) {
-	op := "service.behavior.LikePost"
-
-	userIdUuid, err := uuid.FromString(userId)
-	if err != nil {
-		return 0, errors.Wrap(global.ErrServer, op)
-	}
-
-	postIdUuid, err := uuid.FromString(postId)
-	if err != nil {
-		return 0, errors.Wrap(global.ErrServer, op)
-	}
-
-	isLike, err := b.rep.IsLikePutPost(userIdUuid, postIdUuid)
-	if err != nil {
-		return 0, errors.Wrap(global.ErrServer, op)
-	}
-	if isLike {
-		err = b.rep.InsertLikePost(userIdUuid, postIdUuid)
-		if err != nil {
-			return 0, errors.Wrap(global.ErrServer, op)
-		}
-	} else {
-		err = b.rep.DeleteLikePost(userIdUuid, postIdUuid)
-		if err != nil {
-			return 0, errors.Wrap(global.ErrServer, op)
-		}
-	}
-
-	countLikes, err := b.rep.GetPostLikes(postIdUuid)
-	if err != nil {
-		return 0, errors.Wrap(global.ErrServer, op)
-	}
-
-	return countLikes, nil
-}
-
 func (b *Behavior) GetAuthorPostsForAnon(authorId string, offset, limit int) ([]models.Post, error) {
 	op := "service.behavior.GetAuthorPostsForAnon"
 	authorIdUuid, err := uuid.FromString(authorId)
