@@ -9,6 +9,7 @@ import (
 // ТАКЖЕ КАК И ТРЕБОВАНИЯ ПО ВАЛИДАЦИИ
 
 var (
+	ErrBadRequest = errors.New("bad request")
 	// VALIDATION
 	// registration
 
@@ -74,6 +75,8 @@ type ErrorHttpInfo struct {
 
 // ВРЕМЕННО ЗДЕСЬ
 var mapErrToHttpModel = map[error]ErrorHttpInfo{
+	ErrBadRequest: {msg: "bad request", code: http.StatusBadRequest},
+
 	ErrSmallLogin: {msg: "логин должен быть не меньше 4 символов", code: http.StatusBadRequest},
 	ErrLongLogin:  {msg: "логин должен быть не более 10 символов", code: http.StatusBadRequest},
 
@@ -98,8 +101,9 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrUserAlreadyExists:       {msg: "пользователь уже существует", code: http.StatusBadRequest},
 	ErrInvalidJSON:             {msg: "невалидный запрос", code: http.StatusBadRequest},
 	ErrDatabaseDead:            {msg: "ошибка сервера", code: http.StatusInternalServerError},
-	ErrServer:                  {msg: "end-to-end error", code: http.StatusInternalServerError},
-	ErrUserNotAuthorized:       {msg: "пользователь не авторизован", code: http.StatusUnauthorized},
+
+	ErrServer:            {msg: "end-to-end error", code: http.StatusInternalServerError},
+	ErrUserNotAuthorized: {msg: "пользователь не авторизован", code: http.StatusUnauthorized},
 
 	// content
 	ErrFieldTooLong:             {msg: "field too long", code: http.StatusBadRequest},
@@ -110,7 +114,8 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrUuidIsInvalid: {msg: "uuiod is invalid", code: http.StatusBadRequest},
 
 	// rights
-	ErrNotEnoughRights: {msg: "not enough rights", code: http.StatusBadRequest},
+	ErrNotEnoughRights:  {msg: "not enough rights", code: http.StatusBadRequest},
+	ErrPostDoesntExists: {msg: "post doesn't exists", code: http.StatusNoContent},
 }
 
 func GetMsgError(err error) string {
