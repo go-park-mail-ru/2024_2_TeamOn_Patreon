@@ -14,8 +14,13 @@ type ContentRepository interface {
 	// DeletePost - удаляет пост по id
 	DeletePost(ctx context.Context, postID uuid.UUID) error
 
+	// GetPostLayerBuPostId уровень поста по ид поста
+	GetPostLayerBuPostId(ctx context.Context, postID uuid.UUID) (int, error)
+
 	// GetAuthorOfPost - получение  ID автора поста
 	GetAuthorOfPost(ctx context.Context, postID uuid.UUID) (uuid.UUID, error)
+
+	// Update
 
 	UpdateTitleOfPost(ctx context.Context, postID uuid.UUID, title string) error
 	UpdateContentOfPost(ctx context.Context, postID uuid.UUID, content string) error
@@ -30,6 +35,9 @@ type ContentRepository interface {
 
 	GetUserRole(ctx context.Context, userId uuid.UUID) (string, error)
 
+	// GetUserLayerOfAuthor - уровень подписки пользователя на определенном авторе
+	GetUserLayerOfAuthor(ctx context.Context, userId, authorId uuid.UUID) (int, error)
+
 	// GetPopularPosts - возвращает популярные посты со смещением для анонима
 	GetPopularPosts(offset int, limits int) ([]models.Post, error)
 	GetPopularPostsForUser(userId uuid.UUID, offset int, limits int) ([]models.Post, error)
@@ -38,8 +46,8 @@ type ContentRepository interface {
 
 	// LikePost
 
-	IsLikePutPost(userId uuid.UUID, postID uuid.UUID) (bool, error)
-	InsertLikePost(userId uuid.UUID, postID uuid.UUID) error
-	DeleteLikePost(userId uuid.UUID, postID uuid.UUID) error
-	GetPostLikes(postID uuid.UUID) (int, error)
+	GetPostLikeId(ctx context.Context, userId uuid.UUID, postID uuid.UUID) (uuid.UUID, error)
+	InsertLikePost(ctx context.Context, userId uuid.UUID, postID uuid.UUID) error
+	DeleteLikePost(ctx context.Context, userId uuid.UUID, postID uuid.UUID) error
+	GetPostLikes(ctx context.Context, postID uuid.UUID) (int, error)
 }

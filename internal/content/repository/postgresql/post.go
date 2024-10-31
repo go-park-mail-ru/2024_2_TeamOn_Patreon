@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
@@ -99,11 +98,6 @@ func (cr *ContentRepository) GetAuthorOfPost(ctx context.Context, postID uuid.UU
 		return authorId, nil
 	}
 	return uuid.UUID{}, errors.Wrap(global.ErrPostDoesntExists, op)
-}
-
-func (cr *ContentRepository) UpdatePost(authorId uuid.UUID, postID uuid.UUID, post models.Post) error {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (cr *ContentRepository) UpdateTitleOfPost(ctx context.Context, postID uuid.UUID, title string) error {

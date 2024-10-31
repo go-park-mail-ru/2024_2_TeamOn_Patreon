@@ -28,13 +28,26 @@ where
 	// Input: userId
 	// Output: role_name ('Reader' or 'Author' or '')
 	getUserRoleSQL = `
-		select 
-			role_default_name
-		from 
-		    Role
-			join People USING (role_id)
-		where People.user_id = $1
+select 
+	role_default_name
+from 
+	Role
+	join People USING (role_id)
+where People.user_id = $1
 	`
+
+	// getUserLayerOfAuthor - получение уровня подписки пользователя на определенного автора
+	// Input: $1 - userId, $2 - authorId
+	// Output: layer (int)
+	getUserLayerOfAuthor = `
+		select layer
+		from Subscription
+		join Custom_Subscription USING (custom_subscription_id)
+		join Subscription_Layer ON Subscription_Layer.subscription_layer_id = Custom_Subscription.subscription_layer_id
+		where Custom_Subscription.author_id = $2
+		and Subscription.user_id = &1
+		;
+`
 )
 
 func (cr *ContentRepository) GetUserLayerForAuthor(ctx context.Context, userId uuid.UUID, authorId uuid.UUID) (int, error) {
@@ -90,4 +103,30 @@ func (cr *ContentRepository) GetUserRole(ctx context.Context, userId uuid.UUID) 
 	}
 
 	return "", nil
+}
+
+func (cr *ContentRepository) GetUserLayerOfAuthor(ctx context.Context, userId, authorId uuid.UUID) (int, error) {
+	op := "internal.content.repository.post.CanUserSeePost"
+
+	logger.StandardDebugF(op, "Want to get user layer userID=%v, author = %v", userId, authorId)
+
+	rows, err := cr.db.Query(ctx, getUserLayerOfAuthor, userId, authorId)
+	if err != nil {
+		return 0, errors.Wrap(err, op)
+	}
+
+	defer rows.Close()
+
+	var (
+		layer int
+	)
+	for rows.Next() {
+		if err = rows.Scan(&layer); err != nil {
+			return 0, errors.Wrap(err, op)
+		}
+		logger.StandardDebugF(op, "Got layer= %s user= %s", layer, userId)
+		return layer, nil
+	}
+
+	return 0, nil
 }
