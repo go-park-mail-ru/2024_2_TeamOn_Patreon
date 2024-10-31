@@ -32,3 +32,9 @@ func (b *Behavior) GetPopularPostsForAnon(opt *models2.FeedOpt) ([]models.Post, 
 func (b *Behavior) GetFeedSubscriptionGet(userId string, opt *models2.FeedOpt) ([]models.Post, error) {
 	return nil, nil
 }
+
+func (b *Behavior) GetPopularPosts(offset, limits int) ([]models.Post, error) {
+	op := "service.behavior.GetPopularPosts"
+	_ = op
+	return nil, nil
+}

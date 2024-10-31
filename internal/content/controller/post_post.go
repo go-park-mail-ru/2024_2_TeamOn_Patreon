@@ -14,6 +14,7 @@ import (
 func (h Handler) PostPost(w http.ResponseWriter, r *http.Request) {
 	op := "content.controller.post_post"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	ctx := r.Context()
 
 	// Достаем юзера
 	user, ok := r.Context().Value(global.UserKey).(bModels.User)
@@ -47,7 +48,7 @@ func (h Handler) PostPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authorId := string(user.UserID)
-	postID, err := h.b.CreatePost(authorId, ap.Title, ap.Content, ap.Layer)
+	postID, err := h.b.CreatePost(ctx, authorId, ap.Title, ap.Content, ap.Layer)
 	if err != nil {
 		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))

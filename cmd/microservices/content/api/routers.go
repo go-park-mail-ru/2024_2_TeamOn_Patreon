@@ -70,7 +70,7 @@ func handleAuth(router *mux.Router, behavior interfaces.ContentBehavior) *mux.Ro
 		Route{
 			"PostsPostIdDelete",
 			strings.ToUpper("Delete"),
-			"/post/{postId}",
+			"/delete/post/{postId}",
 			handler.PostsPostIdDelete,
 		},
 	}

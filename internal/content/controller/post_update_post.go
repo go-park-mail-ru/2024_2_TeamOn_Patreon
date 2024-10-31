@@ -3,7 +3,6 @@ package controller
 import (
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models"
-	models2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
@@ -14,6 +13,7 @@ import (
 func (h Handler) PostUpdatePost(w http.ResponseWriter, r *http.Request) {
 	op := "content.controller.post_post"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	ctx := r.Context()
 
 	// Достаем юзера
 	user, ok := r.Context().Value(global.UserKey).(bModels.User)
@@ -48,13 +48,7 @@ func (h Handler) PostUpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	authorID := string(user.UserID)
 	// Обновляем пост у соответствующего автора
-	err := h.b.UpdatePost(authorID, models2.Post{
-		PostId:   up.PostId,
-		Title:    up.Title,
-		Content:  up.Content,
-		Layer:    up.Layer,
-		AuthorId: authorID,
-	})
+	err := h.b.UpdatePost(ctx, authorID, up.PostId, up.Title, up.Content)
 
 	if err != nil {
 		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
