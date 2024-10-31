@@ -23,6 +23,18 @@ where
 	and custom_subscription.author_id = ?
 ;
 `
+
+	// getUserRoleSQL - возвращает текстовое имя роли пользователя
+	// Input: userId
+	// Output: role_name ('Reader' or 'Author' or '')
+	getUserRoleSQL = `
+		select 
+			role_default_name
+		from 
+		    Role
+			join People USING (role_id)
+		where People.user_id = $1
+	`
 )
 
 func (cr *ContentRepository) GetUserLayerForAuthor(ctx context.Context, userId uuid.UUID, authorId uuid.UUID) (int, error) {
@@ -30,7 +42,7 @@ func (cr *ContentRepository) GetUserLayerForAuthor(ctx context.Context, userId u
 
 	rows, err := cr.db.Query(ctx, getUserLayerSql, userId, authorId)
 	if err != nil {
-		return 0, global.ErrServer
+		return 0, errors.Wrap(err, op)
 	}
 
 	defer rows.Close()
@@ -39,8 +51,8 @@ func (cr *ContentRepository) GetUserLayerForAuthor(ctx context.Context, userId u
 		layer int
 	)
 	for rows.Next() {
-		if err := rows.Scan(&layer); err != nil {
-			return 0, errors.Wrap(global.ErrServer, op)
+		if err = rows.Scan(&layer); err != nil {
+			return 0, errors.Wrap(err, op)
 		}
 		logger.StandardDebugF(op, "Got layer= %s user= %s author %s", layer, userId, authorId)
 	}
@@ -52,4 +64,30 @@ func (cr *ContentRepository) GetUserLayerForAuthor(ctx context.Context, userId u
 	logger.StandardDebugF(op, "Got layer= %s user= %s author %s", layer, userId, authorId)
 
 	return 0, nil
+}
+
+func (cr *ContentRepository) GetUserRole(ctx context.Context, userId uuid.UUID) (string, error) {
+	op := "internal.content.repository.user.GetUserRole"
+
+	logger.StandardDebugF(op, "Want to get user role userID=%v, db = %v", userId, cr.db)
+
+	rows, err := cr.db.Query(ctx, getUserRoleSQL, userId.String())
+	if err != nil {
+		return "", errors.Wrap(err, op)
+	}
+
+	defer rows.Close()
+
+	var (
+		role string
+	)
+	for rows.Next() {
+		if err = rows.Scan(&role); err != nil {
+			return "", errors.Wrap(err, op)
+		}
+		logger.StandardDebugF(op, "Got layer= %s user= %s", role, userId)
+		return role, nil
+	}
+
+	return "", nil
 }

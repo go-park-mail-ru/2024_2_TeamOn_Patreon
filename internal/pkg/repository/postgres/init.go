@@ -3,7 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
@@ -24,7 +24,7 @@ var (
 	password = "adminpass"
 	dbname   = "testdb"
 
-	dbSslMode = "false"
+	dbSslMode = "disable"
 )
 
 func initConfig() (Config, error) {
@@ -49,7 +49,7 @@ func InitPostgresDB(ctx context.Context) (*pgxpool.Pool, error) {
 
 	cfg, err := initConfig()
 	if err != nil {
-		return nil, errors.Wrap(config.ErrServer, op)
+		return nil, errors.Wrap(err, op)
 	}
 
 	connString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
@@ -57,8 +57,9 @@ func InitPostgresDB(ctx context.Context) (*pgxpool.Pool, error) {
 
 	pool, err := pgxpool.New(ctx, connString)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, op)
 	}
 
+	logger.StandardInfoF(op, "Successfully connected to PostgresDB pool=%v", pool)
 	return pool, nil
 }

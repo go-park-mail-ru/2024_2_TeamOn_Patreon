@@ -157,6 +157,7 @@ func (cr *ContentRepository) GetPostLikes(postID uuid.UUID) (int, error) {
 }
 
 func (cr *ContentRepository) GetPopularPostsForLayer(userId uuid.UUID, offset int, limit int) ([]models.Post, error) {
+
 	/*
 		потенциальный sql:
 			// сначала выборка по уровням для авторов для этого пользователя
@@ -166,16 +167,21 @@ func (cr *ContentRepository) GetPopularPostsForLayer(userId uuid.UUID, offset in
 			from post
 				join people on people.userId == post.authorId as author
 				join layer on layer.layerId == post.layerId
-			where layer.layer >= (select layer.layer
-								from layer
-									join CustomSubscription on CustomSubscription.subscription_layer_id == layer.layer_id
-									join Subscription on Subscription.custom_subscription_id  == CustomSubscription.subscription_id
-								where Subscription.user_id == {userId} and CustomSubscription.author_id == author.userId
+			where layer.layer >= (
+								select Subscription_Layer.layer, *
+								from Subscription
+									join Custom_Subscription on Subscription.custom_subscription_id  = Custom_Subscription.custom_subscription_id
+									join Subscription_Layer on Custom_Subscription.subscription_layer_id = Subscription_Layer.subscription_layer_id
+								where Subscription.user_id = {userId} and Custom_Subscription.author_id = author.user_id
 								)
 			order by post.postId, post.Title, post.Content, author.userId, author.Username
 			sort by likes (??????)
 			limit {limits}
 			top {offset}
 	*/
+
+	// КОНТЕНТ ОТДЕЛЬЕНЫМ ЗАПРОСОМ
+	// Лайкнул ли пользователь тоже отдельным запросом
+
 	return nil, nil
 }

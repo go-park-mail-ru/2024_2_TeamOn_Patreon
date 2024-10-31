@@ -10,3 +10,7 @@ import (
 type ContentRepository struct {
 	db postgres.DbPool
 }
+
+func NewContentRepository(db postgres.DbPool) *ContentRepository {
+	return &ContentRepository{db}
+}
