@@ -15,6 +15,8 @@ func (h *Handler) FeedSubscriptionsGet(w http.ResponseWriter, r *http.Request) {
 	op := "internal.content.controller.FeedSubscriptionGet"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	ctx := r.Context()
+
 	// Достаем юзера
 	user, ok := r.Context().Value(global.UserKey).(cModels.User)
 	if !ok {
@@ -33,7 +35,7 @@ func (h *Handler) FeedSubscriptionsGet(w http.ResponseWriter, r *http.Request) {
 	opt := cModels.NewFeedOpt(offsetStr, limitStr)
 
 	// Выполняем бизнес логику
-	posts, err := h.b.GetFeedSubscriptionGet(string(userId), opt)
+	posts, err := h.b.GetFeedSubscription(ctx, string(userId), opt)
 	if err != nil {
 		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))

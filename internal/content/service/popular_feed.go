@@ -13,13 +13,17 @@ import (
 func (b *Behavior) GetPopularPosts(ctx context.Context, userId string, opt *models2.FeedOpt) ([]*models.Post, error) {
 	op := "service.behavior.GetPopularPosts"
 
+	if userId == "" {
+		posts, err := b.getPopularPostsForAnon(ctx, opt.Offset, opt.Limit)
+		if err != nil {
+			return nil, errors.Wrap(err, op)
+		}
+		return posts, nil
+	}
+
 	userIdUuid, err := uuid.FromString(userId)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
-	}
-
-	if userId == "" {
-		b.getPopularPostsForAnon(ctx, opt.Offset, opt.Limit)
 	}
 
 	posts, err := b.getPopularPostsForUser(ctx, userIdUuid, opt.Offset, opt.Limit)
@@ -31,7 +35,7 @@ func (b *Behavior) GetPopularPosts(ctx context.Context, userId string, opt *mode
 }
 
 // getPopularPostsForAnon отдаем популярные посты для конкретного пользователя
-func (b *Behavior) getPopularPostsForAnon(ctx context.Context, offset, limits int) ([]models.Post, error) {
+func (b *Behavior) getPopularPostsForAnon(ctx context.Context, offset, limits int) ([]*models.Post, error) {
 	op := "service.behavior.GetPopularPostsForAnon"
 
 	posts, err := b.rep.GetPopularPosts(ctx, offset, limits)
@@ -39,10 +43,6 @@ func (b *Behavior) getPopularPostsForAnon(ctx context.Context, offset, limits in
 		return nil, errors.Wrap(global.ErrServer, op)
 	}
 	return posts, nil
-}
-
-func (b *Behavior) GetFeedSubscriptionGet(userId string, opt *models2.FeedOpt) ([]*models.Post, error) {
-	return nil, nil
 }
 
 func (b *Behavior) getPopularPostsForUser(ctx context.Context, UserId uuid.UUID, offset, limits int) ([]*models.Post, error) {

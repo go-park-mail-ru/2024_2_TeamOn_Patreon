@@ -19,7 +19,7 @@ type ContentBehavior interface {
 
 	// feed
 	GetPopularPosts(ctx context.Context, userId string, opt *models2.FeedOpt) ([]*models.Post, error)
-	GetFeedSubscriptionGet(userId string, opt *models2.FeedOpt) ([]*models.Post, error)
+	GetFeedSubscription(ctx context.Context, userId string, opt *models2.FeedOpt) ([]*models.Post, error)
 
 	// страница автора
 
