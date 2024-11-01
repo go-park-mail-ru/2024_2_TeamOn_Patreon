@@ -148,10 +148,7 @@ func (p *Postgres) UpdateAvatar(ctx context.Context, userID string, avatarID str
 		WHERE user_id = $1
 	`
 
-	if _, err := p.db.Exec(ctx, deleteQuery, userID); err != nil {
-		logger.StandardDebugF(op, "delete old avatar error: {%v}", err)
-		return err
-	}
+	p.db.Exec(ctx, deleteQuery, userID)
 
 	// Запрос на создание новой записи о новой аватарке
 	query := `

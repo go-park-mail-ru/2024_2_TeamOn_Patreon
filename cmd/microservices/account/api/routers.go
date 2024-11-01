@@ -36,7 +36,7 @@ func NewRouter(service interfaces.AccountService) *mux.Router {
 		Route{
 			"GetAccountAvatar",
 			"GET",
-			"/account/avatar",
+			"/account/{userID}/avatar",
 			handler.GetAccountAvatar,
 		},
 		Route{

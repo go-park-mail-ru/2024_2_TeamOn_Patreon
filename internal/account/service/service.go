@@ -52,12 +52,14 @@ func (s *Service) GetAccDataByID(ctx context.Context, userID string) (cModels.Ac
 // GetAvatarByID - получение аватарки пользователя по userID
 func (s *Service) GetAvatarByID(ctx context.Context, userID string) ([]byte, error) {
 	op := "internal.account.service.GetAvatarByID"
+	defaultAvatarPath := "static/avatar/default.jpg"
 
 	// ОБращаемся в репозиторий для получения пути до аватара
 	avatarPath, err := s.rep.AvatarPathByID(ctx, userID)
 	if err != nil {
 		logger.StandardDebugF(op, "fail get avatarPath: {%v}", err)
-		return nil, err
+		// Если не получилось достать аватар, то возвращаем дефолтный
+		avatarPath = defaultAvatarPath
 	}
 
 	// По указанному пути открываем файл аватара
@@ -78,13 +80,13 @@ func (s *Service) GetAvatarByID(ctx context.Context, userID string) ([]byte, err
 func (s *Service) PostAccUpdateByID(ctx context.Context, userID string, username string, password string, email string) error {
 	op := "internal.account.service.PostAccUpdateByID"
 
-	if err := updateUsername(s, ctx, op, userID, username); err != nil {
+	if err := s.updateUsername(ctx, op, userID, username); err != nil {
 		return fmt.Errorf("fail update username | in %v", op)
 	}
-	if err := updatePassword(s, ctx, op, userID, password); err != nil {
+	if err := s.updatePassword(ctx, op, userID, password); err != nil {
 		return fmt.Errorf("fail update password | in %v", op)
 	}
-	if err := updateEmail(s, ctx, op, userID, email); err != nil {
+	if err := s.updateEmail(ctx, op, userID, email); err != nil {
 		return fmt.Errorf("fail update password | in %v", op)
 	}
 
@@ -95,45 +97,19 @@ func (s *Service) PostAccUpdateByID(ctx context.Context, userID string, username
 func (s *Service) PostAccountUpdateAvatar(ctx context.Context, userID string, avatarFile multipart.File, fileName string) error {
 	op := "internal.account.service.PostAccountUpdateAvatar"
 
-	// Директория для сохранения аватаров
-	avatarDir := "static/avatar"
-
-	// Получение формата загрузочного файла из его названия
-	avatarFormat := filepath.Ext(fileName)
-
-	// Формирование ID
-	avatarID := s.rep.GenerateID()
-
-	// Полное имя сохраняемого файла
-	fileFullName := avatarID + avatarFormat
-
-	// Формируем путь к файлу из папки сохранения и названия файла
-	avatarPath := filepath.Join(avatarDir, fileFullName)
-
-	logger.StandardInfo(
-		fmt.Sprintf("new file name: %s", fileFullName),
-		op,
-	)
-	out, err := os.Create(avatarPath)
-	if err != nil {
-		return fmt.Errorf("error creating avatar file | in %v", op)
-	}
-	defer out.Close()
-
-	// Сохраняем файл
-	if _, err := io.Copy(out, avatarFile); err != nil {
-		return fmt.Errorf("error saving avatar file | in %v", op)
+	// Удаляем старый аватар, если он есть
+	if err := s.deleteOldAvatar(ctx, op, userID); err != nil {
+		return err
 	}
 
-	// Обновляем информацию в БД
-	if err := s.rep.UpdateAvatar(ctx, userID, avatarID, avatarPath); err != nil {
-		return fmt.Errorf("error updating avatar in DB | in %v", op)
+	// Сохраняем новый
+	if err := s.saveNewAvatar(ctx, op, userID, avatarFile, fileName); err != nil {
+		return err
 	}
-
 	return nil
 }
 
-func updateUsername(s *Service, ctx context.Context, op string, userID string, username string) error {
+func (s *Service) updateUsername(ctx context.Context, op string, userID string, username string) error {
 	if username != "" {
 		if err := s.rep.UpdateUsername(ctx, userID, username); err != nil {
 			return err
@@ -145,7 +121,7 @@ func updateUsername(s *Service, ctx context.Context, op string, userID string, u
 	return nil
 }
 
-func updatePassword(s *Service, ctx context.Context, op string, userID string, password string) error {
+func (s *Service) updatePassword(ctx context.Context, op string, userID string, password string) error {
 
 	if password != "" {
 		// Хеширование пароля с заданным уровнем сложности
@@ -163,7 +139,7 @@ func updatePassword(s *Service, ctx context.Context, op string, userID string, p
 	return nil
 }
 
-func updateEmail(s *Service, ctx context.Context, op string, userID string, email string) error {
+func (s *Service) updateEmail(ctx context.Context, op string, userID string, email string) error {
 	if email != "" {
 		if err := s.rep.UpdatePassword(ctx, userID, email); err != nil {
 			return err
@@ -171,6 +147,58 @@ func updateEmail(s *Service, ctx context.Context, op string, userID string, emai
 		logger.StandardInfo(
 			fmt.Sprintf("successful update email: %v", email),
 			op)
+	}
+	return nil
+}
+
+func (s *Service) deleteOldAvatar(ctx context.Context, op string, userID string) error {
+	oldAvatarPath, err := s.rep.AvatarPathByID(ctx, userID)
+	if err == nil {
+		if err := os.Remove(oldAvatarPath); err != nil {
+			return fmt.Errorf("error delete old avatar file {%v} | in %v", err, op)
+		}
+		logger.StandardInfo(
+			fmt.Sprintf("old avatar deleted: %s", oldAvatarPath),
+			op,
+		)
+	}
+	return nil
+}
+
+func (s *Service) saveNewAvatar(ctx context.Context, op string, userID string, avatarFile multipart.File, fileName string) error {
+	// Директория для сохранения аватаров
+	avatarDir := "static/avatar"
+
+	// Получение формата загрузочного файла из его названия
+	avatarFormat := filepath.Ext(fileName)
+
+	// Формирование ID
+	avatarID := s.rep.GenerateID()
+
+	// Полное имя сохраняемого файла
+	fileFullName := avatarID + avatarFormat
+
+	// Формируем путь к файлу из папки сохранения и названия файла
+	avatarPath := filepath.Join(avatarDir, fileFullName)
+
+	logger.StandardInfo(
+		fmt.Sprintf("generated file name: %s", fileFullName),
+		op,
+	)
+	out, err := os.Create(avatarPath)
+	if err != nil {
+		return fmt.Errorf("error creating avatar file | in %v", op)
+	}
+	defer out.Close()
+
+	// Сохраняем файл
+	if _, err := io.Copy(out, avatarFile); err != nil {
+		return fmt.Errorf("error saving avatar file | in %v", op)
+	}
+
+	// Обновляем информацию в БД
+	if err := s.rep.UpdateAvatar(ctx, userID, avatarID, avatarPath); err != nil {
+		return fmt.Errorf("error updating avatar in DB | in %v", op)
 	}
 	return nil
 }
