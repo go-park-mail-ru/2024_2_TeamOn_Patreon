@@ -68,6 +68,42 @@ OFFSET $2;
 		WHERE 
 			p.post_id = ANY($2)
 `
+
+	// getPopularPostsForAnonSQL возвращает посты отсортированные по лайкам по убывающей, которые
+	// может смотреть пользователь среди всех постов
+	// Output: postID, title, about, authorId, authorUsername, likes, created_date
+	// likes - количество лайков
+	// Input: {$1 offset} и { $2 limit}
+	getPopularPostsForAnonSQL = `
+SELECT 
+    post.post_id, 
+    post.Title, 
+    post.About, 
+    author.user_id AS author_id, 
+    author.Username AS author_username, 
+    COUNT(Like_Post.like_post_id) AS likes,
+    post.created_date
+FROM 
+    post
+JOIN 
+    People AS author ON author.user_id = post.user_id 
+RIGHT OUTER JOIN 
+    Subscription_Layer ON Subscription_Layer.subscription_layer_id = post.subscription_layer_id
+LEFT OUTER JOIN 
+    Like_Post USING (post_id)
+WHERE 
+    post.subscription_layer_id = (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = 0)
+GROUP BY 
+    post.post_id,  
+    post.About, 
+    post.Title, 
+    author_id, 
+    author_username
+ORDER BY 
+    likes DESC
+LIMIT $2
+OFFSET $1;
+`
 )
 
 func (cr *ContentRepository) GetPopularPostsForUser(ctx context.Context, userId uuid.UUID, offset int, limits int) ([]*models.Post, error) {
@@ -98,7 +134,7 @@ func (cr *ContentRepository) GetPopularPostsForUser(ctx context.Context, userId 
 		}
 		logger.StandardDebugF(op,
 			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
-			postID, title, content, authorId, authorUsername, likes, createdDate)
+			postID, title, authorId, authorUsername, likes, createdDate)
 		posts = append(posts, &models.Post{
 			PostId:         postID.String(),
 			Title:          title,
@@ -118,8 +154,49 @@ func (cr *ContentRepository) GetSubscriptionsPostsForUser() error {
 	return nil
 }
 
-func (cr *ContentRepository) GetPopularPosts(ctx context.Context, offset int, limits int) ([]models.Post, error) {
-	return nil, nil
+// GetPopularPosts Выдает ленту популярных для анонимиа
+func (cr *ContentRepository) GetPopularPosts(ctx context.Context, offset int, limits int) ([]*models.Post, error) {
+	op := "internal.content.repository.postgresql.GetPopularPosts"
+	_ = op
+	posts := make([]*models.Post, 0, limits-offset+1)
+
+	rows, err := cr.db.Query(ctx, getPopularPostsForAnonSQL, offset, limits)
+	if err != nil {
+		return nil, errors.Wrap(err, op)
+	}
+
+	defer rows.Close()
+
+	var (
+		postID         uuid.UUID
+		title          string
+		content        string
+		authorId       uuid.UUID
+		authorUsername string
+		likes          int
+		createdDate    time.Time
+	)
+
+	for rows.Next() {
+		if err = rows.Scan(&postID, &title, &content, &authorId, &authorUsername, &likes, &createdDate); err != nil {
+			return nil, errors.Wrap(err, op)
+		}
+		logger.StandardDebugF(op,
+			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
+			postID, title, authorId, authorUsername, likes, createdDate)
+		posts = append(posts, &models.Post{
+			PostId:         postID.String(),
+			Title:          title,
+			Content:        content,
+			AuthorId:       authorId.String(),
+			AuthorUsername: authorUsername,
+			Likes:          likes,
+			CreatedDate:    createdDate,
+		})
+
+	}
+
+	return posts, nil
 }
 
 func (cr *ContentRepository) GetIsLikedForPosts(ctx context.Context, UserId uuid.UUID, posts []*models.Post) error {

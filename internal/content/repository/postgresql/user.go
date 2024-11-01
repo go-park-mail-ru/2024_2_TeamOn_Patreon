@@ -45,7 +45,7 @@ where People.user_id = $1
 		join Custom_Subscription USING (custom_subscription_id)
 		join Subscription_Layer ON Subscription_Layer.subscription_layer_id = Custom_Subscription.subscription_layer_id
 		where Custom_Subscription.author_id = $2
-		and Subscription.user_id = &1
+		and Subscription.user_id = $1
 		;
 `
 )
@@ -106,7 +106,7 @@ func (cr *ContentRepository) GetUserRole(ctx context.Context, userId uuid.UUID) 
 }
 
 func (cr *ContentRepository) GetUserLayerOfAuthor(ctx context.Context, userId, authorId uuid.UUID) (int, error) {
-	op := "internal.content.repository.post.CanUserSeePost"
+	op := "internal.content.repository.post.GetUserLayerOfAuthor"
 
 	logger.StandardDebugF(op, "Want to get user layer userID=%v, author = %v", userId, authorId)
 

@@ -39,8 +39,12 @@ type ContentRepository interface {
 	GetUserLayerOfAuthor(ctx context.Context, userId, authorId uuid.UUID) (int, error)
 
 	// GetPopularPosts - возвращает популярные посты со смещением для анонима
-	GetPopularPosts(ctx context.Context, offset int, limits int) ([]models.Post, error)
+	GetPopularPosts(ctx context.Context, offset int, limits int) ([]*models.Post, error)
 	GetPopularPostsForUser(ctx context.Context, userId uuid.UUID, offset int, limits int) ([]*models.Post, error)
+
+	// subscriptions
+
+	GetSubscriptionPostsForUser(ctx context.Context, userId uuid.UUID, offset int, limits int) ([]*models.Post, error)
 
 	GetAuthorByPost(postID uuid.UUID) (uuid.UUID, error)
 
