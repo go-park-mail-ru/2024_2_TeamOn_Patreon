@@ -3,11 +3,13 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	// Модель репозитория взаимодействует с БД напрямую
 
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/gofrs/uuid"
 	pgx "github.com/jackc/pgx/v4"
 )
 
@@ -54,6 +56,24 @@ func (p *Postgres) UserByID(ctx context.Context, userID string) (*sModels.User, 
 
 	// Возвращаем данные пользователя
 	return &user, nil
+}
+
+func (p *Postgres) AvatarPathByID(ctx context.Context, userID string) (string, error) {
+	op := "internal.account.repository.AvatarByID"
+
+	query := `
+		SELECT avatar_url 
+		FROM avatar 
+		WHERE user_id = $1
+	`
+	var avatarPath string
+	err := p.db.QueryRow(ctx, query, userID).Scan(&avatarPath)
+	if err != nil {
+		logger.StandardDebugF(op, "get avatar error: {%v}", err)
+		return "", err
+	}
+
+	return avatarPath, nil
 }
 
 func (p *Postgres) UpdateUsername(ctx context.Context, userID string, username string) error {
@@ -117,4 +137,45 @@ func (p *Postgres) UpdateEmail(ctx context.Context, userID string, email string)
 
 	// Возвращаем nil, если обновление прошло успешно
 	return nil
+}
+
+func (p *Postgres) UpdateAvatar(ctx context.Context, userID string, avatarID string, avatarPath string) error {
+	op := "internal.account.repository.UpdateAvatar"
+
+	// Удаление записи о старой аватарке (если она есть)
+	deleteQuery := `
+		DELETE FROM avatar
+		WHERE user_id = $1
+	`
+
+	if _, err := p.db.Exec(ctx, deleteQuery, userID); err != nil {
+		logger.StandardDebugF(op, "delete old avatar error: {%v}", err)
+		return err
+	}
+
+	// Запрос на создание новой записи о новой аватарке
+	query := `
+		INSERT INTO avatar (avatar_id, user_id, avatar_url)
+		VALUES ($1, $2, $3)
+		ON CONFLICT (avatar_id) DO UPDATE 
+		SET user_id = EXCLUDED.user_id, avatar_url = EXCLUDED.avatar_url
+	`
+	// Выполняем запрос
+	if _, err := p.db.Exec(ctx, query, avatarID, userID, avatarPath); err != nil {
+		logger.StandardDebugF(op, "update avatar error: {%v}", err)
+		return err
+	}
+
+	logger.StandardInfo(
+		fmt.Sprintf("successful update avatar for userID: %s", userID),
+		op,
+	)
+	// Возвращаем nil, если обновление прошло успешно
+	return nil
+}
+
+func (p *Postgres) GenerateID() string {
+	id, _ := uuid.NewV4()
+
+	return id.String()
 }

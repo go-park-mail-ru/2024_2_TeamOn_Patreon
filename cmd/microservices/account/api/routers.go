@@ -34,10 +34,22 @@ func NewRouter(service interfaces.AccountService) *mux.Router {
 			handler.GetAccount,
 		},
 		Route{
+			"GetAccountAvatar",
+			"GET",
+			"/account/avatar",
+			handler.GetAccountAvatar,
+		},
+		Route{
 			"PostAccountUpdate",
 			"POST",
 			"/account/update",
 			handler.PostAccountUpdate,
+		},
+		Route{
+			"PostAccountUpdateAvatar",
+			"POST",
+			"/account/update/avatar",
+			handler.PostAccountUpdateAvatar,
 		},
 	}
 	// Declare a new router
