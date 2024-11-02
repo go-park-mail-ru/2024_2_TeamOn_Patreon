@@ -35,7 +35,7 @@ func (b *Behavior) CreatePost(ctx context.Context, authorId string, title string
 	}
 
 	// Проверяем есть ли кастомные подписки у этого пользователя на этом уровне
-	layerExist, err := b.rep.CheckCustomLayer(ctx, uuidUserId, layer)
+	layerExist, err := b.checkLayerExist(ctx, uuidUserId, layer)
 	if err != nil {
 		return "", errors.Wrap(err, op)
 	}
@@ -93,4 +93,21 @@ func (b *Behavior) isUserAuthor(ctx context.Context, userId uuid.UUID) (bool, er
 		return true, nil
 	}
 	return false, nil
+}
+
+func (b *Behavior) checkLayerExist(ctx context.Context, authorId uuid.UUID, layer int) (bool, error) {
+	op := "content.service.checkLayerExist"
+
+	if layer == 0 {
+		// Посты на нулевом уровне доступны всем
+		return true, nil
+	}
+
+	// Проверяем есть ли кастомные подписки у этого пользователя на этом уровне
+	layerExist, err := b.rep.CheckCustomLayer(ctx, authorId, layer)
+	if err != nil {
+		return false, errors.Wrap(err, op)
+	}
+
+	return layerExist, nil
 }
