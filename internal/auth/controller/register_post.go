@@ -3,9 +3,9 @@ package controller
 import (
 	"fmt"
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/utils"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	utils2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"net/http"
 )
 
@@ -16,23 +16,23 @@ func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request)
 
 	// Парсинг фронтовой модели данных регистрации
 	var p tModels.Reg
-	if err := utils.ParseModels(r, &p, op); err != nil {
+	if err := utils2.ParseModels(r, &p, op); err != nil {
 		// проставляем http.StatusBadRequest
 		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 
 	// Валидация полей модели
 	if _, err := p.Validate(); err != nil {
-		logger.StandardWarnF(op, "Received validator error {%v}", err.Error())
+		logger.StandardWarnF(op, "Received validation error {%v}", err.Error())
 		// проставляем http.StatusBadRequest
 		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 
@@ -44,12 +44,12 @@ func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request)
 		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 
 	// Сохранение токена в куки
-	cookie := utils.CreateCookie(tokenString)
+	cookie := utils2.CreateCookie(tokenString)
 
 	// Устанавливаем токен в куку
 	http.SetCookie(w, &cookie)

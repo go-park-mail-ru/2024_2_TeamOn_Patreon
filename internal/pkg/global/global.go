@@ -20,3 +20,5 @@ const BehaviorKey = "service"
 
 // UserKey - ключ для получения бизнес-модельки юзера из контекста
 const UserKey string = "user"
+
+// ROLEs - лежат в общих моделях

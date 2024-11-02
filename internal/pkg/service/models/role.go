@@ -8,4 +8,5 @@ type Role string
 const (
 	Reader Role = "Reader" // Читатель
 	Author Role = "Author" // Автор
+	Anon   Role = "Anon"   // Инкогнито
 )

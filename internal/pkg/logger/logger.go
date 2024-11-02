@@ -44,7 +44,7 @@ func Debug(msg string, args ...any) {
 	slog.Debug(msg, args...)
 }
 
-func StandardDebug(msg string, op string) {
+func StandardDebug(op string, msg string) {
 	Debug(standardInput(msg, op))
 }
 
