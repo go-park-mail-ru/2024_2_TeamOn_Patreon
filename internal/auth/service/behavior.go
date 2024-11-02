@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	hasher "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/hasher"
 	rInterfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/interfaces"
 	bJWT "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
@@ -19,42 +18,6 @@ func New(repository rInterfaces.AuthRepository) *Behavior {
 	return &Behavior{repository}
 }
 
-// RegisterNewUser - регистрация | добавление нового пользователя, генерация для него jwt
-func (b *Behavior) RegisterNewUser(username string, password string) (bJWT.TokenString, error) {
-	op := "internal.service.service.RegisterNewUsername"
-
-	// Проверка есть ли такой username
-	// если произошла ошибка, вернуть её
-	exists, errM := b.isUserExists(username)
-	if errM != nil {
-		return "", errors.Wrap(errM, op)
-	}
-	if exists {
-		return "", errors.Wrap(config.ErrUserAlreadyExists, op)
-	}
-
-	// хэширование пароля
-	hash, err := hashPassword(password)
-	if err != nil {
-		return "", errors.Wrap(err, op)
-	}
-
-	// сохранение юзера в БД и получение модельку пользователя
-	user, err := b.saveUser(username, hash)
-	if err != nil {
-		return "", errors.Wrap(err, op)
-	}
-
-	// сгенерировать для пользователя токен
-	token, err := createJWT(user)
-	if err != nil {
-		return "", errors.Wrap(err, op)
-	}
-
-	// вернуть токен
-	return token, nil
-}
-
 // AuthoriseUser - авторизация | проверяет существует ли пользователь, верный ли пароль, генерирует jwt для него
 func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenString, error) {
 	op := "auth.controller.AuthoriseUser"
@@ -68,7 +31,7 @@ func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenSt
 	}
 	if !exists {
 		logger.StandardDebugF(op, "Authorisation failed: user %s does not exist", username)
-		return "", config.ErrNotValidUserAndPassword
+		return "", global.ErrNotValidUserAndPassword
 	}
 
 	// получаем модельку юзера по username
@@ -86,7 +49,7 @@ func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenSt
 	}
 	if !ok {
 		logger.StandardDebugF(op, "Authorisation failed: user %s does not match", username)
-		return "", errors.Wrap(config.ErrNotValidUserAndPassword, op)
+		return "", errors.Wrap(global.ErrNotValidUserAndPassword, op)
 	}
 
 	// сгенерировать для пользователя токен
@@ -119,20 +82,9 @@ func hashPassword(password string) (string, error) {
 
 	hash, err := hasher.HashPassword(password)
 	if err != nil {
-		return "", errors.Wrap(config.ErrServer, op)
+		return "", errors.Wrap(global.ErrServer, op)
 	}
 	return hash, nil
-}
-
-func (b *Behavior) saveUser(username string, hash string) (*bModels.User, error) {
-	op := "auth.service.SaveUser"
-
-	role := bModels.Reader
-	user, err := b.rep.SaveUser(username, int(role), hash)
-	if err != nil {
-		return nil, errors.Wrap(err, op)
-	}
-	return user, nil
 }
 
 func createJWT(user *bModels.User) (bJWT.TokenString, error) {
@@ -167,7 +119,7 @@ func (b *Behavior) comparePassword(user bModels.User, password string) (bool, er
 	// Сравниваем введённый пароль с сохранённым хэшем
 	err = hasher.CheckPasswordHash(password, userHash)
 	if err != nil {
-		return false, errors.Wrap(config.ErrNotValidUserAndPassword, op)
+		return false, errors.Wrap(global.ErrNotValidUserAndPassword, op)
 	} else {
 		return true, nil
 	}

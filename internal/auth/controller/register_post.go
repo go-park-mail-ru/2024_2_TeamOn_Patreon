@@ -2,9 +2,9 @@ package controller
 
 import (
 	"fmt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/utils"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"net/http"
 )
@@ -18,21 +18,21 @@ func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request)
 	var p tModels.Reg
 	if err := utils.ParseModels(r, &p, op); err != nil {
 		// проставляем http.StatusBadRequest
-		logger.StandardResponse(err.Error(), config.GetCodeError(err), r.Host, op)
-		w.WriteHeader(config.GetCodeError(err))
+		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: config.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 
 	// Валидация полей модели
 	if _, err := p.Validate(); err != nil {
-		logger.StandardWarnF(op, "Received validation error {%v}", err.Error())
+		logger.StandardWarnF(op, "Received validator error {%v}", err.Error())
 		// проставляем http.StatusBadRequest
-		logger.StandardResponse(err.Error(), config.GetCodeError(err), r.Host, op)
-		w.WriteHeader(config.GetCodeError(err))
+		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: config.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 
@@ -41,10 +41,10 @@ func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		logger.StandardDebugF(op, "Received register error {%v}", err)
 		// проставляем http.StatusBadRequest
-		logger.StandardResponse(err.Error(), config.GetCodeError(err), r.Host, op)
-		w.WriteHeader(config.GetCodeError(err))
+		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: config.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 

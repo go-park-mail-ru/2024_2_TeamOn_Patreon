@@ -2,8 +2,8 @@ package repositories
 
 import (
 	"errors"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	imModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"sync"
 )
@@ -24,7 +24,7 @@ func New() *ImaginaryRepository {
 }
 
 // SaveUser сохраняет пользователя в базу данных.
-func (r *ImaginaryRepository) SaveUser(username string, role int, passwordHash string) (*bModels.User, error) {
+func (r *ImaginaryRepository) SaveUser(username string, role string, passwordHash string) (*bModels.User, error) {
 	// создание нового пользователя
 	user := imModels.User{
 		UserID:       r.generateID(),
@@ -63,7 +63,7 @@ func (r *ImaginaryRepository) GetUserByID(userID bModels.UserID) (*bModels.User,
 	r.mu.RUnlock()
 
 	if imUser == nil {
-		return nil, config.ErrUserNotFound
+		return nil, global.ErrUserNotFound
 	}
 
 	bUser := imModels.MapImUserToBUser(*imUser)
@@ -102,7 +102,7 @@ func (r *ImaginaryRepository) GetUserByUsername(username string) (*bModels.User,
 	r.mu.RUnlock()
 
 	if imUser == nil {
-		return nil, config.ErrUserNotFound
+		return nil, global.ErrUserNotFound
 	}
 
 	bUser := imModels.MapImUserToBUser(*imUser)
