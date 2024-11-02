@@ -3,9 +3,9 @@ package controller
 import (
 	"fmt"
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/utils"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"net/http"
 )
 
