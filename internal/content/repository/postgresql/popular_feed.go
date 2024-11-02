@@ -157,7 +157,6 @@ func (cr *ContentRepository) GetSubscriptionsPostsForUser() error {
 // GetPopularPosts Выдает ленту популярных для анонимиа
 func (cr *ContentRepository) GetPopularPosts(ctx context.Context, offset int, limits int) ([]*models.Post, error) {
 	op := "internal.content.repository.postgresql.GetPopularPosts"
-	_ = op
 	posts := make([]*models.Post, 0, limits-offset+1)
 
 	rows, err := cr.db.Query(ctx, getPopularPostsForAnonSQL, offset, limits)
