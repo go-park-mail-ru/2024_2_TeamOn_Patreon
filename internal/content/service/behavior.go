@@ -30,7 +30,7 @@ func (b *Behavior) GetAuthorPostsForAnon(authorId string, offset, limit int) ([]
 }
 
 func (b *Behavior) GetAuthorPostsForUser(authorId, userId string, offset, limit int) ([]models.Post, error) {
-	op := "service.behavior.GetAuthorPostsForUser"
+	op := "service.behavior.GetAuthorPostsForLayer"
 	authorIdUuid, err := uuid.FromString(authorId)
 	if err != nil {
 		return nil, errors.Wrap(global.ErrServer, op)
