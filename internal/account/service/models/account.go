@@ -11,7 +11,7 @@ const (
 type User struct {
 	UserID        string
 	Username      string
-	Email         sql.NullString
+	Email         sql.NullString // так как может быть пустым
 	Role          string
 	Subscriptions []Subscription // ?? оставить здесь или вынести отдельно ??
 }

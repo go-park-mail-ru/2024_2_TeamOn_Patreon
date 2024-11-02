@@ -5,8 +5,8 @@ import (
 
 	"net/http"
 
-	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller"
-	interfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/interfaces"
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller"
+	interfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/interfaces"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 
 	"github.com/gorilla/mux"
@@ -21,41 +21,17 @@ type Route struct {
 
 type Routes []Route
 
-func NewRouter(service interfaces.AccountService) *mux.Router {
-	op := "account.routers.NewRouter"
+func NewRouter(service interfaces.AuthorService) *mux.Router {
+	op := "author.routers.NewRouter"
 
 	handler := api.New(service)
 
 	var routes = Routes{
 		Route{
-			"GetAccount",
+			"GetAuthor",
 			"GET",
-			"/account",
-			handler.GetAccount,
-		},
-		Route{
-			"GetAccountAvatar",
-			"GET",
-			"/account/{userID}/avatar",
-			handler.GetAccountAvatar,
-		},
-		Route{
-			"PostAccountUpdate",
-			"POST",
-			"/account/update",
-			handler.PostAccountUpdate,
-		},
-		Route{
-			"PostAccountUpdateAvatar",
-			"POST",
-			"/account/update/avatar",
-			handler.PostAccountUpdateAvatar,
-		},
-		Route{
-			"PostAccountUpdateRole",
-			"POST",
-			"/account/update/role",
-			handler.PostAccountUpdateRole,
+			"/author/{authorID}",
+			handler.GetAuthor,
 		},
 	}
 	// Declare a new router

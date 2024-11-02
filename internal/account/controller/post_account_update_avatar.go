@@ -54,7 +54,7 @@ func (handler *Handler) PostAccountUpdateAvatar(w http.ResponseWriter, r *http.R
 	defer fileAvatar.Close()
 
 	// Обращение к service
-	if err := handler.serv.PostAccountUpdateAvatar(r.Context(), string(userData.UserID), fileAvatar, fileHeader.Filename); err != nil {
+	if err := handler.serv.PostUpdateAvatar(r.Context(), string(userData.UserID), fileAvatar, fileHeader.Filename); err != nil {
 		logger.StandardWarnF(op, "update data error {%v}", err)
 		// Status 500
 		w.WriteHeader(http.StatusInternalServerError)

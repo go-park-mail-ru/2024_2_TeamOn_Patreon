@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	// Модель репозитория взаимодействует с БД напрямую
-
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
@@ -22,7 +20,6 @@ func New(db *pgx.Conn) *Postgres {
 	return &Postgres{db: db}
 }
 
-// UserByID получает данные пользователя по указанному ID
 func (p *Postgres) UserByID(ctx context.Context, userID string) (*sModels.User, error) {
 	op := "internal.account.repository.UserByID"
 
@@ -38,7 +35,6 @@ func (p *Postgres) UserByID(ctx context.Context, userID string) (*sModels.User, 
 			p.user_id = $1;
 	`
 
-	// rep модель пользователя, в дальнейшем конвертировать в service модель аккаунта
 	var user sModels.User
 	err := p.db.QueryRow(ctx, query, userID).Scan(&user.UserID, &user.Username, &user.Email, &user.Role)
 
@@ -175,4 +171,46 @@ func (p *Postgres) GenerateID() string {
 	id, _ := uuid.NewV4()
 
 	return id.String()
+}
+
+// UpdateRole меняет роль пользователя на "author"
+func (p *Postgres) UpdateRole(ctx context.Context, userID string) error {
+	op := "internal.account.repository.UpdateRole"
+
+	query := `
+		UPDATE people
+		SET role_id = (SELECT role_id FROM role WHERE role_default_name = 'author')
+		WHERE user_id = $1
+	`
+
+	// Выполняем запрос
+	if _, err := p.db.Exec(ctx, query, userID); err != nil {
+		logger.StandardDebugF(op, "change role error: {%v}", err)
+		return err
+	}
+
+	logger.StandardInfo(
+		fmt.Sprintf("successful change role for userID: %s", userID),
+		op,
+	)
+	// Возвращаем nil, если изменение прошло успешно
+	return nil
+}
+
+func (p *Postgres) InitPage(ctx context.Context, userID string) error {
+	op := "internal.account.repository.InitPage"
+
+	pageID := p.GenerateID()
+
+	query := `
+		INSERT INTO page (page_id, user_id, info, background_picture_url)
+		VALUES ($1, $2, NULL, NULL);
+	`
+
+	if _, err := p.db.Exec(ctx, query, pageID, userID); err != nil {
+		logger.StandardDebugF(op, "crate new page error: {%v}", err)
+		return err
+	}
+	// Возвращаем nil, если создание прошло успешно
+	return nil
 }

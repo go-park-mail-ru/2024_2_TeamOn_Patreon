@@ -19,5 +19,8 @@ type AccountService interface {
 	PostAccUpdateByID(ctx context.Context, userID string, username string, password string, email string) error
 
 	// PostAccountUpdateAvatar - изменение аватарки аккаунта по userID
-	PostAccountUpdateAvatar(ctx context.Context, userID string, avatar multipart.File, fileName string) error
+	PostUpdateAvatar(ctx context.Context, userID string, avatar multipart.File, fileName string) error
+
+	// PostUpdateRole - изменение аватарки аккаунта по userID
+	PostUpdateRole(ctx context.Context, userID string) error
 }

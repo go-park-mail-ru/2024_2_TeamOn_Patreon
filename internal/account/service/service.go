@@ -93,8 +93,8 @@ func (s *Service) PostAccUpdateByID(ctx context.Context, userID string, username
 	return nil
 }
 
-// PostAccountUpdateAvatar - изменение аватарки аккаунта по userID
-func (s *Service) PostAccountUpdateAvatar(ctx context.Context, userID string, avatarFile multipart.File, fileName string) error {
+// PostUpdateAvatar - изменение аватарки аккаунта по userID
+func (s *Service) PostUpdateAvatar(ctx context.Context, userID string, avatarFile multipart.File, fileName string) error {
 	op := "internal.account.service.PostAccountUpdateAvatar"
 
 	// Удаляем старый аватар, если он есть
@@ -106,6 +106,23 @@ func (s *Service) PostAccountUpdateAvatar(ctx context.Context, userID string, av
 	if err := s.saveNewAvatar(ctx, op, userID, avatarFile, fileName); err != nil {
 		return err
 	}
+	return nil
+}
+
+// PostUpdateRole - изменение роли пользователя на "автор"
+func (s *Service) PostUpdateRole(ctx context.Context, userID string) error {
+	op := "internal.account.service.PostUpdateRole"
+
+	// Обновляем поле роль с "reader" на "author"
+	if err := s.updateRole(ctx, op, userID); err != nil {
+		return fmt.Errorf("fail update role {%v} | in %v", err, op)
+	}
+
+	// Заполняем сущность page для нового автора
+	if err := s.initPage(ctx, op, userID); err != nil {
+		return fmt.Errorf("fail create page {%v} | in %v", err, op)
+	}
+
 	return nil
 }
 
@@ -148,6 +165,22 @@ func (s *Service) updateEmail(ctx context.Context, op string, userID string, ema
 			fmt.Sprintf("successful update email: %v", email),
 			op)
 	}
+	return nil
+}
+
+func (s *Service) updateRole(ctx context.Context, op string, userID string) error {
+	if err := s.rep.UpdateRole(ctx, userID); err != nil {
+		return err
+	}
+	logger.StandardInfo("successful change role", op)
+	return nil
+}
+
+func (s *Service) initPage(ctx context.Context, op string, userID string) error {
+	if err := s.rep.InitPage(ctx, userID); err != nil {
+		return err
+	}
+	logger.StandardInfo("successful create page", op)
 	return nil
 }
 

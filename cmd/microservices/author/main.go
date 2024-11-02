@@ -3,16 +3,16 @@ package main
 import (
 	"net/http"
 
-	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/account/api"
+	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/author/api"
 	postgres "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/init/postgres_db"
-	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository"
-	service "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service"
+	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository"
+	service "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 )
 
 func main() {
-	op := "cmd.microservices.account.main"
+	op := "cmd.microservices.author.main"
 
 	// logger
 	logger.New()
@@ -34,6 +34,6 @@ func main() {
 	router.Use(middlewares.HandlerAuth) // 2 для ручек, где требуется аутентификация
 
 	// run server
-	logger.StandardInfo("Starting server at: 8082", op)
-	http.ListenAndServe(":8082", router)
+	logger.StandardInfo("Starting server at: 8084", op)
+	http.ListenAndServe(":8084", router)
 }

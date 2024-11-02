@@ -23,6 +23,12 @@ type AccountRepository interface {
 	// UpdateEmail обновляет почту пользователя
 	UpdateEmail(ctx context.Context, userID string, email string) error
 
+	// UpdateRole меняет роль пользователя на "author"
+	UpdateRole(ctx context.Context, userID string) error
+
+	// InitPage создаёт новую страницу автора
+	InitPage(ctx context.Context, userID string) error
+
 	// UpdateAvatar обновляет путь к аватару пользователя
 	UpdateAvatar(ctx context.Context, userID string, avatarID string, avatarPath string) error
 

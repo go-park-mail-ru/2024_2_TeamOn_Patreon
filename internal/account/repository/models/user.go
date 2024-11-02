@@ -7,12 +7,3 @@ type User struct {
 	Email    string `db:"email"`
 	RoleID   int    `db:"role_id"`
 }
-
-// func MapRepUserToServUser(user User) sModels.User {
-// 	return sModels.Account{
-// 		UserID:   user.UserID,
-// 		Username: user.Username,
-// 		Email:    user.Email,
-// 		// Role: user.Role
-// 	}
-// }
