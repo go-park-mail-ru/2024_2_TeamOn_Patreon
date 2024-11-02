@@ -14,6 +14,8 @@ func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request)
 	op := "auth.controller.api_auth.AuthRegisterPost"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	ctx := r.Context()
+
 	// Парсинг фронтовой модели данных регистрации
 	var p tModels.Reg
 	if err := utils2.ParseModels(r, &p, op); err != nil {
@@ -37,7 +39,7 @@ func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Создание пользователя и генерация токена
-	tokenString, err := handler.b.RegisterNewUser(p.Username, p.Password) // передаем username и password
+	tokenString, err := handler.b.RegisterNewUser(ctx, p.Username, p.Password) // передаем username и password
 	if err != nil {
 		logger.StandardDebugF(op, "Received register error {%v}", err)
 		// проставляем http.StatusBadRequest

@@ -13,6 +13,7 @@ import (
 func (handler *Handler) LoginPost(w http.ResponseWriter, r *http.Request) {
 	op := "auth.controller.api_auth.LoginPost"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	ctx := r.Context()
 
 	// Парсинг модели вводных данных логина
 	var l tModels.Login
@@ -40,7 +41,7 @@ func (handler *Handler) LoginPost(w http.ResponseWriter, r *http.Request) {
 	// создаем токен пользователя
 	// authorise
 	// authorize
-	tokenString, err := handler.b.AuthoriseUser(l.Username, l.Password)
+	tokenString, err := handler.b.AuthoriseUser(ctx, l.Username, l.Password)
 	if err != nil {
 		// проставляем http.StatusBadRequest
 		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)

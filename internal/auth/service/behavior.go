@@ -1,12 +1,14 @@
 package service
 
 import (
+	"context"
 	hasher "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/hasher"
 	rInterfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/interfaces"
 	bJWT "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -19,11 +21,11 @@ func New(repository rInterfaces.AuthRepository) *Behavior {
 }
 
 // AuthoriseUser - авторизация | проверяет существует ли пользователь, верный ли пароль, генерирует jwt для него
-func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenString, error) {
-	op := "auth.controller.AuthoriseUser"
+func (b *Behavior) AuthoriseUser(ctx context.Context, username string, password string) (bJWT.TokenString, error) {
+	op := "internal.auth.behavior.AuthoriseUser"
 
 	// проверяем существует ли пользователь
-	exists, err := b.isUserExists(username)
+	exists, err := b.isUserExists(ctx, username)
 	// если не существует или какая-то ошибка, выходим
 	if err != nil {
 		logger.StandardDebugF(op, "Authorisation failed: user %s does not exist or err", username)
@@ -34,15 +36,18 @@ func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenSt
 		return "", global.ErrNotValidUserAndPassword
 	}
 
+	logger.StandardDebugF(op, "Getting user of username %s", username)
 	// получаем модельку юзера по username
-	user, err := b.getUser(username)
+	user, err := b.getUser(ctx, username)
 	if err != nil {
-		logger.StandardDebugF(op, "Authorisation failed: user %s does not exist", username)
+		logger.StandardDebugF(op, "Authorisation failed: user %s does not exist in DB", username)
 		return "", errors.Wrap(err, op)
 	}
 
+	logger.StandardDebugF(op, "Getting user=%v", user)
+
 	// сравниваем пароли
-	ok, err := b.comparePassword(*user, password)
+	ok, err := b.comparePassword(ctx, *user, password)
 	if err != nil {
 		logger.StandardDebugF(op, "Authorisation failed: user %s does not match", username)
 		return "", errors.Wrap(err, op)
@@ -64,12 +69,12 @@ func (b *Behavior) AuthoriseUser(username string, password string) (bJWT.TokenSt
 	return token, nil
 }
 
-func (b *Behavior) isUserExists(username string) (bool, error) {
+func (b *Behavior) isUserExists(ctx context.Context, username string) (bool, error) {
 	op := "auth.service.IsUserExists"
 
 	// Проверка есть ли такой username
 	// если произошла ошибка, вернуть её
-	exists, err := b.rep.UserExists(username)
+	exists, err := b.rep.UserExists(ctx, username)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}
@@ -98,20 +103,26 @@ func createJWT(user *bModels.User) (bJWT.TokenString, error) {
 	return token, nil
 }
 
-func (b *Behavior) getUser(username string) (*bModels.User, error) {
+func (b *Behavior) getUser(ctx context.Context, username string) (*bModels.User, error) {
 	op := "auth.service.GetUser"
 
-	user, err := b.rep.GetUserByUsername(username)
+	userId, role, err := b.rep.GetUserByUsername(ctx, username)
+	logger.StandardDebugF(op, "Got userId=%v role=%v by username", userId, role, username)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
+	user := &bModels.User{UserID: bModels.UserID(userId.String()), Role: bModels.Role(role), Username: username}
 	return user, nil
 }
 
-func (b *Behavior) comparePassword(user bModels.User, password string) (bool, error) {
+func (b *Behavior) comparePassword(ctx context.Context, user bModels.User, password string) (bool, error) {
 	op := "auth.service.ComparePassword"
 
-	userHash, err := b.rep.GetPasswordHashByID(user.UserID)
+	userIdUuid, err := uuid.FromString(string(user.UserID))
+	if err != nil {
+		return false, errors.Wrap(err, op)
+	}
+	userHash, err := b.rep.GetPasswordHashByID(ctx, userIdUuid)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}
@@ -125,9 +136,13 @@ func (b *Behavior) comparePassword(user bModels.User, password string) (bool, er
 	}
 }
 
-func (b *Behavior) LogoutUser(userID bModels.UserID) error {
+func (b *Behavior) LogoutUser(ctx context.Context, userID bModels.UserID) error {
 	op := "auth.service.behavior.LogoutUser"
 
 	logger.StandardInfoF(op, "LogoutUser user={%v}", userID)
 	return nil
+}
+
+func (b *Behavior) generateUUID() uuid.UUID {
+	return uuid.Must(uuid.NewV4())
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	bJWT "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/validator"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
@@ -9,10 +10,10 @@ import (
 )
 
 // RegisterNewUser - регистрация | добавление нового пользователя, генерация для него jwt
-func (b *Behavior) RegisterNewUser(username string, password string) (bJWT.TokenString, error) {
+func (b *Behavior) RegisterNewUser(ctx context.Context, username string, password string) (bJWT.TokenString, error) {
 	op := "internal.service.service.RegisterNewUsername"
 
-	username, password, err := b.validateRegisterInput(username, password)
+	username, password, err := b.validateRegisterInput(ctx, username, password)
 	if err != nil {
 		return "", errors.Wrap(err, op)
 	}
@@ -24,7 +25,7 @@ func (b *Behavior) RegisterNewUser(username string, password string) (bJWT.Token
 	}
 
 	// сохранение юзера в БД и получение модельку пользователя
-	user, err := b.saveUser(username, hash)
+	user, err := b.saveUser(ctx, username, hash)
 	if err != nil {
 		return "", errors.Wrap(err, op)
 	}
@@ -39,7 +40,7 @@ func (b *Behavior) RegisterNewUser(username string, password string) (bJWT.Token
 	return token, nil
 }
 
-func (b *Behavior) validateRegisterInput(username, password string) (string, string, error) {
+func (b *Behavior) validateRegisterInput(ctx context.Context, username, password string) (string, string, error) {
 	op := "internal.service.validateRegisterInput"
 
 	username, password, err := validator.ValidateUsernameAndPassword(username, password)
@@ -49,7 +50,7 @@ func (b *Behavior) validateRegisterInput(username, password string) (string, str
 
 	// Проверка есть ли такой username
 	// если произошла ошибка, вернуть её
-	exists, err := b.isUserExists(username)
+	exists, err := b.isUserExists(ctx, username)
 	if err != nil {
 		return username, password, errors.Wrap(err, op)
 	}
@@ -59,13 +60,23 @@ func (b *Behavior) validateRegisterInput(username, password string) (string, str
 	return username, password, nil
 }
 
-func (b *Behavior) saveUser(username string, hash string) (*bModels.User, error) {
+func (b *Behavior) saveUser(ctx context.Context, username string, hash string) (*bModels.User, error) {
 	op := "auth.service.SaveUser"
 
 	role := bModels.Reader
-	user, err := b.rep.SaveUser(username, string(role), hash)
+	//user, err := b.rep.SaveUser(username, string(role), hash)
+
+	userId := b.generateUUID()
+
+	err := b.rep.SaveUserWithRole(ctx, userId, username, string(role), hash)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
+	}
+
+	user := &bModels.User{
+		UserID:   bModels.UserID(userId.String()),
+		Username: username,
+		Role:     role,
 	}
 	return user, nil
 }

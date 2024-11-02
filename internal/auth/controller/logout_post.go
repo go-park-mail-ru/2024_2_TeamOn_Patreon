@@ -15,6 +15,7 @@ import (
 func (handler *Handler) LogoutPost(w http.ResponseWriter, r *http.Request) {
 	op := "auth.controller.LogoutPost"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	ctx := r.Context()
 
 	// парсинг jwt токена
 	tokenClaims, err := jwt.ParseJWTFromCookie(r)
@@ -32,7 +33,7 @@ func (handler *Handler) LogoutPost(w http.ResponseWriter, r *http.Request) {
 	// мапим это все в структуру user для бизнес-логики
 	user := mapper.MapTokenToUser(tokenClaims)
 
-	err = handler.b.LogoutUser(user.UserID)
+	err = handler.b.LogoutUser(ctx, user.UserID)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
