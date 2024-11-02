@@ -14,6 +14,7 @@ func MapInterfacePostToTransportPost(post models2.Post) *models.Post {
 		AuthorId:       post.AuthorId,
 		Likes:          post.Likes,
 		IsLiked:        post.IsLiked,
+		CreatedAt:      post.CreatedDate,
 	}
 }
 

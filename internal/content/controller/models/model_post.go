@@ -6,7 +6,10 @@
  */
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type Post struct {
 	// Идентификатор поста
@@ -23,6 +26,8 @@ type Post struct {
 	Likes int `json:"likes"`
 	// Поставил ли лайк текущий пользователь
 	IsLiked bool `json:"isLiked"`
+	// Дата создания
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 func (p *Post) String() string {
