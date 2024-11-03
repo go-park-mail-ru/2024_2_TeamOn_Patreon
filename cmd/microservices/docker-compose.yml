@@ -67,6 +67,12 @@ services:
     depends_on:
       - postgres
 
+  filling-service:
+    build:
+      context: ../../
+      dockerfile: internal/pkg/repository/postgres/migrate/filling/Dockerfile
+    depends_on:
+      - migrate-service
 
 volumes:
   postgres_data:
