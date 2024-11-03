@@ -45,6 +45,6 @@ func main() {
 	// auth middleware registered in api.New
 
 	// run end-to-end
-	logger.StandardInfo("Starting server at: 8081", op)
-	http.ListenAndServe(":8081", router)
+	logger.StandardInfo("Starting server at: 8084", op)
+	http.ListenAndServe(":8084", router)
 }
