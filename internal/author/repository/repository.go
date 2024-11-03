@@ -3,9 +3,11 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/gofrs/uuid"
 	pgx "github.com/jackc/pgx/v4"
 )
 
@@ -70,4 +72,106 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*sModels.Au
 
 	// Возвращаем данные автора
 	return &author, nil
+}
+
+func (p *Postgres) UpdateInfo(ctx context.Context, authorID string, info string) error {
+	op := "internal.account.repository.UpdateInfo"
+
+	// SQL-запрос для обновления инфо
+	query := `
+		UPDATE page 
+		SET info = $1 
+		WHERE user_id = $2;
+	`
+
+	// Выполняем запрос
+	_, err := p.db.Exec(ctx, query, info, authorID)
+	if err != nil {
+		logger.StandardDebugF(op, "update info error: {%v}", err)
+		return err
+	}
+
+	// Возвращаем nil, если обновление прошло успешно
+	return nil
+}
+
+func (p *Postgres) Payments(ctx context.Context, authorID string) (int, error) {
+	op := "internal.author.repository.Payments"
+
+	// SQL-запрос для получения payments за донаты и подписки
+	query := `
+		SELECT 
+			COALESCE(SUM(t.cost), 0) + COALESCE(SUM(cs.cost), 0) AS total_payments
+		FROM 
+			tip t
+		FULL OUTER JOIN 
+			subscription s ON t.author_id = s.custom_subscription_id
+		FULL OUTER JOIN 
+			custom_subscription cs ON s.custom_subscription_id = cs.custom_subscription_id
+		WHERE 
+			t.author_id = $1 OR cs.author_id = $1;
+	`
+
+	var amountPayments int
+
+	if err := p.db.QueryRow(ctx, query, authorID).Scan(&amountPayments); err != nil {
+		if err == sql.ErrNoRows {
+			// Если автор не найден, возвращаем 0 без ошибки
+			logger.StandardInfoF(
+				"author with authorID='%v' not found", authorID,
+				op)
+			return 0, nil
+		}
+		logger.StandardDebugF(op, "get payments error: {%v}", err)
+		return 0, err
+	}
+
+	return amountPayments, nil
+}
+
+func (p *Postgres) BackgroundPathByID(ctx context.Context, userID string) (string, error) {
+	op := "internal.account.repository.BackgroundPathByID"
+
+	query := `
+		SELECT background_picture_url 
+		FROM page 
+		WHERE user_id = $1
+	`
+	var backgroundPath string
+	err := p.db.QueryRow(ctx, query, userID).Scan(&backgroundPath)
+	if err != nil {
+		logger.StandardDebugF(op, "get background error: {%v}", err)
+		return "", err
+	}
+
+	return backgroundPath, nil
+}
+
+func (p *Postgres) UpdateBackground(ctx context.Context, userID string, backgroundPath string) error {
+	op := "internal.account.repository.UpdateBackground"
+
+	// Запрос на изменение графы "фон" для пользователя
+	query := `
+		UPDATE page 
+		SET background_picture_url = $1 
+		WHERE user_id = $2;
+	`
+	// Выполняем запрос
+	if _, err := p.db.Exec(ctx, query, backgroundPath, userID); err != nil {
+		logger.StandardDebugF(op, "update avatar error: {%v}", err)
+		return err
+	}
+
+	logger.StandardInfo(
+		fmt.Sprintf("successful update avatar for userID: %s", userID),
+		op,
+	)
+	// Возвращаем nil, если обновление прошло успешно
+	return nil
+}
+
+func (p *Postgres) GenerateID() string {
+	id, _ := uuid.NewV4()
+
+	return id.String()
 }
