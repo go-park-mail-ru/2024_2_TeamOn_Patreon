@@ -9,8 +9,11 @@ import (
 
 func InitPostgres() *pgx.Conn {
 	op := "internal.account.postgres_db.InitPostgres"
+
+	host := "postgres"
+	conString := "postgres://admin:adminpass@" + host + ":5432/testdb"
 	// Параметры подключения
-	conn, err := pgx.Connect(context.Background(), "postgres://admin:adminpass@localhost:5432/testdb")
+	conn, err := pgx.Connect(context.Background(), conString)
 	if err != nil {
 		logger.StandardDebugF(op, "Unable to connect to database {%v}", err)
 		return nil

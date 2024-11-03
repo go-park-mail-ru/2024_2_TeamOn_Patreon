@@ -18,7 +18,8 @@ type Config struct {
 }
 
 var (
-	host     = "127.0.0.1"
+	//host     = "127.0.0.1"
+	host     = "postgres"
 	port     = "5432"
 	user     = "admin"
 	password = "adminpass"
@@ -51,6 +52,8 @@ func InitPostgresDB(ctx context.Context) *pgxpool.Pool {
 	if err != nil {
 		panic(errors.Wrap(err, op))
 	}
+
+	logger.StandardDebugF(op, "Connecting do db cfg='%v'")
 
 	connString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName, cfg.DBPassword, cfg.DBSSLMode)

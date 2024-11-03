@@ -25,7 +25,7 @@ RUN go mod tidy
 COPY . .
 
 # Собираем бинарный файл Go
-RUN go build -o /app/auth-service cmd/microservices/auth/main.go
+RUN go build -o /app/author-service cmd/microservices/author/main.go
 
 # Создаём финальный образ
 FROM alpine:3.18
@@ -37,7 +37,7 @@ RUN apk update && apk add --no-cache bash
 WORKDIR /app
 
 # Копируем скомпилированное приложение из builder-контейнера
-COPY --from=builder /app/auth-service /app/auth-service
+COPY --from=builder /app/author-service /app/author-service
 
 # Копируем файл с переменными окружения из директории config
 #COPY internal/auth/config/env.docker /app/env
@@ -47,7 +47,7 @@ COPY --from=builder /app/auth-service /app/auth-service
 # RUN export $(grep -v '^#' /app/env | xargs)
 
 # Пробрасываем порт 8080 снаружи на 8081 внутри контейнера
-EXPOSE 8081
+EXPOSE 8083
 
 # Запускаем приложение
-CMD ["sh", "-c", "/app/auth-service --port=8081"]
+CMD ["sh", "-c", "/app/author-service --port=8083"]
