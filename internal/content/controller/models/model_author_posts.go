@@ -7,11 +7,11 @@ package models
 
 type AuthorPosts struct {
 	// Идентификатор поста
-	PostId string `json:"postId,omitempty"`
+	PostId string `json:"postId"`
 	// Заголовок поста
-	Title string `json:"title,omitempty"`
+	Title string `json:"title"`
 	// Содержимое поста
 	Content string `json:"content,omitempty"`
 	// Количество лайков поста
-	Likes int32 `json:"likes,omitempty"`
+	Likes int32 `json:"likes"`
 }

@@ -14,7 +14,7 @@ import (
 
 type UpdatePost struct {
 	// Идентификатор поста для обновления
-	PostId string `json:"post_id"`
+	PostId string `json:"postId"`
 	// Заголовок поста
 	Title string `json:"title,omitempty"`
 	// Содержимое поста (текст)

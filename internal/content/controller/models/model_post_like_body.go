@@ -13,7 +13,7 @@ import (
 
 type PostLikeBody struct {
 	// ID поста, который нужно лайкнуть или убрать лайк
-	PostId string `json:"post_id"`
+	PostId string `json:"postId"`
 }
 
 func (plb *PostLikeBody) Validate() (bool, error) {

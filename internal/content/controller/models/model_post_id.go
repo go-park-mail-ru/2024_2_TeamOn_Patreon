@@ -4,7 +4,7 @@ import "fmt"
 
 type PostId struct {
 	// id post
-	PostId string `json:"post_id"`
+	PostId string `json:"postId"`
 }
 
 func (p PostId) String() string {
