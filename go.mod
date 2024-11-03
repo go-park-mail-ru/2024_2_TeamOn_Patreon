@@ -19,6 +19,8 @@ require ( // | >> go mod tidy
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
+require github.com/gofrs/uuid v4.4.0+incompatible
+
 require (
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.14.3 // indirect

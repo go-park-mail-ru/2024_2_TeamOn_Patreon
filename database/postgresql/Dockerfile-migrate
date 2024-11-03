@@ -12,4 +12,4 @@ RUN echo "deb https://packagecloud.io/golang-migrate/migrate/ubuntu/ bionic main
 RUN apt-get update && \
     apt-get install -y migrate
 
-CMD ["migrate", "-version"]
+CMD ["migrate", "up"]

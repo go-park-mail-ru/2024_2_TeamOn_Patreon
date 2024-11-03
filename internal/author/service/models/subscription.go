@@ -1,5 +1,5 @@
 package models
 
 type Subscription struct {
-	AuthorID string `json:"authorID"`
+	AuthorID string
 }

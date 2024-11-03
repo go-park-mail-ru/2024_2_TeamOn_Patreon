@@ -2,10 +2,12 @@ package repositories
 
 import (
 	"errors"
+	"sync"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	imModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/models"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
-	"sync"
+	"github.com/gofrs/uuid"
 )
 
 // ImaginaryRepository реализует интерфейс AuthRepository
@@ -24,7 +26,7 @@ func New() *ImaginaryRepository {
 }
 
 // SaveUser сохраняет пользователя в базу данных.
-func (r *ImaginaryRepository) SaveUser(username string, role int, passwordHash string) (*bModels.User, error) {
+func (r *ImaginaryRepository) SaveUser(username string, role string, passwordHash string) (*bModels.User, error) {
 	// создание нового пользователя
 	user := imModels.User{
 		UserID:       r.generateID(),
@@ -83,8 +85,9 @@ func (r *ImaginaryRepository) GetPasswordHashByID(userID bModels.UserID) (string
 }
 
 func (r *ImaginaryRepository) generateID() bModels.UserID {
-	r.lastID++
-	return bModels.UserID(r.lastID)
+	id, _ := uuid.NewV4()
+
+	return bModels.UserID(id.String())
 }
 
 // GetUserByUsername возвращает пользователя по имени.

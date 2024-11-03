@@ -8,7 +8,7 @@ import (
 type User struct {
 	UserID       models2.UserID
 	Username     string
-	Role         int
+	Role         string
 	PasswordHash string
 }
 

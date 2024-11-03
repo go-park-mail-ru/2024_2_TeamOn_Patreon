@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  title: PushART | API
+  description: >-
+    API для регистрации, авторизации и управления профилем пользователя с
+    использованием JWT-токена.
+  version: 1.0.5
+paths:
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: Регистрация пользователя
+      description: >-
+        Регистрирует нового пользователя, проверяет уникальность имени,
+        возвращает JWT-токен при успешной регистрации.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reg'
+      responses:
+        '201':
+          description: Успешная регистрация
+        '400':
+          description: >-
+            Ошибка валидации (например, имя пользователя уже существует или
+            пароль слишком простой)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Авторизация пользователя
+      description: >-
+        Авторизует пользователя по имени пользователя или email, возвращает
+        JWT-токен.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+      responses:
+        '200':
+          description: Успешная авторизация
+        '400':
+          description: Неправильный логин или пароль
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auth/logout:
+    post:
+      tags:
+        - auth
+      summary: Разлогин пользователя
+      description: Закрытие пользовательской сессии
+      responses:
+        '200':
+          description: Успешная разлогин
+        '400':
+          description: Невалидные куки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Reg:
+      type: object
+      properties:
+        username:
+          type: string
+          description: >-
+            Имя пользователя. допустимые символы - латинские буквы, цифры и "-",
+            "_".
+          example: putin
+          minLength: 4
+          maxLength: 10
+        password:
+          type: string
+          description: >-
+            Пароль. должен содержать хотя бы 1 заглавную, 1 строчную латинские
+            буквы, 1 цифру, 1 спец символ.
+          example: P@ssw0rd123
+          minLength: 8
+          maxLength: 64
+          pattern: >-
+            /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/g
+          format: password
+      required:
+        - username
+        - password
+    Login:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Логин пользователя (имя пользователя или почта)
+          example: johndoe
+        password:
+          type: string
+          description: Пароль пользователя
+          example: P@ssw0rd123
+          format: password
+      required:
+        - login
+        - password
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Сообщение об ошибке

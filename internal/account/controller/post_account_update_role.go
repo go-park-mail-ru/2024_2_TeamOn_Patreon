@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
@@ -10,9 +9,9 @@ import (
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
-// GetAccount - ручка получения данных профиля
-func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
-	op := "internal.account.controller.getAccount"
+// PostAccountUpdate - ручка изменения данных профиля
+func (handler *Handler) PostAccountUpdateRole(w http.ResponseWriter, r *http.Request) {
+	op := "internal.account.controller.PostAccountUpdateRole"
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -34,15 +33,13 @@ func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Обращение к service для получения данных
-	accountData, err := handler.serv.GetAccDataByID(r.Context(), string(userData.UserID))
-	if err != nil {
-		logger.StandardDebugF(op, "Received account error {%v}", err)
+	// Обращение к service
+	if err := handler.serv.PostUpdateRole(r.Context(), string(userData.UserID)); err != nil {
+		logger.StandardWarnF(op, "update role error {%v}", err)
 		// Status 500
 		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
-	json.NewEncoder(w).Encode(accountData)
+
 	// Status 200
 	w.WriteHeader(http.StatusOK)
 }

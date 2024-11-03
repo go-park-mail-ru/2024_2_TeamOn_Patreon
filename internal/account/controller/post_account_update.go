@@ -4,17 +4,29 @@ import (
 	"encoding/json"
 	"net/http"
 
+	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
-// GetAccount - ручка получения данных профиля
-func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
-	op := "internal.account.controller.getAccount"
+// PostAccountUpdate - ручка изменения данных профиля
+func (handler *Handler) PostAccountUpdate(w http.ResponseWriter, r *http.Request) {
+	op := "internal.account.controller.postAccountUpdate"
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// Парсинг данных из json
+	newInfo := &cModels.UpdateAccount{}
+	if err := json.NewDecoder(r.Body).Decode(&newInfo); err != nil {
+		logger.StandardWarnF(op, "json parsing error {%v}", err)
+		// Status 400
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Добавить валидацию обновляемых данных!
 
 	// Извлекаем userData из контекста
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
@@ -34,15 +46,13 @@ func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Обращение к service для получения данных
-	accountData, err := handler.serv.GetAccDataByID(r.Context(), string(userData.UserID))
-	if err != nil {
-		logger.StandardDebugF(op, "Received account error {%v}", err)
+	// Обращение к service для записи данных (Может легче было передать сразу всю структуру?)
+	if err := handler.serv.PostAccUpdateByID(r.Context(), string(userData.UserID), newInfo.Username, newInfo.Password, newInfo.Email); err != nil {
+		logger.StandardWarnF(op, "update data error {%v}", err)
 		// Status 500
 		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
-	json.NewEncoder(w).Encode(accountData)
+
 	// Status 200
 	w.WriteHeader(http.StatusOK)
 }
