@@ -10,3 +10,14 @@ const (
 	Author Role = "Author" // Автор
 	Anon   Role = "Anon"   // Инкогнито
 )
+
+func StringToRole(s string) Role {
+	switch s {
+	case "Reader":
+		return Reader
+	case "Author":
+		return Author
+	default:
+		return Anon
+	}
+}
