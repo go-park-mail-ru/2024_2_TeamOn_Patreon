@@ -1,11 +1,6 @@
 package models
 
-const (
-	AuthorStatus = "Author"
-	ReaderStatus = "Reader"
-)
-
-// API Модель аккаунта пользователя
+// Service модель аккаунта пользователя
 type Account struct {
 	// Имя пользователя
 	Username string `json:"username"`

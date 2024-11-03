@@ -20,6 +20,7 @@ func HandlerAuth(next http.Handler) http.Handler {
 		// парсинг jwt токена
 		tokenClaims, err := jwt.ParseJWTFromCookie(r)
 		if err != nil || tokenClaims == nil {
+			logger.StandardDebugF(op, "Auth failed: fail get user from ctx")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

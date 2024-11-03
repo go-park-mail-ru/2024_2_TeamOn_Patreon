@@ -45,6 +45,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to query rows: %v\n", err)
 	}
+	// Обязательно! Иначе будет течь. Станет много дескрипторов.
+
 	defer rows.Close()
 
 	for rows.Next() {

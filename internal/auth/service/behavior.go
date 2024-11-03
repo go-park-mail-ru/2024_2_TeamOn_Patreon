@@ -128,7 +128,7 @@ func (b *Behavior) saveUser(username string, hash string) (*bModels.User, error)
 	op := "auth.service.SaveUser"
 
 	role := bModels.Reader
-	user, err := b.rep.SaveUser(username, int(role), hash)
+	user, err := b.rep.SaveUser(username, string(role), hash)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}

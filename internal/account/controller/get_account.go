@@ -1,22 +1,18 @@
-package api
+package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
-	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
-	repModel "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
-	repository "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/repositories"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
-// HandlerGetAccount - ручка получения данных профиля
-func HandlerGetAccount(w http.ResponseWriter, r *http.Request) {
-	op := "account.api.api_account"
+// GetAccount - ручка получения данных профиля
+func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
+	op := "internal.account.controller.getAccount"
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -24,65 +20,29 @@ func HandlerGetAccount(w http.ResponseWriter, r *http.Request) {
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
 
 	if !ok {
-		// проставляем http.StatusUnauthorized 401
 		logger.StandardResponse("userData not found in context", http.StatusUnauthorized, r.Host, op)
+		// Status 401
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	// Валидация userID
-	if !utils.IsValidUUIDv4(string(userData.UserID)) {
-		// проставляем http.StatusBadRequest 400
+	// Валидация userID на соответствие стандарту UUIDv4
+	if ok := utils.IsValidUUIDv4(string(userData.UserID)); !ok {
+		// Status 400
 		logger.StandardResponse("invalid userID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// Достаём данные Account из DB по userID
-	// Проверяем, что пользователь с userID существует
-	rep := repository.Get()
-	isUserExist, err := rep.UserExist(string(userData.UserID))
+	// Обращение к service для получения данных
+	accountData, err := handler.serv.GetAccDataByID(r.Context(), string(userData.UserID))
 	if err != nil {
-		// проставляем http.StatusInternalServerError
-		logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
+		logger.StandardDebugF(op, "Received account error {%v}", err)
+		// Status 500
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	account := &repModel.Account{}
-	// Если такой записи нет, значит профиль новый, поэтому создаём новую запись в БД
-	// Иначе возвращаем существующий профиль с запрашиваемым userID
-	if !isUserExist {
-		account, err = rep.SaveAccount(string(userData.UserID), userData.Username, userData.Role)
-		if err != nil {
-			// проставляем http.StatusInternalServerError
-			logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		logger.StandardResponse(
-			fmt.Sprintf("create new account user=%v with userID='%v'", userData.Username, userData.UserID),
-			http.StatusOK, r.Host, op)
-	} else {
-		var err error
-		account, err = rep.GetAccountByID(string(userData.UserID))
-		// Если не удалось получить профиль
-		if err != nil {
-			// проставляем http.StatusInternalServerError
-			logger.StandardResponse(err.Error(), http.StatusInternalServerError, r.Host, op)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-	}
-	logger.StandardResponse(
-		fmt.Sprintf("successful get user=%v with userID='%v'", userData.Username, userData.UserID),
-		http.StatusOK, r.Host, op)
-	accountData := models.Account{
-		Username: account.Username,
-		Email:    account.Email,
-		Role:     account.Role,
-		// Subscriptions: account.Subscriptions,
-	}
 	json.NewEncoder(w).Encode(accountData)
+	// Status 200
 	w.WriteHeader(http.StatusOK)
 }

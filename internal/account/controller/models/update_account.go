@@ -1,8 +1,13 @@
 package models
 
+// Service модель изменения данных аккаунта пользователя
 type UpdateAccount struct {
-	// Новое имя пользователя
-	Username string `json:"username,omitempty"`
-	// Новая почта пользователя
+	// Имя пользователя
+	Username string `json:"username"`
+	// Пароль пользователя
+	Password string `json:"password"`
+	// Почта пользователя (если есть)
 	Email string `json:"email,omitempty"`
+	// Роль: читатель или автор
+	Role string `json:"role"`
 }

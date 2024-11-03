@@ -14,7 +14,7 @@ paths:
         **Доступно только владельцу аккаунта**.
         Возвращает данные профиля на основе JWT-токена, переданного в Cookie.
         
-        <p>В качестве подписок возвращает массив идентификаторов авторов, которых поддерживает пользователь, на основе пользовательского идентификатора. По author_id необходимо затем получить author_username и author_avatar с помощью соотвествующих запросов.</p>
+        <p>В качестве подписок возвращает массив идентификаторов авторов, которых поддерживает пользователь, на основе пользовательского идентификатора. По authorID необходимо затем получить authorUsername и authorAvatar с помощью соотвествующих запросов.</p>
         
         <p><strong>Вызывается всегда при переходе в настройки вне зависимости от роли.</strong></p>
       security:
@@ -146,6 +146,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /account/update/role:
+    post:
+      tags:
+        - account
+      summary: Изменение роли пользователя
+      description: >-
+        **Доступно только владельцу аккаунта**.
+        Позволяет пользователю стать автором. Процесс необратимый, стать читателем после смены роли невозможно. 
+        <p>Также создаёт пользователю "дефолтный" уровень бесплатной подписки.
+        <p>Требует JWT-токен в Cookie.
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешное изменение роли
         '401':
           description: Неверный или отсутствующий JWT-токен
           content:
@@ -368,14 +395,14 @@ components:
           items:
             type: object
             properties:
-              author_id:
+              authorID:
                 type: string
                 description: Идентификатор автора
     Author:
       type: object
       description: Модель страницы автора
       properties:
-        author_username:
+        authorUsername:
           type: string
           description: Имя автора
         info:
@@ -390,7 +417,7 @@ components:
           items:
             type: object
             properties:
-              author_id:
+              authorID:
                 type: string
                 description: Идентификатор автора          
     UpdateProfile:
@@ -418,18 +445,6 @@ components:
         amount:
           type: string
           description: Сумма выплат
-    Subscription:
-      description: Модель подписок
-      type: object
-      properties:
-        subscriptions:  # Название массива
-          type: array
-          items:
-            type: object  # Указываем, что элементы массива - это объекты
-            properties:
-              authorId:
-                type: string
-                description: Идентификатор автора
     Error:
       type: object
       properties:
