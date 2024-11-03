@@ -44,12 +44,12 @@ func initConfig() (Config, error) {
 // InitPostgresDB - возвращает pool для создания запросов.
 // Надо использовать в main и передавать во всю бизнес-логику
 // Использовать стоит ограниченное число пулов (наверно, ок и один на весь демон)
-func InitPostgresDB(ctx context.Context) (*pgxpool.Pool, error) {
+func InitPostgresDB(ctx context.Context) *pgxpool.Pool {
 	op := "internal.pkg.repository.postgres.init.InitPostgresDB"
 
 	cfg, err := initConfig()
 	if err != nil {
-		return nil, errors.Wrap(err, op)
+		panic(errors.Wrap(err, op))
 	}
 
 	connString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
@@ -57,9 +57,9 @@ func InitPostgresDB(ctx context.Context) (*pgxpool.Pool, error) {
 
 	pool, err := pgxpool.New(ctx, connString)
 	if err != nil {
-		return nil, errors.Wrap(err, op)
+		panic(errors.Wrap(err, op))
 	}
 
 	logger.StandardInfoF(op, "Successfully connected to PostgresDB pool=%v", pool)
-	return pool, nil
+	return pool
 }

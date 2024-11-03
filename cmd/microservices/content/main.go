@@ -21,14 +21,7 @@ func main() {
 	logger.New()
 
 	// repository
-	//rep := imagine.New()
-	ctx := context.Background()
-	db, err := postgres.InitPostgresDB(ctx)
-	if err != nil {
-		logger.StandardError("panic: "+err.Error(), "main")
-		logger.StandardDebugF(op, "PANIC = %v", err)
-		return
-	}
+	db := postgres.InitPostgresDB(context.Background())
 
 	rep := postgresql.NewContentRepository(db)
 
