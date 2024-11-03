@@ -158,7 +158,7 @@ func (s *Service) updatePassword(ctx context.Context, op string, userID string, 
 
 func (s *Service) updateEmail(ctx context.Context, op string, userID string, email string) error {
 	if email != "" {
-		if err := s.rep.UpdatePassword(ctx, userID, email); err != nil {
+		if err := s.rep.UpdateEmail(ctx, userID, email); err != nil {
 			return err
 		}
 		logger.StandardInfo(

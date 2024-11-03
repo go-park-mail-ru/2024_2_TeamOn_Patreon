@@ -46,6 +46,9 @@ func (handler *Handler) PostAccountUpdate(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	logger.StandardDebugF(op, "Updating userId='%v' username='%v' password='%v' email='%v",
+		string(userData.UserID), newInfo.Username, newInfo.Password, newInfo.Email,
+	)
 	// Обращение к service для записи данных (Может легче было передать сразу всю структуру?)
 	if err := handler.serv.PostAccUpdateByID(r.Context(), string(userData.UserID), newInfo.Username, newInfo.Password, newInfo.Email); err != nil {
 		logger.StandardWarnF(op, "update data error {%v}", err)
