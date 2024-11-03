@@ -16,7 +16,7 @@ type UpdatePost struct {
 	// Идентификатор поста для обновления
 	PostId string `json:"post_id"`
 	// Заголовок поста
-	Title string `json:"title"`
+	Title string `json:"title,omitempty"`
 	// Содержимое поста (текст)
 	Content string `json:"content,omitempty"`
 	// Уровень на котором можно смотреть пост
@@ -50,6 +50,10 @@ func (ap *UpdatePost) Validate() (bool, error) {
 
 func (ap *UpdatePost) validateTitle() error {
 	op := "content.controller.model_update_post.validateTitle"
+
+	if ap.Title == "" {
+		return nil
+	}
 
 	if err := validate.Title(ap.Title); err != nil {
 		return errors.Wrap(err, op)
