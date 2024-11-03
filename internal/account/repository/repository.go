@@ -179,7 +179,7 @@ func (p *Postgres) UpdateRole(ctx context.Context, userID string) error {
 
 	query := `
 		UPDATE people
-		SET role_id = (SELECT role_id FROM role WHERE role_default_name = 'author')
+		SET role_id = (SELECT role_id FROM role WHERE role_default_name = 'Author')
 		WHERE user_id = $1
 	`
 
