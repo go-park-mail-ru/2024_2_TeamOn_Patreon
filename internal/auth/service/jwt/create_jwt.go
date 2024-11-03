@@ -1,9 +1,9 @@
 package jwt
 
 import (
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"time"
 
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/pkg/errors"
@@ -22,9 +22,10 @@ func CreateJWT(user bModels.User, ttl int) (TokenString, error) {
 		ttl = 24
 	}
 
+	userId := "e40a7220-9b24-42b2-afe4-f2ae8845b993"
 	// создаем структуру токена claims
 	claims := TokenClaims{
-		UserID:   string(user.UserID),
+		UserID:   userId,
 		Username: user.Username,
 		Role:     user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -53,7 +54,7 @@ func createToken(tokenClaims TokenClaims) (TokenString, error) {
 	// Подписываем токен с использованием секретного ключа
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		return "", config.ErrServer
+		return "", global.ErrServer
 	}
 
 	return TokenString(tokenString), nil

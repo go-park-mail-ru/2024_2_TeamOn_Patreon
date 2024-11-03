@@ -2,12 +2,12 @@ package controller
 
 import (
 	"fmt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/utils"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/mapper"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"net/http"
 )
 
@@ -15,13 +15,17 @@ import (
 func (handler *Handler) LogoutPost(w http.ResponseWriter, r *http.Request) {
 	op := "auth.controller.LogoutPost"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	ctx := r.Context()
 
 	// парсинг jwt токена
 	tokenClaims, err := jwt.ParseJWTFromCookie(r)
 	if err != nil || tokenClaims == nil {
-		err = config.ErrUserNotAuthorized
-		w.WriteHeader(config.GetCodeError(err))
-		utils.SendModel(&tModels.ModelError{Message: config.GetMsgError(err)}, w, op)
+		err = global.ErrUserNotAuthorized
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		err = global.ErrUserNotAuthorized
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 
@@ -29,10 +33,10 @@ func (handler *Handler) LogoutPost(w http.ResponseWriter, r *http.Request) {
 	// мапим это все в структуру user для бизнес-логики
 	user := mapper.MapTokenToUser(tokenClaims)
 
-	err = handler.b.LogoutUser(user.UserID)
+	err = handler.b.LogoutUser(ctx, user.UserID)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		utils.SendModel(&tModels.ModelError{Message: config.GetMsgError(err)}, w, op)
+		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 	// Сохранение токена в куки

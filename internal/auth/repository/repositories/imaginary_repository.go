@@ -1,13 +1,14 @@
 package repositories
 
 import (
+	"context"
 	"errors"
-	"sync"
-
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	imModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/gofrs/uuid"
+	errors2 "github.com/pkg/errors"
+	"sync"
 )
 
 // ImaginaryRepository реализует интерфейс AuthRepository
@@ -25,14 +26,14 @@ func New() *ImaginaryRepository {
 	}
 }
 
-// SaveUser сохраняет пользователя в базу данных.
-func (r *ImaginaryRepository) SaveUser(username string, role string, passwordHash string) (*bModels.User, error) {
+// SaveUserWithRole сохраняет пользователя
+func (r *ImaginaryRepository) SaveUserWithRole(ctx context.Context, userId uuid.UUID, username, role, hash string) error {
 	// создание нового пользователя
 	user := imModels.User{
-		UserID:       r.generateID(),
+		UserID:       bModels.UserID(userId.String()),
 		Username:     username,
 		Role:         role,
-		PasswordHash: passwordHash,
+		PasswordHash: hash,
 	}
 
 	r.mu.Lock()
@@ -40,13 +41,11 @@ func (r *ImaginaryRepository) SaveUser(username string, role string, passwordHas
 	r.users[user.UserID] = &user
 	r.mu.Unlock()
 
-	// мапим в бизнес модель user
-	bUser := imModels.MapImUserToBUser(user)
-	return &bUser, nil
+	return nil
 }
 
 // UserExists проверяет, существует ли пользователь с указанным именем.
-func (r *ImaginaryRepository) UserExists(username string) (bool, error) {
+func (r *ImaginaryRepository) UserExists(ctx context.Context, username string) (bool, error) {
 	r.mu.RLock()
 	for _, user := range r.users {
 
@@ -58,24 +57,22 @@ func (r *ImaginaryRepository) UserExists(username string) (bool, error) {
 	return false, nil
 }
 
-// GetUserByID получает пользователя по его ID.
-func (r *ImaginaryRepository) GetUserByID(userID bModels.UserID) (*bModels.User, error) {
+func (r *ImaginaryRepository) GetUserByUserId(ctx context.Context, userId uuid.UUID) (username, role string, err error) {
 	r.mu.RLock()
-	imUser := r.users[bModels.UserID(userID)]
+	imUser := r.users[bModels.UserID(userId.String())]
 	r.mu.RUnlock()
 
 	if imUser == nil {
-		return nil, config.ErrUserNotFound
+		return "", "", global.ErrUserNotFound
 	}
 
-	bUser := imModels.MapImUserToBUser(*imUser)
-	return &bUser, nil
+	return imUser.Username, imUser.Role, nil
 }
 
 // GetPasswordHashByID получает хэш пароля пользователя по его ID.
-func (r *ImaginaryRepository) GetPasswordHashByID(userID bModels.UserID) (string, error) {
+func (r *ImaginaryRepository) GetPasswordHashByID(ctx context.Context, userID uuid.UUID) (string, error) {
 	r.mu.RLock()
-	imUser := r.users[userID]
+	imUser := r.users[bModels.UserID(userID.String())]
 	r.mu.RUnlock()
 
 	if imUser == nil {
@@ -85,13 +82,13 @@ func (r *ImaginaryRepository) GetPasswordHashByID(userID bModels.UserID) (string
 }
 
 func (r *ImaginaryRepository) generateID() bModels.UserID {
-	id, _ := uuid.NewV4()
-
-	return bModels.UserID(id.String())
+	r.lastID++
+	return bModels.UserID(r.lastID)
 }
 
 // GetUserByUsername возвращает пользователя по имени.
-func (r *ImaginaryRepository) GetUserByUsername(username string) (*bModels.User, error) {
+// Output: userId, role, error
+func (r *ImaginaryRepository) GetUserByUsername(ctx context.Context, username string) (uuid.UUID, string, error) {
 	var imUser *imModels.User
 
 	r.mu.RLock()
@@ -105,9 +102,12 @@ func (r *ImaginaryRepository) GetUserByUsername(username string) (*bModels.User,
 	r.mu.RUnlock()
 
 	if imUser == nil {
-		return nil, config.ErrUserNotFound
+		return uuid.Nil, "", errors2.Wrap(global.ErrUserNotFound, "")
 	}
 
-	bUser := imModels.MapImUserToBUser(*imUser)
-	return &bUser, nil
+	userIdUuid, err := uuid.FromString(string(imUser.UserID))
+	if err != nil {
+		return uuid.Nil, "", global.ErrUserNotFound
+	}
+	return userIdUuid, imUser.Role, nil
 }
