@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres/migrate/filling/consts"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres/filling/consts"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -234,7 +234,8 @@ func createCustomSubscriptions(ctx context.Context, pool *pgxpool.Pool, n int) e
 		authorName := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
 		username := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
 		customSub := fmt.Sprintf(consts.CUSTOM_NAME, i+1, authorName)
-		layer := i%3 + 1
+		layer := i % 4
+
 		cost := consts.CUSTOM_COST * layer
 
 		CustomSubToAuthor[customSub] = CustomSub{layer: string(layer), authorName: username, customName: customSub}
@@ -276,7 +277,7 @@ func createSubscriptions(ctx context.Context, pool *pgxpool.Pool, n int) error {
 	for i := 0; i < n; i++ {
 		authorName := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
 		customSub := fmt.Sprintf(consts.CUSTOM_NAME, i+1, authorName)
-		layer := i%3 + 1
+		layer := i % 4
 		for j := 0; j < n; j++ {
 			username := fmt.Sprintf(consts.USERNAME, j+1)
 
@@ -324,7 +325,7 @@ func createPosts(ctx context.Context, pool *pgxpool.Pool, n int) error {
 	for i := 0; i < n; i++ {
 		authorName := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
 		about := fmt.Sprintf(consts.ABOUT, authorName)
-		layer := i%3 + 1
+		layer := i % 4
 
 		for j := 0; j < n; j++ {
 			title := fmt.Sprintf(consts.TITLE, i, j, authorName)
