@@ -14,4 +14,5 @@ type AuthorPosts struct {
 	Content string `json:"content,omitempty"`
 	// Количество лайков поста
 	Likes int32 `json:"likes"`
+	CreatedAt string `json:"CreatedAt"`
 }
