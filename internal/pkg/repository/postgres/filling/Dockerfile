@@ -25,7 +25,7 @@ RUN go mod tidy
 COPY . .
 
 # Собираем бинарный файл Go
-RUN go build -o /app/filling-service internal/pkg/repository/postgres/migrate/filling/filling.go
+RUN go build -o /app/filling-service internal/pkg/repository/postgres/filling/filling.go
 
 # Создаём финальный образ
 FROM alpine:3.18

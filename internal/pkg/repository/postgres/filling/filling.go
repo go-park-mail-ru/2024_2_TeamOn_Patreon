@@ -236,7 +236,7 @@ func createCustomSubscriptions(ctx context.Context, pool *pgxpool.Pool, n int) e
 		customSub := fmt.Sprintf(consts.CUSTOM_NAME, i+1, authorName)
 		layer := i % 4
 
-		cost := consts.CUSTOM_COST * layer
+		cost := consts.CUSTOM_COST*layer + 10
 
 		CustomSubToAuthor[customSub] = CustomSub{layer: string(layer), authorName: username, customName: customSub}
 
