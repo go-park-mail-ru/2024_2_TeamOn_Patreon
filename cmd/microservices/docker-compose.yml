@@ -39,6 +39,8 @@ services:
       dockerfile: cmd/microservices/account/Dockerfile
     ports:
       - "8082:8082"
+    volumes:
+      - ./static/avatar:/app/volume  # Указываем путь к локальной папке
     depends_on:
       - postgres
 

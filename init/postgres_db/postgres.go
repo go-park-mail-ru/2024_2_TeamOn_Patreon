@@ -19,9 +19,6 @@ func InitPostgres() *pgx.Conn {
 		return nil
 	}
 
-	// Не забыть закрыть соединение!
-	// defer conn.Close(context.Background())
-
 	logger.StandardInfoF(op, "Successful connect to PostgresDB")
 	return conn
 }
