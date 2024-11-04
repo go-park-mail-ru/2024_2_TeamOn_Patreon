@@ -362,6 +362,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /author/{authorID}/tip:
+    post:
+      tags:
+        - author
+      summary: Отправить пожертвование автору
+      description: >-
+        Позволяет атправить отправить пожертвование в размере указанной суммы.
+        <p><strong>При authorID == 'me' запрос НЕ работает.</strong></p>
+        <p><strong>При authorID == userID запрос НЕ работает.</strong></p>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Спасибо за чудесный контент!"
+                cost:
+                  type: integer
+                  example: 360
+      parameters:
+      - in: path
+        name: authorID
+        required: true
+        schema:
+          type: string
+        description: Идентификатор автора
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешное получение данных
+        '400':
+          description: Ошибка валидации или неверный формат данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'  
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     cookieAuth:
@@ -394,6 +446,9 @@ components:
               authorID:
                 type: string
                 description: Идентификатор автора
+              authorname:
+                type: string
+                description: Имя автора
     Author:
       type: object
       description: Модель страницы автора
@@ -456,14 +511,3 @@ components:
           description: Загружаемый файл (JPG, JPEG)
       required:
         - file
-    AuthorPictures:
-      type: object
-      properties:
-        avatar:
-          type: string
-          format: binary
-          description: Загружаемый файл (JPG, JPEG)
-        background:
-          type: string
-          format: binary
-          description: Загружаемый файл (JPG, JPEG)
