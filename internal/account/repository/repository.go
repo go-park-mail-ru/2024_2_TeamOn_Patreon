@@ -9,6 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
 	pgx "github.com/jackc/pgx/v4"
+	"github.com/pkg/errors"
 )
 
 // Поле структуры - соединение с БД
@@ -65,8 +66,7 @@ func (p *Postgres) AvatarPathByID(ctx context.Context, userID string) (string, e
 	var avatarPath string
 	err := p.db.QueryRow(ctx, query, userID).Scan(&avatarPath)
 	if err != nil {
-		logger.StandardDebugF(op, "get avatar error: {%v}", err)
-		return "", err
+		return "", errors.Wrap(err, op)
 	}
 
 	return avatarPath, nil
@@ -155,14 +155,9 @@ func (p *Postgres) UpdateAvatar(ctx context.Context, userID string, avatarID str
 	`
 	// Выполняем запрос
 	if _, err := p.db.Exec(ctx, query, avatarID, userID, avatarPath); err != nil {
-		logger.StandardDebugF(op, "update avatar error: {%v}", err)
-		return err
+		return errors.Wrap(err, op)
 	}
 
-	logger.StandardInfo(
-		fmt.Sprintf("successful update avatar for userID: %s", userID),
-		op,
-	)
 	// Возвращаем nil, если обновление прошло успешно
 	return nil
 }

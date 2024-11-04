@@ -39,6 +39,9 @@ WORKDIR /app
 # Копируем скомпилированное приложение из builder-контейнера
 COPY --from=builder /app/account-service /app/account-service
 
+# Копируем папку static/avatar из builder-контейнера
+COPY --from=builder /app/static/avatar /app/static/avatar
+
 # Копируем файл с переменными окружения из директории config
 #COPY internal/auth/config/env.docker /app/env
 
