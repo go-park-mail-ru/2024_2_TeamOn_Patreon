@@ -276,7 +276,7 @@ func (s *Service) saveNewAvatar(ctx context.Context, userID string, avatarFile m
 	}
 
 	logger.StandardInfo(
-		fmt.Sprintf("successful update save new avatar with avatar path %v for userID %v", avatarPath, userID),
+		fmt.Sprintf("successful save new avatar with avatar path %v for userID %v", avatarPath, userID),
 		op,
 	)
 	return nil

@@ -33,6 +33,30 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			"/author/{authorID}",
 			handler.GetAuthor,
 		},
+		Route{
+			"GetAuthor",
+			"GET",
+			"/author/{authorID}",
+			handler.GetAuthor,
+		},
+		Route{
+			"GetAuthorBackground",
+			"GET",
+			"/author/{authorID}/background",
+			handler.GetAuthorBackground,
+		},
+		Route{
+			"PostAuthorUpdateInfo",
+			"POST",
+			"/author/update/info",
+			handler.PostAuthorUpdateInfo,
+		},
+		Route{
+			"PostAuthorUpdateBackground",
+			"POST",
+			"/author/update/background",
+			handler.PostAuthorUpdateBackground,
+		},
 	}
 	// Declare a new router
 	router := mux.NewRouter().StrictSlash(true)
