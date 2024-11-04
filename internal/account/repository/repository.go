@@ -5,23 +5,24 @@ import (
 	"database/sql"
 	"fmt"
 
-	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
+	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
-	pgx "github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/pkg/errors"
 )
 
-// Поле структуры - соединение с БД
+// Поле структуры - pool соединений с БД
 type Postgres struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func New(db *pgx.Conn) *Postgres {
+func New(db *pgxpool.Pool) *Postgres {
 	return &Postgres{db: db}
 }
 
-func (p *Postgres) UserByID(ctx context.Context, userID string) (*sModels.User, error) {
+func (p *Postgres) UserByID(ctx context.Context, userID string) (*repModels.User, error) {
 	op := "internal.account.repository.UserByID"
 
 	// SQL-запрос для получения данных пользователя
@@ -36,7 +37,7 @@ func (p *Postgres) UserByID(ctx context.Context, userID string) (*sModels.User, 
 			p.user_id = $1;
 	`
 
-	var user sModels.User
+	var user repModels.User
 	err := p.db.QueryRow(ctx, query, userID).Scan(&user.UserID, &user.Username, &user.Email, &user.Role)
 
 	if err != nil {
@@ -53,6 +54,47 @@ func (p *Postgres) UserByID(ctx context.Context, userID string) (*sModels.User, 
 
 	// Возвращаем данные пользователя
 	return &user, nil
+}
+
+func (p *Postgres) SubscriptionsByID(ctx context.Context, userID string) ([]repModels.Subscription, error) {
+	op := "internal.account.repository.SubscriptionsByID"
+
+	// SQL-запрос для получения данных о подписках
+	query := `
+		SELECT 
+			cs.author_id, p.username
+		FROM
+			subscription s
+		INNER JOIN
+			custom_subscription cs ON s.custom_subscription_id = cs.custom_subscription_id
+		INNER JOIN
+			people p ON cs.author_id = p.user_id
+		WHERE
+			s.user_id = $1;
+	`
+
+	rows, err := p.db.Query(ctx, query, userID)
+	if err != nil {
+		return nil, errors.Wrap(err, op)
+	}
+	defer rows.Close()
+
+	logger.StandardDebugF(op, "wants to form an map of subscriptions for user with userID %v", userID)
+	var subscriptions []repModels.Subscription
+	for rows.Next() {
+		var subscription repModels.Subscription
+		if err := rows.Scan(&subscription.AuthorID, &subscription.AuthorName); err != nil {
+			return nil, errors.Wrap(err, op)
+		}
+		subscriptions = append(subscriptions, subscription)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, errors.Wrap(err, op)
+	}
+
+	// Возвращаем данные о подписках
+	return subscriptions, nil
 }
 
 func (p *Postgres) AvatarPathByID(ctx context.Context, userID string) (string, error) {
@@ -188,6 +230,7 @@ func (p *Postgres) UpdateRole(ctx context.Context, userID string) error {
 		fmt.Sprintf("successful change role for userID: %s", userID),
 		op,
 	)
+
 	// Возвращаем nil, если изменение прошло успешно
 	return nil
 }
@@ -206,6 +249,7 @@ func (p *Postgres) InitPage(ctx context.Context, userID string) error {
 		logger.StandardDebugF(op, "crate new page error: {%v}", err)
 		return err
 	}
+
 	// Возвращаем nil, если создание прошло успешно
 	return nil
 }

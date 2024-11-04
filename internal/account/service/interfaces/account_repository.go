@@ -3,13 +3,16 @@ package interfaces
 import (
 	"context"
 
-	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
+	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
 )
 
 // Интерфейс AccountRepository описывает методы взаимодействия уровня service с уровнем repository
 type AccountRepository interface {
 	// UserByID получает данные пользователя по указанному ID
-	UserByID(ctx context.Context, userID string) (*sModels.User, error)
+	UserByID(ctx context.Context, userID string) (*repModels.User, error)
+
+	// Subscriptions получает подписки пользователя по указанному ID
+	SubscriptionsByID(ctx context.Context, userID string) ([]repModels.Subscription, error)
 
 	// AvatarPathByID получает путь до аватара пользователя по указанному ID
 	AvatarPathByID(ctx context.Context, userID string) (string, error)

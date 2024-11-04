@@ -10,8 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
-	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
 	interfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/interfaces"
+	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
@@ -26,28 +26,53 @@ func New(repository interfaces.AccountRepository) *Service {
 }
 
 // GetAccDataByID - получение данных аккаунта по userID
-func (s *Service) GetAccDataByID(ctx context.Context, userID string) (cModels.Account, error) {
+func (s *Service) GetAccDataByID(ctx context.Context, userID string) (sModels.User, error) {
 	op := "internal.account.service.GetAccDataByID"
 
-	// получаем данные пользователя в формате service model
+	// получаем данные пользователя из rep
+	logger.StandardDebugF(op, "want to get user data for userID = %v", userID)
+
 	user, err := s.rep.UserByID(ctx, userID)
 	if err != nil {
-		logger.StandardDebugF(op, "fail get user: {%v}", err)
-		return cModels.Account{}, err
+		return sModels.User{}, errors.Wrap(err, op)
 	}
 
 	logger.StandardInfo(
-		fmt.Sprintf("successful get user=%v with userID='%v'", user.Username, user.UserID),
+		fmt.Sprintf("successful get user=%v, role=%v, email=%v", user.Username, user.Role, user.Email),
 		op)
 
-	// по хорошему здесь должен быть маппер
-	accountData := cModels.Account{
+	accountData := sModels.User{
 		Username: user.Username,
 		Email:    user.Email.String,
 		Role:     user.Role,
-		// Subscriptions:
 	}
 	return accountData, nil
+}
+
+// GetAccSubscriptions - получение подписок аккаунта по userID
+func (s *Service) GetAccSubscriptions(ctx context.Context, userID string) ([]sModels.Subscription, error) {
+	op := "internal.account.service.GetAccSubscriptions"
+
+	// получаем подписки пользователя из rep
+	logger.StandardDebugF(op, "want to get subscriptions for user with userID %v", userID)
+	repSubscriptions, err := s.rep.SubscriptionsByID(ctx, userID)
+	if err != nil {
+		return nil, errors.Wrap(err, op)
+	}
+
+	// Преобразование подписок из репозитория в сервисные модели
+	subscriptions := make([]sModels.Subscription, len(repSubscriptions))
+	for i, repSub := range repSubscriptions {
+		subscriptions[i] = sModels.Subscription{
+			AuthorID:   repSub.AuthorID,
+			AuthorName: repSub.AuthorName,
+		}
+	}
+
+	logger.StandardInfo(
+		fmt.Sprintf("successful get subscriptions: %v", subscriptions),
+		op)
+	return subscriptions, nil
 }
 
 // GetAvatarByID - получение аватарки пользователя по userID
