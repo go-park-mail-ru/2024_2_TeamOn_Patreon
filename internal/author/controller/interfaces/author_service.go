@@ -16,11 +16,14 @@ type AuthorService interface {
 	GetBackgroundByID(ctx context.Context, authorID string) ([]byte, error)
 
 	// PostUpdateInfo - обновление информации о себе
-	PostUpdateInfo(ctx context.Context, authorID string, info string) error
+	PostUpdateInfo(ctx context.Context, authorID, info string) error
 
 	// GetAuthorPayments - получение выплат автора
 	GetAuthorPayments(ctx context.Context, authorID string) (cModels.Payments, error)
 
 	// PostUpdateBackground - изменение фона страницы автора
 	PostUpdateBackground(ctx context.Context, authorID string, avatar multipart.File, fileName string) error
+
+	// PostTip - обновление информации о себе
+	PostTip(ctx context.Context, userID, authorID string, cost int, message string) error
 }

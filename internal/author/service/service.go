@@ -128,6 +128,21 @@ func (s *Service) PostUpdateBackground(ctx context.Context, authorID string, bac
 	return nil
 }
 
+func (s *Service) PostTip(ctx context.Context, userID, authorID string, cost int, message string) error {
+	op := "internal.author.service.PostTip"
+
+	logger.StandardDebugF(op, "want to save new tip")
+
+	if err := s.rep.NewTip(ctx, userID, authorID, cost, message); err != nil {
+		return errors.Wrap(err, op)
+	}
+	logger.StandardInfo(
+		fmt.Sprintf("successful send tip: cost=%v, message=%v from user=%v to author=%v", cost, message, userID, authorID),
+		op)
+
+	return nil
+}
+
 func (s *Service) deleteOldBackground(ctx context.Context, authorID string) error {
 	op := "internal.author.service.deleteOldBackground"
 

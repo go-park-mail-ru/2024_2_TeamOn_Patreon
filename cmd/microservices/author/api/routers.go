@@ -57,6 +57,12 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			"/author/update/background",
 			handler.PostAuthorUpdateBackground,
 		},
+		Route{
+			"PostAuthorTip",
+			"POST",
+			"/author/{authorID}/tip",
+			handler.PostAuthorTip,
+		},
 	}
 	// Declare a new router
 	router := mux.NewRouter().StrictSlash(true)
