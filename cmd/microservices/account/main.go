@@ -18,10 +18,12 @@ func main() {
 	logger.New()
 
 	// connect to DB
-	connect := postgres.InitPostgres()
+	pool := postgres.InitPostgres()
+
+	defer pool.Close()
 
 	// repository
-	rep := repositories.New(connect)
+	rep := repositories.New(pool)
 
 	// service
 	serv := service.New(rep)

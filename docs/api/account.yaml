@@ -95,10 +95,6 @@ paths:
       responses:
         '200':
           description: Успешное обновление профиля
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Profile'
         '204':
           description: Нет содержимого
         '400':
@@ -224,13 +220,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /author/{authorID}/media:
+  /author/{authorID}/background:
     get:
       tags:
         - author
       summary: Получение аватарки и фона страницы автора
       description: >-
-        Возвращает на основе идентификатора автора его аватарку и фон страницы в формате `multipart/form-data`.
+        Возвращает на основе идентификатора автора его фон страницы в формате `multipart/form-data`.
         Поддерживаемые форматы: JPG, JPEG.
         <p><strong>Работает и для своей странички, и для чужой.</strong></p>
         <p><strong>При userID == 'me' запрос работает для самого пользователя.</strong></p>
@@ -245,11 +241,11 @@ paths:
         - cookieAuth: []
       responses:
         '200':
-          description: Успешное получение медиа-файлов страницы
+          description: Успешное получение фона страницы
           content:
             multipart/form-data:
               schema:
-                $ref: '#/components/schemas/AuthorPictures'
+                $ref: '#/components/schemas/Picture'
         '401':
           description: Неверный или отсутствующий JWT-токен
           content:

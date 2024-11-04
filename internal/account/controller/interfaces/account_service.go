@@ -4,13 +4,16 @@ import (
 	"context"
 	"mime/multipart"
 
-	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
+	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
 )
 
 // Интерфейс AccountService необходим для взаимодействия уровня controller с уровнем service
 type AccountService interface {
 	// GetAccDataByID - получение данных аккаунта по userID
-	GetAccDataByID(ctx context.Context, userID string) (cModels.Account, error)
+	GetAccDataByID(ctx context.Context, userID string) (sModels.User, error)
+
+	// GetAccSubscriptions - получение подписок аккаунта по userID
+	GetAccSubscriptions(ctx context.Context, userID string) ([]sModels.Subscription, error)
 
 	// GetAvatarByID - получение аватарки пользователя по userID
 	GetAvatarByID(ctx context.Context, userID string) ([]byte, error)

@@ -6,15 +6,15 @@ import (
 
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	pgx "github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-// Поле структуры - соединение с БД
+// Поле структуры - pool соединений с БД
 type Postgres struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func New(db *pgx.Conn) *Postgres {
+func New(db *pgxpool.Pool) *Postgres {
 	return &Postgres{db: db}
 }
 
