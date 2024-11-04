@@ -23,6 +23,9 @@ type AuthorRepository interface {
 	// UpdateBackground обновляет путь к фону страницы автора
 	UpdateBackground(ctx context.Context, userID string, backgroundPath string) error
 
+	// NewTip - обновление информации о себе
+	NewTip(ctx context.Context, userID, authorID string, cost int, message string) error
+
 	// GenerateID генерирует ID в формате UUIDv4
 	GenerateID() string
 }
