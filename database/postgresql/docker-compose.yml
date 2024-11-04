@@ -24,17 +24,12 @@ services:
     depends_on:
       - postgres
 
-  migrate:
+  migrate-service:
     build:
-      context: .
-      dockerfile: Dockerfile-migrate
+      context: ../../
+      dockerfile: internal/pkg/repository/postgres/migrate/Dockerfile
     depends_on:
       - postgres
-
-  auth-service:
-    build:
-      context: .
-      dockerfile:
 
 volumes:
   postgres_data:

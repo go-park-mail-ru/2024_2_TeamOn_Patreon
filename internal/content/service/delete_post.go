@@ -10,11 +10,13 @@ import (
 
 func (b *Behavior) DeletePost(ctx context.Context, userId, postId string) error {
 	op := "service.behavior.DeletePost"
+
 	userIdUuid, err := uuid.FromString(userId)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
 	postIdUuid, err := uuid.FromString(postId)
+	logger.StandardDebugF(op, "userId= %v post_id = '%v'", userId, postId)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}

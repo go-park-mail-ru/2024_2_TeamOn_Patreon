@@ -22,7 +22,6 @@ func main() {
 	dbName := "testdb"
 	migrationsDir := "file://database/migrations" // Путь к папке с миграциями
 
-	// Внутри main
 	wd, _ := os.Getwd()
 	log.Println("Current working directory:", wd)
 
