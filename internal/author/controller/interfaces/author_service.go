@@ -12,6 +12,9 @@ type AuthorService interface {
 	// GetAuthorDataByID - получение данных автора по authorID
 	GetAuthorDataByID(ctx context.Context, authorID string) (cModels.Author, error)
 
+	// GetBackgroundByID - получение фона страницы автора по authorID
+	GetBackgroundByID(ctx context.Context, authorID string) ([]byte, error)
+
 	// PostUpdateInfo - обновление информации о себе
 	PostUpdateInfo(ctx context.Context, authorID string, info string) error
 

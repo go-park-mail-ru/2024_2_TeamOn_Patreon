@@ -9,6 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/pkg/errors"
 )
 
 // Поле структуры - pool соединений с БД
@@ -129,7 +130,7 @@ func (p *Postgres) Payments(ctx context.Context, authorID string) (int, error) {
 	return amountPayments, nil
 }
 
-func (p *Postgres) BackgroundPathByID(ctx context.Context, userID string) (string, error) {
+func (p *Postgres) BackgroundPathByID(ctx context.Context, authorID string) (string, error) {
 	op := "internal.account.repository.BackgroundPathByID"
 
 	query := `
@@ -138,32 +139,30 @@ func (p *Postgres) BackgroundPathByID(ctx context.Context, userID string) (strin
 		WHERE user_id = $1
 	`
 	var backgroundPath string
-	err := p.db.QueryRow(ctx, query, userID).Scan(&backgroundPath)
+	err := p.db.QueryRow(ctx, query, authorID).Scan(&backgroundPath)
 	if err != nil {
-		logger.StandardDebugF(op, "get background error: {%v}", err)
-		return "", err
+		return "", errors.Wrap(err, op)
 	}
 
 	return backgroundPath, nil
 }
 
-func (p *Postgres) UpdateBackground(ctx context.Context, userID string, backgroundPath string) error {
+func (p *Postgres) UpdateBackground(ctx context.Context, authorID string, backgroundPath string) error {
 	op := "internal.account.repository.UpdateBackground"
 
-	// Запрос на изменение графы "фон" для пользователя
+	// Запрос на изменение графы "фон" для автора
 	query := `
 		UPDATE page 
 		SET background_picture_url = $1 
 		WHERE user_id = $2;
 	`
 	// Выполняем запрос
-	if _, err := p.db.Exec(ctx, query, backgroundPath, userID); err != nil {
-		logger.StandardDebugF(op, "update avatar error: {%v}", err)
-		return err
+	if _, err := p.db.Exec(ctx, query, backgroundPath, authorID); err != nil {
+		return errors.Wrap(err, op)
 	}
 
 	logger.StandardInfo(
-		fmt.Sprintf("successful update avatar for userID: %s", userID),
+		fmt.Sprintf("successful update record for authorID: %s", authorID),
 		op,
 	)
 	// Возвращаем nil, если обновление прошло успешно

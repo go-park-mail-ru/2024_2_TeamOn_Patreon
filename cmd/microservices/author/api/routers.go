@@ -40,6 +40,12 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			handler.GetAuthor,
 		},
 		Route{
+			"GetAuthorBackground",
+			"GET",
+			"/author/{authorID}/background",
+			handler.GetAuthorBackground,
+		},
+		Route{
 			"PostAuthorUpdateInfo",
 			"POST",
 			"/author/update/info",

@@ -18,7 +18,7 @@ type AuthorRepository interface {
 	Payments(ctx context.Context, authorID string) (int, error)
 
 	// BackgroundPathByID получает путь до фона страницы автора
-	BackgroundPathByID(ctx context.Context, userID string) (string, error)
+	BackgroundPathByID(ctx context.Context, authorID string) (string, error)
 
 	// UpdateBackground обновляет путь к фону страницы автора
 	UpdateBackground(ctx context.Context, userID string, backgroundPath string) error
