@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 	"github.com/pkg/errors"
 	"regexp"
 )
@@ -36,6 +37,9 @@ func (reg *Reg) Validate() (bool, error) {
 }
 
 func (reg *Reg) validateUsername() error {
+
+	reg.Username = validate.Sanitize(reg.Username)
+
 	// Длина не менее 4 символов
 	if len(reg.Username) < 4 {
 		return global.ErrSmallLogin
@@ -64,6 +68,8 @@ func (reg *Reg) validateUsername() error {
 }
 
 func (reg *Reg) validatePassword() error {
+
+	reg.Password = validate.Sanitize(reg.Password)
 
 	// Длина не меньше 8 символов
 	if len(reg.Password) < 8 {
