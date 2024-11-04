@@ -13,6 +13,7 @@ import (
 	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
 	interfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/interfaces"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -52,25 +53,25 @@ func (s *Service) GetAccDataByID(ctx context.Context, userID string) (cModels.Ac
 // GetAvatarByID - получение аватарки пользователя по userID
 func (s *Service) GetAvatarByID(ctx context.Context, userID string) ([]byte, error) {
 	op := "internal.account.service.GetAvatarByID"
-	defaultAvatarPath := "static/avatar/default.jpg"
 
 	// ОБращаемся в репозиторий для получения пути до аватара
+	logger.StandardDebugF(op, "want to find avatarPATH for userID = %v", userID)
+
 	avatarPath, err := s.rep.AvatarPathByID(ctx, userID)
 	if err != nil {
-		logger.StandardDebugF(op, "fail get avatarPath: {%v}", err)
-		// Если не получилось достать аватар, то возвращаем дефолтный
-		avatarPath = defaultAvatarPath
+		// Если не получилось найти путь аватара -> 404
+		return nil, errors.Wrap(err, op)
 	}
 
-	// По указанному пути открываем файл аватара
+	// По найденному пути открываем файл аватара
+	logger.StandardDebugF(op, "want to read file with path: %v", avatarPath)
 	avatar, err := os.ReadFile(avatarPath)
 	if err != nil {
-		logger.StandardDebugF(op, "file with URL {%v} not found {%v}", avatarPath, err)
-		return nil, err
+		return nil, errors.Wrap(err, op)
 	}
 
 	logger.StandardInfo(
-		fmt.Sprintln("successful get avatar file"),
+		fmt.Sprintf("successful get avatar file with path %v for user with userID %v", avatarPath, userID),
 		op)
 
 	return avatar, nil
@@ -98,13 +99,15 @@ func (s *Service) PostUpdateAvatar(ctx context.Context, userID string, avatarFil
 	op := "internal.account.service.PostAccountUpdateAvatar"
 
 	// Удаляем старый аватар, если он есть
-	if err := s.deleteOldAvatar(ctx, op, userID); err != nil {
-		return err
+	logger.StandardDebugF(op, "want to delete old avatar file")
+	if err := s.deleteOldAvatar(ctx, userID); err != nil {
+		return errors.Wrap(err, op)
 	}
 
 	// Сохраняем новый
-	if err := s.saveNewAvatar(ctx, op, userID, avatarFile, fileName); err != nil {
-		return err
+	logger.StandardDebugF(op, "want to save new avatar file")
+	if err := s.saveNewAvatar(ctx, userID, avatarFile, fileName); err != nil {
+		return errors.Wrap(err, op)
 	}
 	return nil
 }
@@ -184,23 +187,37 @@ func (s *Service) initPage(ctx context.Context, op string, userID string) error 
 	return nil
 }
 
-func (s *Service) deleteOldAvatar(ctx context.Context, op string, userID string) error {
+func (s *Service) deleteOldAvatar(ctx context.Context, userID string) error {
+	op := "internal.account.service.deleteOldAvatar"
+
+	// Получаем путь до старой аватарки
+	logger.StandardDebugF(op, "want to get path to old avatar for userId %v", userID)
 	oldAvatarPath, err := s.rep.AvatarPathByID(ctx, userID)
-	if err == nil {
-		if err := os.Remove(oldAvatarPath); err != nil {
-			return fmt.Errorf("error delete old avatar file {%v} | in %v", err, op)
-		}
+
+	if err != nil {
 		logger.StandardInfo(
-			fmt.Sprintf("old avatar deleted: %s", oldAvatarPath),
+			fmt.Sprintf("old avatar doesn`t exist for user with userID %s", userID),
 			op,
 		)
+		return nil
 	}
+
+	logger.StandardDebugF(op, "want to delete old avatar with path %v", oldAvatarPath)
+	if err := os.Remove(oldAvatarPath); err != nil {
+		return errors.Wrap(err, op)
+	}
+	logger.StandardInfo(
+		fmt.Sprintf("successful delete old avatar fo userID %s", userID),
+		op,
+	)
 	return nil
 }
 
-func (s *Service) saveNewAvatar(ctx context.Context, op string, userID string, avatarFile multipart.File, fileName string) error {
+func (s *Service) saveNewAvatar(ctx context.Context, userID string, avatarFile multipart.File, fileName string) error {
+	op := "internal.account.service.saveNewAvatar"
+
 	// Директория для сохранения аватаров
-	avatarDir := "static/avatar"
+	avatarDir := "./static/avatar"
 
 	// Получение формата загрузочного файла из его названия
 	avatarFormat := filepath.Ext(fileName)
@@ -214,24 +231,28 @@ func (s *Service) saveNewAvatar(ctx context.Context, op string, userID string, a
 	// Формируем путь к файлу из папки сохранения и названия файла
 	avatarPath := filepath.Join(avatarDir, fileFullName)
 
-	logger.StandardInfo(
-		fmt.Sprintf("generated file name: %s", fileFullName),
-		op,
-	)
+	logger.StandardDebugF(op, "want to save new file with path %v", avatarPath)
 	out, err := os.Create(avatarPath)
 	if err != nil {
-		return fmt.Errorf("error creating avatar file | in %v", op)
+		return fmt.Errorf(op, err)
 	}
 	defer out.Close()
 
 	// Сохраняем файл
+	logger.StandardDebugF(op, "want to copy new avatar to path %v", avatarPath)
 	if _, err := io.Copy(out, avatarFile); err != nil {
-		return fmt.Errorf("error saving avatar file | in %v", op)
+		return fmt.Errorf(op, err)
 	}
 
 	// Обновляем информацию в БД
+	logger.StandardDebugF(op, "want to save avatar URL %v in DB", avatarPath)
 	if err := s.rep.UpdateAvatar(ctx, userID, avatarID, avatarPath); err != nil {
-		return fmt.Errorf("error updating avatar in DB | in %v", op)
+		return errors.Wrap(err, op)
 	}
+
+	logger.StandardInfo(
+		fmt.Sprintf("successful update save new avatar with avatar path %v for userID %v", avatarPath, userID),
+		op,
+	)
 	return nil
 }

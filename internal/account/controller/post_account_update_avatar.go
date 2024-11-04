@@ -13,6 +13,9 @@ import (
 func (handler *Handler) PostAccountUpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	op := "internal.account.controller.PostAccountUpdateAvatar"
 
+	contentType := r.Header.Get("Content-Type")
+	logger.StandardWarnF(op, "Content-Type: %s", contentType)
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Парсинг данных из multipart/form-data
