@@ -30,6 +30,9 @@ services:
       dockerfile: cmd/microservices/auth/Dockerfile
     ports:
       - "8081:8081"
+    env_file:
+      - ../../config/auth/.env.default
+      - ../../config/env.docker
     depends_on:
       - postgres
 
@@ -63,6 +66,9 @@ services:
       - "8084:8084"
     depends_on:
       - postgres
+    env_file:
+      - ../../config/content/.env.default
+      - ../../config/env.docker
 
   migrate-service:
     build:
@@ -74,7 +80,7 @@ services:
   filling-service:
     build:
       context: ../../
-      dockerfile: internal/pkg/repository/postgres/migrate/filling/Dockerfile
+      dockerfile: internal/pkg/repository/postgres/filling/Dockerfile
     depends_on:
       - migrate-service
 

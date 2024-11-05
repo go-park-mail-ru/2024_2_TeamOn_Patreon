@@ -23,6 +23,8 @@ type Post struct {
 	Likes int `json:"likes"`
 	// Поставил ли лайк текущий пользователь
 	IsLiked bool `json:"isLiked"`
+	// Дата создания поста
+	CreatedAt string `json:"createdAt"`
 }
 
 func (p *Post) String() string {

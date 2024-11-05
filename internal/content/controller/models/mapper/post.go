@@ -3,17 +3,23 @@ package mapper
 import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models"
 	models2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 )
 
 func MapInterfacePostToTransportPost(post models2.Post) *models.Post {
+	title := validate.Sanitize(post.Title)
+	content := validate.Sanitize(post.Content)
+	authorUsername := validate.Sanitize(post.AuthorUsername)
+
 	return &models.Post{
 		PostId:         post.PostId,
-		Title:          post.Title,
-		Content:        post.Content,
-		AuthorUsername: post.AuthorUsername,
+		Title:          title,
+		Content:        content,
+		AuthorUsername: authorUsername,
 		AuthorId:       post.AuthorId,
 		Likes:          post.Likes,
 		IsLiked:        post.IsLiked,
+		CreatedAt:      post.CreatedDate.String(),
 	}
 }
 

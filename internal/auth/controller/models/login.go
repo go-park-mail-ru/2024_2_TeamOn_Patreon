@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 	"github.com/pkg/errors"
 	"regexp"
 )
@@ -37,6 +38,8 @@ func (lg *Login) Validate() (bool, error) {
 func (lg *Login) validateUsername() error {
 	op := "auth.controller.login.validateUsername"
 
+	lg.Username = validate.Sanitize(lg.Username)
+
 	// Длина не менее 4 символов
 	if len(lg.Username) < 4 {
 		logger.StandardDebugF(op, "login isn't valid: '%v'", lg.Username)
@@ -49,7 +52,7 @@ func (lg *Login) validateUsername() error {
 	}
 
 	checks := []check{
-		check{pattern: `^[a-zA-Z0-9_-]+$`, err: global.ErrLoginWithSpecChar},
+		//check{pattern: `^[a-zA-Z0-9_-]+$`, err: global.ErrLoginWithSpecChar},
 		check{pattern: `|\s|`, err: global.ErrLoginWithSpace},
 	}
 
@@ -65,6 +68,8 @@ func (lg *Login) validateUsername() error {
 
 func (lg *Login) validatePassword() error {
 	//op := "auth.controller.login.validatePassword"
+
+	lg.Password = validate.Sanitize(lg.Password)
 
 	// Длина не меньше 8 символов
 	if len(lg.Password) < 8 {
