@@ -122,7 +122,7 @@ OFFSET $3;
 func (cr *ContentRepository) GetAuthorPostsForMe(ctx context.Context, authorId uuid.UUID, offset, limit int) ([]*models.Post, error) {
 	op := "internal.content.repository.author_feed.GetAuthorPostsForMe"
 
-	posts := make([]*models.Post, 0, limit-offset+1)
+	posts := make([]*models.Post, 0)
 
 	rows, err := cr.db.Query(ctx, getAuthorPostsForMe, authorId, offset, limit)
 	if err != nil {
@@ -166,7 +166,7 @@ func (cr *ContentRepository) GetAuthorPostsForMe(ctx context.Context, authorId u
 // GetAuthorPostsForLayer - подписки автора, которые может смотреть пользователь
 func (cr *ContentRepository) GetAuthorPostsForLayer(ctx context.Context, layer int, authorId uuid.UUID, offset, limit int) ([]*models.Post, error) {
 	op := "internal.content.repository.GetAuthorPostsForLayer"
-	posts := make([]*models.Post, 0, limit-offset+1)
+	posts := make([]*models.Post, 0)
 
 	rows, err := cr.db.Query(ctx, getAuthorPostsForLayerSQL, layer, authorId, offset, limit)
 	if err != nil {
@@ -210,7 +210,7 @@ func (cr *ContentRepository) GetAuthorPostsForLayer(ctx context.Context, layer i
 func (cr *ContentRepository) GetAuthorPostsForAnon(ctx context.Context, authorId uuid.UUID, offset, limit int) ([]*models.Post, error) {
 	op := "internal.content.repository.author_feed.GetAuthorPostsForAnon"
 
-	posts := make([]*models.Post, 0, limit-offset+1)
+	posts := make([]*models.Post, 0)
 
 	rows, err := cr.db.Query(ctx, getAuthorPostsForAnon, authorId, offset, limit)
 	if err != nil {
