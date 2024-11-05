@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
+	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
@@ -26,7 +27,16 @@ func (handler *Handler) PostAccountUpdate(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Добавить валидацию обновляемых данных!
+	// Валидация обновляемых данных
+	if _, err := newInfo.Validate(); err != nil {
+		logger.StandardWarnF(op, "Received validation error {%v}", err.Error())
+		// проставляем http.StatusBadRequest
+		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
+		// отправляем структуру ошибки
+		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		return
+	}
 
 	// Извлекаем userData из контекста
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
@@ -49,13 +59,31 @@ func (handler *Handler) PostAccountUpdate(w http.ResponseWriter, r *http.Request
 	logger.StandardDebugF(op, "Updating userId='%v' username='%v' password='%v' email='%v",
 		string(userData.UserID), newInfo.Username, newInfo.Password, newInfo.Email,
 	)
-	// Обращение к service для записи данных (Может легче было передать сразу всю структуру?)
-	if err := handler.serv.PostAccUpdateByID(r.Context(), string(userData.UserID), newInfo.Username, newInfo.Password, newInfo.Email); err != nil {
-		logger.StandardWarnF(op, "update data error {%v}", err)
-		// Status 500
-		w.WriteHeader(http.StatusInternalServerError)
+
+	// Обращение к service для записи данных
+	if newInfo.Username != "" {
+		if err := handler.serv.UpdateUsername(r.Context(), string(userData.UserID), newInfo.Username); err != nil {
+			logger.StandardWarnF(op, "update Username error {%v}", err)
+			// Status 500
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}
 
+	if newInfo.Password != "" {
+		if err := handler.serv.UpdatePassword(r.Context(), string(userData.UserID), newInfo.Password); err != nil {
+			logger.StandardWarnF(op, "update Password error {%v}", err)
+			// Status 500
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	}
+
+	if newInfo.Email != "" {
+		if err := handler.serv.UpdateEmail(r.Context(), string(userData.UserID), newInfo.Email); err != nil {
+			logger.StandardWarnF(op, "update Email error {%v}", err)
+			// Status 500
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	}
 	// Status 200
 	w.WriteHeader(http.StatusOK)
 }

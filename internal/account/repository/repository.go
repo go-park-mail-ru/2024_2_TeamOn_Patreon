@@ -4,6 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"os"
+	"path/filepath"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
 
@@ -48,8 +52,7 @@ func (p *Postgres) UserByID(ctx context.Context, userID string) (*repModels.User
 				op)
 			return nil, nil
 		}
-		logger.StandardDebugF(op, "get user error: {%v}", err)
-		return nil, err
+		return nil, errors.Wrap(err, op)
 	}
 
 	// Возвращаем данные пользователя
@@ -127,8 +130,7 @@ func (p *Postgres) UpdateUsername(ctx context.Context, userID string, username s
 	// Выполняем запрос
 	_, err := p.db.Exec(ctx, query, username, userID)
 	if err != nil {
-		logger.StandardDebugF(op, "update username error: {%v}", err)
-		return err
+		errors.Wrap(err, op)
 	}
 
 	// Возвращаем nil, если обновление прошло успешно
@@ -148,8 +150,7 @@ func (p *Postgres) UpdatePassword(ctx context.Context, userID string, hashPasswo
 	// Выполняем запрос
 	_, err := p.db.Exec(ctx, query, hashPassword, userID)
 	if err != nil {
-		logger.StandardDebugF(op, "update password error: {%v}", err)
-		return err
+		errors.Wrap(err, op)
 	}
 
 	// Возвращаем nil, если обновление прошло успешно
@@ -169,24 +170,73 @@ func (p *Postgres) UpdateEmail(ctx context.Context, userID string, email string)
 	// Выполняем запрос
 	_, err := p.db.Exec(ctx, query, email, userID)
 	if err != nil {
-		logger.StandardDebugF(op, "update email error: {%v}", err)
-		return err
+		errors.Wrap(err, op)
 	}
 
 	// Возвращаем nil, если обновление прошло успешно
 	return nil
 }
 
-func (p *Postgres) UpdateAvatar(ctx context.Context, userID string, avatarID string, avatarPath string) error {
-	op := "internal.account.repository.UpdateAvatar"
+func (p *Postgres) DeleteAvatar(ctx context.Context, userID string) error {
+	op := "internal.account.repository.DeleteAvatar"
 
-	// Удаление записи о старой аватарке (если она есть)
+	// Путь до старой аватарки
+	avatarPath, err := p.AvatarPathByID(ctx, userID)
+	if err != nil {
+		logger.StandardInfo(
+			fmt.Sprintf("old avatar doesn`t exist for user with userID %s", userID),
+			op,
+		)
+		return nil
+	}
+
+	// Удаление записи о старой аватарке
 	deleteQuery := `
 		DELETE FROM avatar
 		WHERE user_id = $1
 	`
 
+	logger.StandardDebugF(op, "want to delete record with old avatar")
 	p.db.Exec(ctx, deleteQuery, userID)
+
+	logger.StandardDebugF(op, "want to delete old avatar file")
+	if err := os.Remove(avatarPath); err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	return nil
+}
+
+func (p *Postgres) UpdateAvatar(ctx context.Context, userID string, avatar multipart.File, fileName string) error {
+	op := "internal.account.repository.UpdateAvatar"
+
+	// Директория для сохранения аватаров
+	avatarDir := "./static/avatar"
+
+	// Получение формата загрузочного файла из его названия
+	avatarFormat := filepath.Ext(fileName)
+
+	// Формирование ID
+	avatarID := p.GenerateID()
+
+	// Полное имя сохраняемого файла
+	fileFullName := avatarID + avatarFormat
+
+	// Формируем путь к файлу из папки сохранения и названия файла
+	avatarPath := filepath.Join(avatarDir, fileFullName)
+
+	logger.StandardDebugF(op, "want to save new file with path %v", avatarPath)
+	out, err := os.Create(avatarPath)
+	if err != nil {
+		return fmt.Errorf(op, err)
+	}
+	defer out.Close()
+
+	// Сохраняем файл
+	logger.StandardDebugF(op, "want to copy new avatar to path %v", avatarPath)
+	if _, err := io.Copy(out, avatar); err != nil {
+		return fmt.Errorf(op, err)
+	}
 
 	// Запрос на создание новой записи о новой аватарке
 	query := `
@@ -222,8 +272,7 @@ func (p *Postgres) UpdateRole(ctx context.Context, userID string) error {
 
 	// Выполняем запрос
 	if _, err := p.db.Exec(ctx, query, userID); err != nil {
-		logger.StandardDebugF(op, "change role error: {%v}", err)
-		return err
+		errors.Wrap(err, op)
 	}
 
 	logger.StandardInfo(
@@ -246,8 +295,7 @@ func (p *Postgres) InitPage(ctx context.Context, userID string) error {
 	`
 
 	if _, err := p.db.Exec(ctx, query, pageID, userID); err != nil {
-		logger.StandardDebugF(op, "crate new page error: {%v}", err)
-		return err
+		errors.Wrap(err, op)
 	}
 
 	// Возвращаем nil, если создание прошло успешно

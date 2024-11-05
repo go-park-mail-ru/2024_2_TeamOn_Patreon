@@ -4,6 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"os"
+	"path/filepath"
 	"time"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
@@ -48,8 +52,7 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*repModels.
 				op)
 			return nil, nil
 		}
-		logger.StandardDebugF(op, "get author error: {%v}", err)
-		return nil, err
+		return nil, errors.Wrap(err, op)
 	}
 
 	// SQL-запрос для получения followers
@@ -70,7 +73,7 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*repModels.
 			author.Followers = 0
 		}
 		logger.StandardDebugF(op, "get followers error: {%v}", err)
-		return nil, err
+		return nil, errors.Wrap(err, op)
 	}
 
 	// Возвращаем данные автора
@@ -131,8 +134,7 @@ func (p *Postgres) UpdateInfo(ctx context.Context, authorID string, info string)
 	// Выполняем запрос
 	_, err := p.db.Exec(ctx, query, info, authorID)
 	if err != nil {
-		logger.StandardDebugF(op, "update info error: {%v}", err)
-		return err
+		return errors.Wrap(err, op)
 	}
 
 	// Возвращаем nil, если обновление прошло успешно
@@ -166,8 +168,7 @@ func (p *Postgres) Payments(ctx context.Context, authorID string) (int, error) {
 				op)
 			return 0, nil
 		}
-		logger.StandardDebugF(op, "get payments error: {%v}", err)
-		return 0, err
+		return 0, errors.Wrap(err, op)
 	}
 
 	return amountPayments, nil
@@ -184,14 +185,72 @@ func (p *Postgres) BackgroundPathByID(ctx context.Context, authorID string) (str
 	var backgroundPath string
 	err := p.db.QueryRow(ctx, query, authorID).Scan(&backgroundPath)
 	if err != nil {
+		logger.StandardInfo(
+			fmt.Sprintf("background doesn`t exist for author with authorID %s", authorID),
+			op,
+		)
 		return "", errors.Wrap(err, op)
 	}
 
 	return backgroundPath, nil
 }
 
-func (p *Postgres) UpdateBackground(ctx context.Context, authorID string, backgroundPath string) error {
+func (p *Postgres) DeleteBackground(ctx context.Context, authorID string) error {
+	op := "internal.account.repository.DeleteBackground"
+
+	// Получаем путь до старого фона
+	logger.StandardDebugF(op, "want to get path to old background for authorID %v", authorID)
+	oldBackgroundPath, err := p.BackgroundPathByID(ctx, authorID)
+
+	if err != nil {
+		logger.StandardInfo(
+			fmt.Sprintf("old background doesn`t exist for author with authorID %s", authorID),
+			op,
+		)
+		return nil
+	}
+
+	logger.StandardDebugF(op, "want to delete old background with path %v", oldBackgroundPath)
+	if err := os.Remove(oldBackgroundPath); err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	return nil
+}
+
+func (p *Postgres) UpdateBackground(ctx context.Context, authorID string, background multipart.File, fileName string) error {
 	op := "internal.account.repository.UpdateBackground"
+
+	// Директория для сохранения фона
+	backgroundDir := "./static/background"
+
+	// Получение формата загрузочного файла из его названия
+	backgroundFormat := filepath.Ext(fileName)
+
+	// Формирование ID
+	backgroundID := p.GenerateID()
+
+	// Полное имя сохраняемого файла
+	fileFullName := backgroundID + backgroundFormat
+
+	// Формируем путь к файлу из папки сохранения и названия файла
+	backgroundPath := filepath.Join(backgroundDir, fileFullName)
+
+	logger.StandardDebugF(op, "want to save new file with path %v", backgroundPath)
+	out, err := os.Create(backgroundPath)
+	if err != nil {
+		return fmt.Errorf(op, err)
+	}
+	defer out.Close()
+
+	// Сохраняем файл
+	logger.StandardDebugF(op, "want to copy new background to path %v", backgroundPath)
+	if _, err := io.Copy(out, background); err != nil {
+		return fmt.Errorf(op, err)
+	}
+
+	// Обновляем информацию в БД
+	logger.StandardDebugF(op, "want to save background URL %v in DB", backgroundPath)
 
 	// Запрос на изменение графы "фон" для автора
 	query := `

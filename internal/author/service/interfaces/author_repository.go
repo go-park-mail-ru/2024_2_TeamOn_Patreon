@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+	"mime/multipart"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
 )
@@ -23,8 +24,11 @@ type AuthorRepository interface {
 	// BackgroundPathByID получает путь до фона страницы автора
 	BackgroundPathByID(ctx context.Context, authorID string) (string, error)
 
+	// DeleteBackground удаляет старый фон страницы автора при его обновлении
+	DeleteBackground(ctx context.Context, authorID string) error
+
 	// UpdateBackground обновляет путь к фону страницы автора
-	UpdateBackground(ctx context.Context, userID string, backgroundPath string) error
+	UpdateBackground(ctx context.Context, authorID string, background multipart.File, fileName string) error
 
 	// NewTip - обновление информации о себе
 	NewTip(ctx context.Context, userID, authorID string, cost int, message string) error
