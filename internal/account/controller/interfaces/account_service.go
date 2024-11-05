@@ -18,8 +18,14 @@ type AccountService interface {
 	// GetAvatarByID - получение аватарки пользователя по userID
 	GetAvatarByID(ctx context.Context, userID string) ([]byte, error)
 
-	// PostAccUpdateByID - изменение данных аккаунта по userID
-	PostAccUpdateByID(ctx context.Context, userID, username, password, email string) error
+	// UpdateUsername - изменение имени аккаунта по userID
+	UpdateUsername(ctx context.Context, userID string, username string) error
+
+	// UpdatePassword - изменение пароля аккаунта по userID
+	UpdatePassword(ctx context.Context, userID string, password string) error
+
+	// UpdateEmail - изменение почты аккаунта по userID
+	UpdateEmail(ctx context.Context, userID string, email string) error
 
 	// PostAccountUpdateAvatar - изменение аватарки аккаунта по userID
 	PostUpdateAvatar(ctx context.Context, userID string, avatar multipart.File, fileName string) error
