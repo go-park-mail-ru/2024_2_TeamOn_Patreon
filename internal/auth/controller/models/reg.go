@@ -2,10 +2,11 @@ package models
 
 import (
 	"fmt"
+	"regexp"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 	"github.com/pkg/errors"
-	"regexp"
 )
 
 // Reg - модель для фронта
@@ -68,8 +69,6 @@ func (reg *Reg) validateUsername() error {
 }
 
 func (reg *Reg) validatePassword() error {
-
-	reg.Password = validate.Sanitize(reg.Password)
 
 	// Длина не меньше 8 символов
 	if len(reg.Password) < 8 {
