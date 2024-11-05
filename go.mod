@@ -4,7 +4,7 @@ go 1.23
 
 require github.com/gorilla/mux v1.8.1 // | >> go get -u github.com/gorilla/mux
 
-require golang.org/x/crypto v0.27.0 // indirect | >> go get golang.org/x/crypto/bcrypt
+require golang.org/x/crypto v0.28.0 // indirect | >> go get golang.org/x/crypto/bcrypt
 
 require github.com/golang-jwt/jwt/v5 v5.2.1 // indirect | >> go get github.com/golang-jwt/jwt/v5
 
@@ -27,6 +27,8 @@ require (
 )
 
 require (
+	github.com/aymerick/douceur v0.2.0 // indirect
+	github.com/gorilla/css v1.0.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
@@ -39,8 +41,10 @@ require (
 	github.com/jackc/puddle v1.3.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/lib/pq v1.10.9 // indirect
+	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
+	golang.org/x/net v0.30.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/text v0.18.0 // indirect
+	golang.org/x/text v0.19.0 // indirect
 )

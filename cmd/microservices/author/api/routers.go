@@ -34,12 +34,6 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			handler.GetAuthorPayments,
 		},
 		Route{
-			"GetAuthor",
-			"GET",
-			"/author/{authorID}",
-			handler.GetAuthor,
-		},
-		Route{
 			"GetAuthorBackground",
 			"GET",
 			"/author/{authorID}/background",
@@ -62,6 +56,12 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			"POST",
 			"/author/{authorID}/tip",
 			handler.PostAuthorTip,
+		},
+		Route{
+			"GetAuthor",
+			"GET",
+			"/author/{authorID}",
+			handler.GetAuthor,
 		},
 	}
 	// Declare a new router
