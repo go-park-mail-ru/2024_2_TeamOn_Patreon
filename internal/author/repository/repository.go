@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
+	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -22,7 +23,7 @@ func New(db *pgxpool.Pool) *Postgres {
 	return &Postgres{db: db}
 }
 
-func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*sModels.Author, error) {
+func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*repModels.Author, error) {
 	op := "internal.author.repository.AuthorByID"
 
 	// SQL-запрос для получения username, info
@@ -37,7 +38,7 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*sModels.Au
 			pg.user_id = $1;
 	`
 
-	var author sModels.Author
+	var author repModels.Author
 
 	if err := p.db.QueryRow(ctx, query, authorID).Scan(&author.Username, &author.Info); err != nil {
 		if err == sql.ErrNoRows {
@@ -74,6 +75,47 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*sModels.Au
 
 	// Возвращаем данные автора
 	return &author, nil
+}
+
+func (p *Postgres) SubscriptionsByID(ctx context.Context, authorID string) ([]repModels.Subscription, error) {
+	op := "internal.account.repository.SubscriptionsByID"
+
+	// SQL-запрос для получения данных о подписках
+	query := `
+		SELECT 
+			cs.author_id, p.username
+		FROM
+			subscription s
+		INNER JOIN
+			custom_subscription cs ON s.custom_subscription_id = cs.custom_subscription_id
+		INNER JOIN
+			people p ON cs.author_id = p.user_id
+		WHERE
+			s.user_id = $1;
+	`
+
+	rows, err := p.db.Query(ctx, query, authorID)
+	if err != nil {
+		return nil, errors.Wrap(err, op)
+	}
+	defer rows.Close()
+
+	logger.StandardDebugF(op, "wants to form an map of subscriptions for author with authorID %v", authorID)
+	var subscriptions []repModels.Subscription
+	for rows.Next() {
+		var subscription repModels.Subscription
+		if err := rows.Scan(&subscription.AuthorID, &subscription.AuthorName); err != nil {
+			return nil, errors.Wrap(err, op)
+		}
+		subscriptions = append(subscriptions, subscription)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, errors.Wrap(err, op)
+	}
+
+	// Возвращаем данные о подписках
+	return subscriptions, nil
 }
 
 func (p *Postgres) UpdateInfo(ctx context.Context, authorID string, info string) error {
@@ -120,7 +162,7 @@ func (p *Postgres) Payments(ctx context.Context, authorID string) (int, error) {
 		if err == sql.ErrNoRows {
 			// Если автор не найден, возвращаем 0 без ошибки
 			logger.StandardInfoF(
-				"author with authorID='%v' not found", authorID,
+				"payments fpr authorID='%v' not found", authorID,
 				op)
 			return 0, nil
 		}

@@ -4,13 +4,16 @@ import (
 	"context"
 	"mime/multipart"
 
-	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/models"
+	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
 )
 
 // Интерфейс AuthorService необходим для взаимодействия уровня controller с уровнем service
 type AuthorService interface {
 	// GetAuthorDataByID - получение данных автора по authorID
-	GetAuthorDataByID(ctx context.Context, authorID string) (cModels.Author, error)
+	GetAuthorDataByID(ctx context.Context, authorID string) (sModels.Author, error)
+
+	// GetAuthorSubscriptions - получение подписок автора по authorID
+	GetAuthorSubscriptions(ctx context.Context, authorID string) ([]sModels.Subscription, error)
 
 	// GetBackgroundByID - получение фона страницы автора по authorID
 	GetBackgroundByID(ctx context.Context, authorID string) ([]byte, error)
@@ -19,7 +22,7 @@ type AuthorService interface {
 	PostUpdateInfo(ctx context.Context, authorID, info string) error
 
 	// GetAuthorPayments - получение выплат автора
-	GetAuthorPayments(ctx context.Context, authorID string) (cModels.Payments, error)
+	GetAuthorPayments(ctx context.Context, authorID string) (int, error)
 
 	// PostUpdateBackground - изменение фона страницы автора
 	PostUpdateBackground(ctx context.Context, authorID string, avatar multipart.File, fileName string) error

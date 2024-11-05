@@ -1,5 +1,6 @@
 package models
 
 type Subscription struct {
-	AuthorID string
+	AuthorID   string
+	AuthorName string
 }
