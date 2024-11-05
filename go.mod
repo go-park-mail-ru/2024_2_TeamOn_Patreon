@@ -45,7 +45,7 @@ require (
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
-	golang.org/x/net v0.29.0 // indirect
+	golang.org/x/net v0.30.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
 )
