@@ -10,7 +10,6 @@ import (
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
-	valid "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 )
 
 // PostAccountUpdate - ручка изменения данных профиля
@@ -38,10 +37,6 @@ func (handler *Handler) PostAccountUpdate(w http.ResponseWriter, r *http.Request
 		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
-
-	// Очищаем только email и username
-	newInfo.Email = valid.Sanitize(newInfo.Email)
-	newInfo.Username = valid.Sanitize(newInfo.Username)
 
 	// Извлекаем userData из контекста
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)

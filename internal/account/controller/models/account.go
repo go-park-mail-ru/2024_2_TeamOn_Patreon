@@ -2,7 +2,6 @@ package models
 
 import (
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
-	valid "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 )
 
 // Service модель аккаунта пользователя
@@ -20,9 +19,9 @@ type Account struct {
 // MapUserToAccount конвертирует модель пользователя с подписками в модель controller
 func MapUserToAccount(user sModels.User, subscriptions []sModels.Subscription) Account {
 	return Account{
-		Username:      valid.Sanitize(user.Username),
-		Email:         valid.Sanitize(user.Email),
-		Role:          valid.Sanitize(user.Role),
+		Username:      user.Username,
+		Email:         user.Email,
+		Role:          user.Role,
 		Subscriptions: subscriptions,
 	}
 }
