@@ -10,8 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
-	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/models"
 	interfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/interfaces"
+	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/pkg/errors"
 )
@@ -24,28 +24,51 @@ func New(repository interfaces.AuthorRepository) *Service {
 	return &Service{repository}
 }
 
-func (s *Service) GetAuthorDataByID(ctx context.Context, authorID string) (cModels.Author, error) {
+func (s *Service) GetAuthorDataByID(ctx context.Context, authorID string) (sModels.Author, error) {
 	op := "internal.author.service.GetAuthorDataByID"
 
-	// получаем данные автора в формате service model
+	// получаем данные автора в формате rep model
 	author, err := s.rep.AuthorByID(ctx, authorID)
 	if err != nil {
 		logger.StandardDebugF(op, "fail get author: {%v}", err)
-		return cModels.Author{}, err
+		return sModels.Author{}, err
 	}
 
 	logger.StandardInfo(
 		fmt.Sprintf("successful get author=%v with authorID='%v'", author.Username, authorID),
 		op)
 
-	// по хорошему здесь должен быть маппер
-	accountData := cModels.Author{
+	authorData := sModels.Author{
 		Username:  author.Username,
 		Info:      author.Info.String,
 		Followers: author.Followers,
-		// Subscriptions:
 	}
-	return accountData, nil
+	return authorData, nil
+}
+
+func (s *Service) GetAuthorSubscriptions(ctx context.Context, authorID string) ([]sModels.Subscription, error) {
+	op := "internal.account.service.GetAuthorSubscriptions"
+
+	// получаем подписки пользователя из rep
+	logger.StandardDebugF(op, "want to get subscriptions for author with authorID %v", authorID)
+	repSubscriptions, err := s.rep.SubscriptionsByID(ctx, authorID)
+	if err != nil {
+		return nil, errors.Wrap(err, op)
+	}
+
+	// Преобразование подписок из репозитория в сервисные модели
+	subscriptions := make([]sModels.Subscription, len(repSubscriptions))
+	for i, repSub := range repSubscriptions {
+		subscriptions[i] = sModels.Subscription{
+			AuthorID:   repSub.AuthorID,
+			AuthorName: repSub.AuthorName,
+		}
+	}
+
+	logger.StandardInfo(
+		fmt.Sprintf("successful get subscriptions: %v", subscriptions),
+		op)
+	return subscriptions, nil
 }
 
 func (s *Service) PostUpdateInfo(ctx context.Context, authorID string, info string) error {
@@ -62,27 +85,21 @@ func (s *Service) PostUpdateInfo(ctx context.Context, authorID string, info stri
 	return nil
 }
 
-func (s *Service) GetAuthorPayments(ctx context.Context, authorID string) (cModels.Payments, error) {
+func (s *Service) GetAuthorPayments(ctx context.Context, authorID string) (int, error) {
 	op := "internal.author.service.GetAuthorPayments"
 
-	authorPayments := cModels.Payments{}
-
 	// получаем сумму выплат int
-	payments, err := s.rep.Payments(ctx, authorID)
+	amount, err := s.rep.Payments(ctx, authorID)
 	if err != nil {
 		logger.StandardDebugF(op, "fail get payments: {%v}", err)
-		return authorPayments, err
+		return 0, err
 	}
 
 	logger.StandardInfo(
-		fmt.Sprintf("successful get payments=%v for authorID='%v'", payments, authorID),
+		fmt.Sprintf("successful get payments=%v for authorID='%v'", amount, authorID),
 		op)
 
-	authorPayments = cModels.Payments{
-		Amount: payments,
-	}
-
-	return authorPayments, nil
+	return amount, nil
 }
 
 func (s *Service) GetBackgroundByID(ctx context.Context, authorID string) ([]byte, error) {

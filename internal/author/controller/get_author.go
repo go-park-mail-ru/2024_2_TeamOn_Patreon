@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
+	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/models"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+	s2Models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/gorilla/mux"
 )
@@ -24,7 +26,7 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	// Если пользователь запрашивает свою страницу
 	if authorID == "me" {
 		// Извлекаем userID из контекста
-		userData, ok := r.Context().Value(global.UserKey).(bModels.User)
+		userData, ok := r.Context().Value(global.UserKey).(s2Models.User)
 		if !ok {
 			logger.StandardResponse("userData not found in context", http.StatusUnauthorized, r.Host, op)
 			// Status 401
@@ -42,7 +44,7 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Обращение к service для получения данных
+	// Обращение к service для получения данных автора
 	authorData, err := handler.serv.GetAuthorDataByID(r.Context(), authorID)
 	if err != nil {
 		logger.StandardDebugF(op, "Received author error {%v}", err)
@@ -51,7 +53,18 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(authorData)
+	// Обращение к service для получения подписок автора
+	subscriptions, err := handler.serv.GetAuthorSubscriptions(r.Context(), authorID)
+	if err != nil {
+		logger.StandardDebugF(op, "Received author subscriptions error {%v}", err)
+		// Status 500
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	accountPage := sModels.MapAuthorToAuthorPage(authorData, subscriptions)
+
+	json.NewEncoder(w).Encode(accountPage)
 	// Status 200
 	w.WriteHeader(http.StatusOK)
 }

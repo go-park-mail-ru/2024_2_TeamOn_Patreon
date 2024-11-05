@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
+	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/models"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
@@ -35,7 +37,7 @@ func (handler *Handler) GetAuthorPayments(w http.ResponseWriter, r *http.Request
 	}
 
 	// Обращение к service для получения данных
-	payments, err := handler.serv.GetAuthorPayments(r.Context(), string(userData.UserID))
+	amountPayments, err := handler.serv.GetAuthorPayments(r.Context(), string(userData.UserID))
 	if err != nil {
 		logger.StandardDebugF(op, "Received author payments error {%v}", err)
 		// Status 500
@@ -43,6 +45,9 @@ func (handler *Handler) GetAuthorPayments(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	payments := cModels.Payments{
+		Amount: amountPayments,
+	}
 	json.NewEncoder(w).Encode(payments)
 	// Status 200
 	w.WriteHeader(http.StatusOK)

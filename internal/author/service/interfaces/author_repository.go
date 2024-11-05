@@ -3,13 +3,16 @@ package interfaces
 import (
 	"context"
 
-	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
+	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
 )
 
 // Интерфейс AuthorRepository описывает методы взаимодействия уровня service с уровнем repository
 type AuthorRepository interface {
 	// AuthorByID получает данные автора по указанному ID
-	AuthorByID(ctx context.Context, authorID string) (*sModels.Author, error)
+	AuthorByID(ctx context.Context, authorID string) (*repModels.Author, error)
+
+	// Subscriptions получает подписки автора по указанному ID
+	SubscriptionsByID(ctx context.Context, authorID string) ([]repModels.Subscription, error)
 
 	// UpdateInfo - обновление поля "О себе"
 	UpdateInfo(ctx context.Context, authorID string, info string) error
