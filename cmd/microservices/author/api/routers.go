@@ -28,10 +28,10 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 
 	var routes = Routes{
 		Route{
-			"GetAuthor",
+			"GetAuthorPayments",
 			"GET",
-			"/author/{authorID}",
-			handler.GetAuthor,
+			"/author/payments",
+			handler.GetAuthorPayments,
 		},
 		Route{
 			"GetAuthor",
