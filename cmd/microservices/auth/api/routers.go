@@ -8,6 +8,7 @@ import (
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller"
 	bInterfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/interafces"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 	"strings"
 
 	// The "net/http" library has methods to implement HTTP clients and servers
@@ -49,6 +50,12 @@ func NewRouter(behavior bInterfaces.AuthBehavior) *mux.Router {
 			strings.ToUpper("Post"),
 			"/auth/logout",
 			handler.LogoutPost,
+		},
+		Route{
+			"GetCSRFToken",
+			strings.ToUpper("Get"),
+			"/token-endpoint",
+			middlewares.GetCSRFTokenHandler,
 		},
 	}
 
