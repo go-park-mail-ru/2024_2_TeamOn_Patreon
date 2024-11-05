@@ -1,0 +1,513 @@
+openapi: 3.0.3
+info:
+  title: PushART | API
+  description: >-
+    API для профиля и страницы автора.
+  version: 1.0.5
+paths:
+  /account:
+    get:
+      tags:
+        - account
+      summary: Получение данных пользователя
+      description: >
+        **Доступно только владельцу аккаунта**.
+        Возвращает данные профиля на основе JWT-токена, переданного в Cookie.
+        
+        <p>В качестве подписок возвращает массив идентификаторов авторов, которых поддерживает пользователь, на основе пользовательского идентификатора. По authorID необходимо затем получить authorUsername и authorAvatar с помощью соотвествующих запросов.</p>
+        
+        <p><strong>Вызывается всегда при переходе в настройки вне зависимости от роли.</strong></p>
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешное получение профиля
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /account/{userID}/avatar:
+    get:
+      tags:
+        - account
+      summary: Получение аватарки пользователя
+      description: >-
+        Возвращает на основе идентификатора профиля его аватарку в формате `multipart/form-data`.
+        Поддерживаемые форматы: JPG, JPEG.
+        
+        <p><strong>При userID == 'me' запрос работает для самого пользователя.</strong></p>
+      parameters:
+      - in: path
+        name: userID
+        required: true
+        schema:
+          type: string
+        description: Идентификатор профиля
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешное получение аватарки
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/Picture'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'  
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /account/update:
+    post:
+      tags:
+        - account
+      summary: Изменение профиля пользователя
+      description: >-
+        **Доступно только владельцу аккаунта**.
+        Позволяет обновить отдельные поля профиля. Требует JWT-токен в Cookie. Требует валидации полей.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfile'
+      responses:
+        '200':
+          description: Успешное обновление профиля
+        '204':
+          description: Нет содержимого
+        '400':
+          description: Ошибка валидации данных профиля
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /account/update/avatar:
+    post:
+      tags:
+        - account
+      summary: Изменение аватарки профиля
+      description: >-
+        **Доступно только владельцу аккаунта**.
+        Позволяет пользователю изменить аватар с использованием `multipart/form-data`.
+        Поддерживаемые форматы: JPG, JPEG.
+        Требует JWT-токен в Cookie.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Picture'
+      responses:
+        '200':
+          description: Успешное обновление фото профиля
+        '400':
+          description: Ошибка валидации или неверный формат данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /account/update/role:
+    post:
+      tags:
+        - account
+      summary: Изменение роли пользователя
+      description: >-
+        **Доступно только владельцу аккаунта**.
+        Позволяет пользователю стать автором. Процесс необратимый, стать читателем после смены роли невозможно. 
+        <p>Также создаёт пользователю "дефолтный" уровень бесплатной подписки.
+        <p>Требует JWT-токен в Cookie.
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешное изменение роли
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /author/{authorID}:
+    get:
+      tags:
+        - author
+      summary: Получение данных об авторе
+      description: >-
+        Возвращает основную информацию об авторе на основе его идентификатора. 
+        <p><strong>Работает и для своей странички, и для чужой.</strong></p>
+        <p><strong>При userID == 'me' запрос работает для самого пользователя.</strong></p>
+      parameters:
+      - in: path
+        name: authorID
+        required: true
+        schema:
+          type: string
+        description: Идентификатор автора
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешное получение данных
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Author'
+                  - $ref: '#/components/schemas/Profile'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'  
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /author/{authorID}/background:
+    get:
+      tags:
+        - author
+      summary: Получение аватарки и фона страницы автора
+      description: >-
+        Возвращает на основе идентификатора автора его фон страницы в формате `multipart/form-data`.
+        Поддерживаемые форматы: JPG, JPEG.
+        <p><strong>Работает и для своей странички, и для чужой.</strong></p>
+        <p><strong>При userID == 'me' запрос работает для самого пользователя.</strong></p>
+      parameters:
+      - in: path
+        name: authorID
+        required: true
+        schema:
+          type: string
+        description: Идентификатор автора
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешное получение фона страницы
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/Picture'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'  
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /author/payments:
+    get:
+      tags:
+        - author
+      summary: Получение суммы выплат автора
+      description: >-
+        **Доступно только владельцу страницы**.
+        Возвращает сумму выплат автора.
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешное получение выплат
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /author/update/info:
+    post:
+      tags:
+        - author
+      summary: Изменение статуса автора
+      description: >-
+        **Доступно только владельцу страницы**.
+        Позволяет автору обновить содержимое поля "О себе".
+        Требует JWT-токен в Cookie.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                info:
+                  type: string
+                  example: "О себе"
+      responses:
+        '200':
+          description: Успешное обновление статуса профиля
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /author/update/background:
+    post:
+      tags:
+        - author
+      summary: Изменение фона страницы автора
+      description: >-
+        **Доступно только владельцу страницы**.
+        Позволяет автору изменить фон своей страницы с использованием `multipart/form-data`.
+        Поддерживаемые форматы: JPG, JPEG.
+        Требует JWT-токен в Cookie.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Picture'
+      responses:
+        '200':
+          description: Успешное обновление фона профиля
+        '400':
+          description: Ошибка валидации или неверный формат данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /author/{authorID}/tip:
+    post:
+      tags:
+        - author
+      summary: Отправить пожертвование автору
+      description: >-
+        Позволяет атправить отправить пожертвование в размере указанной суммы.
+        <p><strong>При authorID == 'me' запрос НЕ работает.</strong></p>
+        <p><strong>При authorID == userID запрос НЕ работает.</strong></p>
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Спасибо за чудесный контент!"
+                cost:
+                  type: integer
+                  example: 360
+      parameters:
+      - in: path
+        name: authorID
+        required: true
+        schema:
+          type: string
+        description: Идентификатор автора
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешное получение данных
+        '400':
+          description: Ошибка валидации или неверный формат данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Неверный или отсутствующий JWT-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'  
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JWT
+  schemas:
+    Profile:
+      type: object
+      required:
+        - username
+      description: Модель профиля пользователя
+      properties:
+        username:
+          type: string
+          description: Имя пользователя
+        email:
+          type: string
+          description: Почта пользователя (если есть)
+          nullable: true
+        role:
+          type: string
+          description: Роль пользователя
+        subscriptions:
+          type: array
+          description: Подписки пользователя
+          items:
+            type: object
+            properties:
+              authorID:
+                type: string
+                description: Идентификатор автора
+              authorname:
+                type: string
+                description: Имя автора
+    Author:
+      type: object
+      description: Модель страницы автора
+      properties:
+        authorUsername:
+          type: string
+          description: Имя автора
+        info:
+          type: string
+          description: Информация об авторе (поле "О себе")
+        followers:
+          type: number
+          description: Количество подписчиков автора
+        subscriptions:
+          type: array
+          description: Подписки пользователя
+          items:
+            type: object
+            properties:
+              authorID:
+                type: string
+                description: Идентификатор автора          
+    UpdateProfile:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Имя пользователя
+        email:
+          type: string
+          description: Почта пользователя
+          format: email
+          example: newemail@example.com
+          nullable: true
+        password:
+          type: string
+          description: Новый пароль пользователя
+          nullable: true
+    Payment:
+      type: object
+      required:
+        - amount
+      description: Модель выплат
+      properties:
+        amount:
+          type: string
+          description: Сумма выплат
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Сообщение об ошибке
+    Picture:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Загружаемый файл (JPG, JPEG)
+      required:
+        - file

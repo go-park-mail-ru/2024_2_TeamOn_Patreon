@@ -1,0 +1,525 @@
+openapi: 3.0.3
+info:
+  title: PushART - Posts | API
+  description: >-
+    API для управления постами и лентой
+  version: 1.0.0
+paths:
+  /feed/popular:
+    get:
+      tags:
+        - feed
+      summary: Лента популярных постов
+      description: >-
+        Возвращает массив популярных постов с сортировкой по количеству лайков
+        ***Запрос будет такой: /feed/popular?limit=10&offset=0***
+      parameters:
+        - in: query
+          name: limit
+          description: Количество постов для вывода
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: offset
+          description: Смещение для пагинации (по умолчанию 0)
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Список постов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /feed/subscriptions:
+    get:
+      tags:
+        - feed
+      summary: Лента недавних постов поддерживаемых авторов
+      description: >-
+        Возвращает массив постов только тех авторов, на которых подписан пользователь,
+        с сортировкой по времени публикации постов
+        ***Запрос будет такой: /feed/subscriptions?limit=10&offset=0***
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: limit
+          description: Количество постов для вывода
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: offset
+          description: Смещение для пагинации (по умолчанию 0)
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Список постов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /post:
+    post:
+      tags:
+        - post
+      summary: Добавление поста
+      description: Позволяет создать новый пост, добавить заголовок, описание, контент
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddPost'
+      responses:
+        '201':
+          description: Успешное создание поста
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /post/update:
+    post:
+      tags:
+        - post
+      summary: Изменение поста
+      description: >-
+        Позволяет изменить пост: название, содержание
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePost'
+      responses:
+        '200':
+          description: Успешное изменение поста
+        '204':
+          description: Нет содержимого
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /post/upload/content:
+    post:
+      tags:
+        - post
+      summary: Загрузка медиа-контента
+      description: >
+        Эндпоинт для загрузки медиа-файлов с использованием `multipart/form-data`. Поддерживаемые форматы: PDF, JPG, JPEG, MP3, MP4.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MediaUploadRequest'
+      responses:
+        '200':
+          description: Успешная загрузка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaUploadSuccessResponse'
+        '400':
+          description: Ошибка валидации или неверный формат данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /post/like:
+    post:
+      tags:
+        - post
+      summary: Лайки поста
+      description: >-
+        Позволяет поставить/убрать лайк с поста.
+        В теле запроса передаётся ID лайкнутого поста.
+        ID пользователя, поставившего лайк, берётся из контекста.
+        Возвращает количество лайков. 
+        Если количество лайков увеличилось, значит пользователь поставил лайк, и наоборот.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                postId:
+                  type: integer
+                  description: ID поста, который нужно лайкнуть или убрать лайк
+              required:
+                - postId
+      responses:
+        '200':
+          description: Успешное проставление реакции
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Likes'
+        '404':
+          description: Пост не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /author/post/{authorId}:
+    get:
+      tags:
+        - post
+      summary: Получение ленты постов на страничке автора или своей
+      description: >-
+        Возвращает ленту постов по authorId. Если authorId == me, то айди брать из куков.
+        Если нет, то парсить урл и вытаскивать authorId и уже даем данные относительно authorId.
+        **Используется в сервисе "Профиль"**
+        
+        ***Запрос будет такой: /author/post/{authorId}?limit=10&offset=0***
+      security:
+        - cookieAuth: []
+      parameters:
+      - in: path
+        name: authorId
+        required: true
+        schema:
+          type: string
+        description: Идентификатор автора, чью ленту постов нужно получить
+      - in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+          example: 10
+        description: Максимальное количество постов, которые нужно вернуть (по умолчанию 10)
+      - in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+          example: 0
+        description: Смещение для пагинации (по умолчанию 0)
+      responses:
+        '200':
+          description: Успешное получение поста
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorPosts'
+        '404':
+          description: Пост не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /delete/post/{postId}:
+    delete:
+      tags:
+        - post
+      summary: Удалить пост
+      description: Удаляет пост по идентификатору
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          schema:
+            type: integer
+          description: Идентификатор поста, который нужно удалить
+      responses:
+        '204':
+          description: Пост успешно удален
+        '403':
+          description: У пользователя недостаточно прав для удаления поста
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Пост не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /post/media:
+    get:
+      tags:
+        - post
+      summary: Получение медиа-контента поста в ленте
+      description: Возвращает загруженный медиа-контент в ленте.
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: postId
+          required: true
+          schema:
+            type: string
+            example: 'some-uuid'
+          description: Id  поста
+      responses:
+        '200':
+          description: Медиа-контент успешно получен
+          content:
+            multipart/form-data:
+              schema:
+               type: array
+               items:
+                  $ref: '#/components/schemas/MediaGetSuccessResponse'
+        '404':
+          description: Медиа-контент не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JWT
+  schemas:
+    AuthorPosts:
+      type: object
+      properties:
+        postId:
+          type: string
+          description: Идентификатор поста
+        title:
+          type: string
+          description: Заголовок поста
+        content:
+          type: string
+          description: Содержимое поста
+        likes:
+          type: integer
+          description: Количество лайков поста
+        isLiked:
+          type: boolean
+          default: false
+          description: Поставил ли лайк текущий пользователь
+        createdAt:
+          type: string
+          description: Время создания поста
+    Post:
+      type: object
+      properties:
+        postId:
+          type: string
+          description: Идентификатор поста
+        title:
+          type: string
+          description: Заголовок поста
+        content:
+          type: string
+          description: Содержимое поста
+        authorUsername:
+          type: string
+          description: Имя автора поста
+        authorId:
+          type: string
+          description: Идентификатор автора поста
+        likes:
+          type: integer
+          description: Количество лайков поста
+        isLiked:
+          type: boolean
+          default: false
+          description: Поставил ли лайк текущий пользователь
+        createdAt:
+          type: string
+          description: Время создания поста
+    Likes:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Количество лайков
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Описание ошибки
+    AddPost:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Заголовок поста
+        content:
+          type: string
+          description: Содержимое поста
+        layer:
+          type: integer
+          description: Уровень подписки, на котором можно смотреть пост, по умолчанию - для всех
+          example: 0
+      required:
+        - title
+        - content
+    UpdatePost:
+      type: object
+      description: Все, чего нет - не заменяется
+      properties:
+        postId:
+          type: integer
+          description: Идентификатор поста для обновления
+        title:
+          type: string
+          description: Заголовок поста
+        content:
+          type: string
+          description: Содержимое поста (текст)
+      required:
+        - postId
+    MediaUploadRequest:
+      type: object
+      properties:
+        postId:
+          type: string
+          description: Айди поста, в котором нужно редактировать медиа
+        file:
+          type: string
+          format: binary
+          description: Загружаемый файл (PDF, JPG, JPEG, MP3, MP4)
+        format:
+          type: string
+          enum: [PDF, JPG, JPEG, MP3, MP4, jpg, jpeg]
+          description: Формат загружаемого файла
+        description:
+          type: string
+          description: Описание медиа-контента
+      required:
+        - file
+        - format
+    MediaUploadSuccessResponse:
+      type: object
+      properties:
+        mediaId:
+          type: string
+          description: Id загруженного медиа-контента
+    MediaGetSuccessResponse:
+      type: object
+      properties:
+        postId:
+          type: string
+        mediaContent:
+          type: array
+          items:
+            type: object
+            properties:
+              mediaId:
+                type: string
+              mediaType:
+                type: string
+                enum: [PDF, JPG, JPEG, MP3, MP4, jpg, jpeg]
+                description: Формат файла
+              description:
+                type: string
+                example: "Описание медиа-контента"
+              file:
+                type: string
+                format: binary
+                description: Загрузка медиа-файла

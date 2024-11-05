@@ -40,23 +40,14 @@ WORKDIR /app
 COPY --from=builder /app/auth-service /app/auth-service
 
 # Копируем файл с переменными окружения из директории config
-COPY internal/auth/config/env.docker /app/env
-
-# Создаём папку для сохранения данных
-RUN mkdir -p /app/volume
-
-# Указываем том для монтирования
-VOLUME ["/app/volume"]
+#COPY internal/auth/config/env.docker /app/env
 
 # Экспортируем переменные окружения из файла env.docker
 # Используем формат key=value
-RUN export $(grep -v '^#' /app/env | xargs)
+# RUN export $(grep -v '^#' /app/env | xargs)
 
 # Пробрасываем порт 8080 снаружи на 8081 внутри контейнера
-EXPOSE 8080
-
-# Указываем авторство образа
-#LABEL maintainer="PtFux"
+EXPOSE 8081
 
 # Запускаем приложение
 CMD ["sh", "-c", "/app/auth-service --port=8081"]

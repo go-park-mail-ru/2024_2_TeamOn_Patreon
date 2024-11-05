@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpass
+      POSTGRES_DB: testdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: adminpass
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+
+  auth-service:
+    build:
+      context: ../../
+      dockerfile: cmd/microservices/auth/Dockerfile
+    ports:
+      - "8081:8081"
+    env_file:
+      - ../../config/auth/.env.default
+      - ../../config/env.docker
+    depends_on:
+      - postgres
+
+  account-service:
+    build:
+      context: ../../
+      dockerfile: cmd/microservices/account/Dockerfile
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./static/avatar:/app/static/avatar  # Указываем путь к локальной папке
+    depends_on:
+      - postgres
+
+  author-service:
+    build:
+      context: ../../
+      dockerfile: cmd/microservices/author/Dockerfile
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./static/background:/app/static/background  # Указываем путь к локальной папке
+    depends_on:
+      - postgres
+
+  content-service:
+    build:
+      context: ../../
+      dockerfile: cmd/microservices/content/Dockerfile
+    ports:
+      - "8084:8084"
+    depends_on:
+      - postgres
+    env_file:
+      - ../../config/content/.env.default
+      - ../../config/env.docker
+
+  migrate-service:
+    build:
+      context: ../../
+      dockerfile: internal/pkg/repository/postgres/migrate/Dockerfile
+    depends_on:
+      - postgres
+
+  filling-service:
+    build:
+      context: ../../
+      dockerfile: internal/pkg/repository/postgres/filling/Dockerfile
+    depends_on:
+      - migrate-service
+
+volumes:
+  postgres_data:

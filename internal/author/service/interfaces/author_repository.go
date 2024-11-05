@@ -1,0 +1,38 @@
+package interfaces
+
+import (
+	"context"
+	"mime/multipart"
+
+	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
+)
+
+// Интерфейс AuthorRepository описывает методы взаимодействия уровня service с уровнем repository
+type AuthorRepository interface {
+	// AuthorByID получает данные автора по указанному ID
+	AuthorByID(ctx context.Context, authorID string) (*repModels.Author, error)
+
+	// Subscriptions получает подписки автора по указанному ID
+	SubscriptionsByID(ctx context.Context, authorID string) ([]repModels.Subscription, error)
+
+	// UpdateInfo - обновление поля "О себе"
+	UpdateInfo(ctx context.Context, authorID string, info string) error
+
+	// Payments - получение суммы выплат автора за донаты и подписки
+	Payments(ctx context.Context, authorID string) (int, error)
+
+	// BackgroundPathByID получает путь до фона страницы автора
+	BackgroundPathByID(ctx context.Context, authorID string) (string, error)
+
+	// DeleteBackground удаляет старый фон страницы автора при его обновлении
+	DeleteBackground(ctx context.Context, authorID string) error
+
+	// UpdateBackground обновляет путь к фону страницы автора
+	UpdateBackground(ctx context.Context, authorID string, background multipart.File, fileName string) error
+
+	// NewTip - обновление информации о себе
+	NewTip(ctx context.Context, userID, authorID string, cost int, message string) error
+
+	// GenerateID генерирует ID в формате UUIDv4
+	GenerateID() string
+}

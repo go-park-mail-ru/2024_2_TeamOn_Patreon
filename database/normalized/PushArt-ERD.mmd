@@ -1,0 +1,161 @@
+erDiagram
+    User }|--|| Role : role_id
+    Page |o--|| User : user_id
+    Avatar |o--|| User : user_id
+    Role
+
+    CustomSubscription |o--|| User : author_id
+    CustomSubscription }|--|| SubscriptionLayer : layer_id
+    SubscriptionLayer
+
+    Post
+    Post }o--|| User: author_id
+    Post }o--|| SubscriptionLayer: subscription_layer_id
+    Post ||--o{ Content: post_id
+    Content
+
+    Comment |o--|{ Post: post_id
+    Comment |o--|{ User: user_id
+
+    LikePost |o--|{ Post: post_id
+    LikePost |o--|{ User: user_id
+
+    LikeComment |o--|{ Comment: comment_id
+    LikeComment |o--|{ User: user_id
+
+    Subscription }o--|| User: user_id
+    Subscription }o--|| CustomSubscription: custom_subscription_id
+
+    Tip }o--|| User: user_id
+    %% Author }o--|| User: author_id
+
+    Session }o--|| User: user_id
+
+    User {
+        uuid user_id
+        string username
+        integer email
+        uuid role_id
+        string hash_password
+    }
+    Page {
+        uuid page_id
+        uuid user_id
+        string info
+        url background_picture_url
+    }
+    Avatar {
+        uuid avatar_id
+        uuid user_id
+        url avatar_url
+    }
+    Role{
+        string role_id
+        string default_role_name
+    }
+
+    CustomSubscription {
+        uuid subscription_id
+        uuid author_id
+        string custom_name
+        int cost
+        string info
+        uuid subscription_layer_id
+        datetime created_date
+    }
+
+    SubscriptionLayer {
+        uuid subscription_layer_id
+        int layer
+        string default_layer_name
+    }
+
+    Subscription {
+        uuid subscription_id
+        uuid user_id
+        uuid custom_subscription_id
+        datetime started_date
+        datetime finished_date
+    }
+    Tip {
+        uuid tip_id
+        uuid user_id
+        uuid author_id
+        integer cost
+        string message
+        datetime payed_date
+    }
+
+
+    Post {
+        uuid post_id
+        uuid user_id
+        string title
+        string about
+        uuid content_id
+        uuid subscription_layer_id
+        datetime created_date
+        datetime updated_date
+    }
+    Content {
+        uuid content_id
+        uuid content_type_id
+        url content_url
+    }
+    Content }|--|| ContentType: content_type_id
+    ContentType {
+        uuid content_type_id
+        string default_content_type_name
+    }
+    LikePost {
+        uuid like_id
+        uuid post_id
+        uuid user_id
+        datetime posted_date
+    }
+    Comment {
+        uuid comment_id
+        uuid post_id
+        uuid user_id
+        string about
+        datetime created_date
+        datetime updated_date
+    }
+    LikeComment {
+        uuid like_id
+        uuid comment_id
+        uuid user_id
+        datetime posted_at
+    }
+
+
+    %% Уведомления
+    Notification {
+        uuid notification_id
+        uuid user_id
+        uuid event_id
+        datetime sent_date
+    }
+    Notification }o--|| User: user_id
+    Notification }|--o| Event: event_id
+    Event {
+        uuid event_id
+        uuid event_type_id
+        string about
+        datetime happened_date
+    }
+    Event }o--|| EventType: event_type_id
+    EventType {
+        uuid event_type_id
+        string default_event_type_name
+    }
+
+
+    %% Сессия
+    Session {
+        uuid session_id
+        uuid user_id
+        datetime created_date
+        datetime finished_date
+    }
+    Session }o--|| User: user_id
