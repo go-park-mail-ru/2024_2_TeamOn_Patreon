@@ -2,6 +2,8 @@ package api
 
 import (
 	"fmt"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
+	"strings"
 
 	"net/http"
 
@@ -56,6 +58,12 @@ func NewRouter(service interfaces.AccountService) *mux.Router {
 			"POST",
 			"/account/update/role",
 			handler.PostAccountUpdateRole,
+		},
+		Route{
+			"GetCSRFToken",
+			strings.ToUpper("Get"),
+			"/token-endpoint",
+			middlewares.GetCSRFTokenHandler,
 		},
 	}
 	// Declare a new router

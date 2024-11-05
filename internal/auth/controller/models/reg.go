@@ -2,9 +2,11 @@ package models
 
 import (
 	"fmt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
-	"github.com/pkg/errors"
 	"regexp"
+
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
+	"github.com/pkg/errors"
 )
 
 // Reg - модель для фронта
@@ -36,6 +38,9 @@ func (reg *Reg) Validate() (bool, error) {
 }
 
 func (reg *Reg) validateUsername() error {
+
+	reg.Username = validate.Sanitize(reg.Username)
+
 	// Длина не менее 4 символов
 	if len(reg.Username) < 4 {
 		return global.ErrSmallLogin

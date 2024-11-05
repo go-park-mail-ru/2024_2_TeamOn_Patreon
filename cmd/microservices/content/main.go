@@ -38,6 +38,7 @@ func main() {
 
 	// регистрируем middlewares
 	router.Use(middlewares.Logging) // 1
+	router.Use(middlewares.CsrfMiddleware)
 	// auth middleware registered in api.New
 
 	// run end-to-end

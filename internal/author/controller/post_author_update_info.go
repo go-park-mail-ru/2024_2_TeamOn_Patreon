@@ -8,8 +8,8 @@ import (
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
-
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
+	valid "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 )
 
 // PostAccountUpdate - ручка обновления информации об авторе
@@ -45,6 +45,7 @@ func (handler *Handler) PostAuthorUpdateInfo(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	newInfo.Info = valid.Sanitize(newInfo.Info)
 	// Обращение к service
 	if err := handler.serv.PostUpdateInfo(r.Context(), string(userData.UserID), newInfo.Info); err != nil {
 		logger.StandardWarnF(op, "update info error {%v}", err)

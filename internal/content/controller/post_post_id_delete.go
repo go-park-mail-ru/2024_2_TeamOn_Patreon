@@ -18,6 +18,7 @@ func (h Handler) PostsPostIdDelete(w http.ResponseWriter, r *http.Request) {
 	// Достаем postId
 	vr := mux.Vars(r)
 	postId, ok := vr["postId"]
+	logger.StandardDebugF(op, "postId=%v", postId)
 	if !ok {
 		// Надо бэд реквест
 		err := global.ErrBadRequest
@@ -41,6 +42,7 @@ func (h Handler) PostsPostIdDelete(w http.ResponseWriter, r *http.Request) {
 
 	// Удаляем пост
 	userId := user.UserID
+	logger.StandardDebugF(op, "userId=%v postId=%v", userId, postId)
 	err := h.b.DeletePost(ctx, string(userId), postId)
 	if err != nil {
 		logger.StandardWarnF(op, "Received validation error={%v}", err)

@@ -123,6 +123,12 @@ func handleOther(router *mux.Router, behavior interfaces.ContentBehavior) {
 			"/post/media",
 			handler.PostMediaGet,
 		},
+		Route{
+			"GetCSRFToken",
+			strings.ToUpper("Get"),
+			"/token-endpoint",
+			middlewares.GetCSRFTokenHandler,
+		},
 	}
 
 	for _, route := range routes {

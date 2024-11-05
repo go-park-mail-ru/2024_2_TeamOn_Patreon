@@ -34,6 +34,7 @@ func main() {
 	// регистрируем middlewares
 	router.Use(middlewares.Logging)     // 1
 	router.Use(middlewares.HandlerAuth) // 2 для ручек, где требуется аутентификация
+	router.Use(middlewares.CsrfMiddleware)
 
 	// run server
 	logger.StandardInfo("Starting server at: 8082", op)
