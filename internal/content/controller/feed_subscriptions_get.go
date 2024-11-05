@@ -34,6 +34,7 @@ func (h *Handler) FeedSubscriptionsGet(w http.ResponseWriter, r *http.Request) {
 
 	opt := cModels.NewFeedOpt(offsetStr, limitStr)
 
+	logger.StandardDebugF(op, "Opt=%v", opt)
 	// Выполняем бизнес логику
 	posts, err := h.b.GetFeedSubscription(ctx, string(userId), opt)
 	if err != nil {
