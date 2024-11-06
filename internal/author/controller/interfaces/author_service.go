@@ -7,7 +7,7 @@ import (
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
 )
 
-// Интерфейс AuthorService необходим для взаимодействия уровня controller с уровнем service
+// AuthorService необходим для взаимодействия уровня controller с уровнем service
 type AuthorService interface {
 	// GetAuthorDataByID - получение данных автора по authorID
 	GetAuthorDataByID(ctx context.Context, authorID string) (sModels.Author, error)
@@ -32,4 +32,6 @@ type AuthorService interface {
 
 	// PostTip - обновление информации о себе
 	PostTip(ctx context.Context, userID, authorID string, cost int, message string) error
+
+	Subscribe(ctx context.Context, authorID string, userId string) error
 }
