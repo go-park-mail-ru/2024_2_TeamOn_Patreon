@@ -24,16 +24,17 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	authorID := vars["authorID"]
 
+	// Извлекаем userID из контекста
+	userData, ok := r.Context().Value(global.UserKey).(s2Models.User)
+	if !ok {
+		logger.StandardResponse(ctx, "userData not found in context", http.StatusUnauthorized, r.Host, op)
+		// Status 401
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	// Если пользователь запрашивает свою страницу
 	if authorID == "me" {
-		// Извлекаем userID из контекста
-		userData, ok := r.Context().Value(global.UserKey).(s2Models.User)
-		if !ok {
-			logger.StandardResponse(ctx, "userData not found in context", http.StatusUnauthorized, r.Host, op)
-			// Status 401
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
 		authorID = string(userData.UserID)
 	}
 
@@ -63,7 +64,16 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accountPage := sModels.MapAuthorToAuthorPage(authorData, subscriptions)
+	// Обращение к service для получения статуса подписки на автора
+	isSubscribe, err := handler.serv.GetUserIsSubscribe(r.Context(), authorID, string(userData.UserID))
+	if err != nil {
+		logger.StandardDebugF(ctx, op, "Received author isSubscribe status error {%v}", err)
+		// Status 500
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	accountPage := sModels.MapAuthorToAuthorPage(authorData, subscriptions, isSubscribe)
 
 	json.NewEncoder(w).Encode(accountPage)
 	// Status 200

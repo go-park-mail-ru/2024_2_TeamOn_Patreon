@@ -81,6 +81,25 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*repModels.
 	return &author, nil
 }
 
+func (p *Postgres) UserIsSubscribe(ctx context.Context, authorID, userID string) (bool, error) {
+	op := "internal.account.repository.UserIsSubscribe"
+	logger.StandardDebugF(ctx, op, "wants to check relations userID=%v and authorID=%v", userID, authorID)
+
+	query := `
+		SELECT 
+			EXISTS (
+				SELECT 1
+				FROM subscription s
+				JOIN custom_subscription cs ON s.custom_subscription_id = cs.custom_subscription_id
+				WHERE s.user_id = $1 AND cs.author_id = $2
+			) AS is_subscribed;
+	`
+	var subscribeStatus bool
+	p.db.QueryRow(ctx, query, userID, authorID).Scan(&subscribeStatus)
+
+	return subscribeStatus, nil
+}
+
 func (p *Postgres) SubscriptionsByID(ctx context.Context, authorID string) ([]repModels.Subscription, error) {
 	op := "internal.account.repository.SubscriptionsByID"
 
