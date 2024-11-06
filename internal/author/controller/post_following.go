@@ -18,7 +18,7 @@ func (handler *Handler) PostFollowing(w http.ResponseWriter, r *http.Request) {
 
 	// Определяем authorID
 	vars := mux.Vars(r)
-	authorID := vars["authorID"]
+	authorID := vars["authorId"]
 
 	// Извлекаем userID из контекста
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
