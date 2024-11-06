@@ -62,7 +62,7 @@ func (s *Service) GetUserIsSubscribe(ctx context.Context, authorID, userID strin
 		fmt.Sprintf("successful get subscribe status: %v", status),
 		op)
 
-	return true, nil
+	return status, nil
 }
 
 func (s *Service) GetAuthorSubscriptions(ctx context.Context, authorID string) ([]sModels.Subscription, error) {
