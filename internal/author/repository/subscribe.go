@@ -27,7 +27,7 @@ select
 from 
 	Custom_Subscription
 where author_id = $1
-	and subscrtiption_layer_id = (select subscription_layer_id from subscription_layer where layer = 1)
+	and subscription_layer_id = (select subscription_layer_id from subscription_layer where layer = 1)
 	`
 
 	// автор ли юзер
