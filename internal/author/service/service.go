@@ -32,6 +32,7 @@ func (s *Service) GetAuthorDataByID(ctx context.Context, authorID string) (sMode
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful get author=%v with authorID='%v'", author.Username, authorID),
 		op)
 
@@ -47,7 +48,7 @@ func (s *Service) GetAuthorSubscriptions(ctx context.Context, authorID string) (
 	op := "internal.account.service.GetAuthorSubscriptions"
 
 	// получаем подписки пользователя из rep
-	logger.StandardDebugF(op, "want to get subscriptions for author with authorID %v", authorID)
+	logger.StandardDebugF(ctx, op, "want to get subscriptions for author with authorID %v", authorID)
 	repSubscriptions, err := s.rep.SubscriptionsByID(ctx, authorID)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
@@ -63,6 +64,7 @@ func (s *Service) GetAuthorSubscriptions(ctx context.Context, authorID string) (
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful get subscriptions: %v", subscriptions),
 		op)
 	return subscriptions, nil
@@ -75,6 +77,7 @@ func (s *Service) PostUpdateInfo(ctx context.Context, authorID string, info stri
 		return errors.Wrap(err, op)
 	}
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful update info: %v", info),
 		op)
 
@@ -91,6 +94,7 @@ func (s *Service) GetAuthorPayments(ctx context.Context, authorID string) (int, 
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful get payments=%v for authorID='%v'", amount, authorID),
 		op)
 
@@ -101,7 +105,7 @@ func (s *Service) GetBackgroundByID(ctx context.Context, authorID string) ([]byt
 	op := "internal.author.service.GetBackgroundByID"
 
 	// ОБращаемся в репозиторий для получения пути до фона
-	logger.StandardDebugF(op, "want to find backgroundPATH for userID = %v", authorID)
+	logger.StandardDebugF(ctx, op, "want to find backgroundPATH for userID = %v", authorID)
 
 	backgroundPath, err := s.rep.BackgroundPathByID(ctx, authorID)
 	if err != nil {
@@ -110,13 +114,14 @@ func (s *Service) GetBackgroundByID(ctx context.Context, authorID string) ([]byt
 	}
 
 	// По найденному пути открываем файл фона
-	logger.StandardDebugF(op, "want to read file with path: %v", backgroundPath)
+	logger.StandardDebugF(ctx, op, "want to read file with path: %v", backgroundPath)
 	avatar, err := os.ReadFile(backgroundPath)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful get background file with path %v for author with authorID %v", backgroundPath, authorID),
 		op)
 
@@ -127,23 +132,25 @@ func (s *Service) PostUpdateBackground(ctx context.Context, authorID string, bac
 	op := "internal.author.service.PostAccountUpdateBackground"
 
 	// Удаляем старый фон, если он есть
-	logger.StandardDebugF(op, "want to delete old background file")
+	logger.StandardDebugF(ctx, op, "want to delete old background file")
 	if err := s.rep.DeleteBackground(ctx, authorID); err != nil {
 		return errors.Wrap(err, op)
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful delete old background for authorID %s", authorID),
 		op,
 	)
 
 	// Сохраняем новый
-	logger.StandardDebugF(op, "want to save new background file")
+	logger.StandardDebugF(ctx, op, "want to save new background file")
 	if err := s.rep.UpdateBackground(ctx, authorID, backgroundFile, fileName); err != nil {
 		return errors.Wrap(err, op)
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful save new background for authorID %v", authorID),
 		op,
 	)
@@ -154,12 +161,13 @@ func (s *Service) PostUpdateBackground(ctx context.Context, authorID string, bac
 func (s *Service) PostTip(ctx context.Context, userID, authorID string, cost int, message string) error {
 	op := "internal.author.service.PostTip"
 
-	logger.StandardDebugF(op, "want to save new tip")
+	logger.StandardDebugF(ctx, op, "want to save new tip")
 
 	if err := s.rep.NewTip(ctx, userID, authorID, cost, message); err != nil {
 		return errors.Wrap(err, op)
 	}
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful send tip: cost=%v, message=%v from user=%v to author=%v", cost, message, userID, authorID),
 		op)
 

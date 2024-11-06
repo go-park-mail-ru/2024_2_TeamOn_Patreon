@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -60,7 +61,7 @@ func (cr *ContentRepository) GetPostLikeId(ctx context.Context, userId uuid.UUID
 		if err = rows.Scan(&postLikeId); err != nil {
 			return uuid.UUID{}, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op, "Got  postLikeId='%v' for post='%v'", postLikeId, postID)
+		logger.StandardDebugF(ctx, op, "Got  postLikeId='%v' for post='%v'", postLikeId, postID)
 		return postLikeId, nil
 	}
 
@@ -105,7 +106,7 @@ func (cr *ContentRepository) GetPostLikes(ctx context.Context, postID uuid.UUID)
 		if err = rows.Scan(&likes); err != nil {
 			return 0, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op, "Got  likes='%v' for post='%v'", likes, postID)
+		logger.StandardDebugF(ctx, op, "Got  likes='%v' for post='%v'", likes, postID)
 		return likes, nil
 	}
 

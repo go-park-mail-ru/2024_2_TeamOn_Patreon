@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/account/api"
@@ -35,8 +36,9 @@ func main() {
 	router.Use(middlewares.Logging)     // 1
 	router.Use(middlewares.HandlerAuth) // 2 для ручек, где требуется аутентификация
 	router.Use(middlewares.CsrfMiddleware)
+	router.Use(middlewares.AddRequestID)
 
 	// run server
-	logger.StandardInfo("Starting server at: 8082", op)
+	logger.StandardInfo(context.Background(), "Starting server at: 8082", op)
 	http.ListenAndServe(":8082", router)
 }

@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -61,18 +62,18 @@ func InitPostgresDB(ctx context.Context) *pgxpool.Pool {
 		panic(errors.Wrap(err, op))
 	}
 
-	logger.StandardDebugF(op, "Connecting do db cfg='%v'", cfg)
+	logger.StandardDebugF(ctx, op, "Connecting do db cfg='%v'", cfg)
 
 	connString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName, cfg.DBPassword, cfg.DBSSLMode)
 
-	logger.StandardDebugF(op, "Connecting do db cfg='%v'", connString)
+	logger.StandardDebugF(ctx, op, "Connecting do db cfg='%v'", connString)
 
 	pool, err := pgxpool.New(ctx, connString)
 	if err != nil {
 		panic(errors.Wrap(err, op))
 	}
 
-	logger.StandardInfoF(op, "Successfully connected to PostgresDB pool=%v", pool)
+	logger.StandardInfoF(ctx, op, "Successfully connected to PostgresDB pool=%v", pool)
 	return pool
 }

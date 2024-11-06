@@ -9,16 +9,16 @@ import (
 
 func InitPostgres() *pgxpool.Pool {
 	op := "internal.account.postgres_db.InitPostgres"
-
+	ctx := context.Background()
 	host := "postgres"
 	conString := "postgres://admin:adminpass@" + host + ":5432/testdb"
 	// Параметры подключения
-	pool, err := pgxpool.Connect(context.Background(), conString)
+	pool, err := pgxpool.Connect(ctx, conString)
 	if err != nil {
-		logger.StandardDebugF(op, "Unable to connect to database {%v}", err)
+		logger.StandardDebugF(ctx, op, "Unable to connect to database {%v}", err)
 		return nil
 	}
 
-	logger.StandardInfoF(op, "Successful connect to PostgresDB")
+	logger.StandardInfoF(ctx, op, "Successful connect to PostgresDB")
 	return pool
 }

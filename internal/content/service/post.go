@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
@@ -12,7 +13,7 @@ import (
 func (b *Behavior) CreatePost(ctx context.Context, authorId string, title string, content string, layer int) (string, error) {
 	op := "service.behavior.CreatePost"
 
-	logger.StandardDebugF(op, "Got authorId:=%v title:=%v content:=%v layer:=%v", authorId, title, content, layer)
+	logger.StandardDebugF(ctx, op, "Got authorId:=%v title:=%v content:=%v layer:=%v", authorId, title, content, layer)
 
 	newPostId, err := uuid.NewV4()
 	if err != nil {
@@ -56,7 +57,7 @@ func (b *Behavior) checkCustomLayer(ctx context.Context, authorId uuid.UUID, lay
 
 	layerExists, err := b.rep.CheckCustomLayer(ctx, authorId, layer)
 	if err != nil {
-		logger.StandardDebugF(op, "checkCustomLayer err=%v", err)
+		logger.StandardDebugF(ctx, op, "checkCustomLayer err=%v", err)
 		return false, errors.Wrap(err, op)
 	}
 	return layerExists, nil
@@ -65,11 +66,11 @@ func (b *Behavior) checkCustomLayer(ctx context.Context, authorId uuid.UUID, lay
 func (b *Behavior) insertPost(ctx context.Context, userId uuid.UUID, postId uuid.UUID, title string, content string, layer int) error {
 	op := "content.service.insertPost"
 
-	logger.StandardDebugF(op, "Want to insert user:=%v post=%v title=%v content=%v layer=%v",
+	logger.StandardDebugF(ctx, op, "Want to insert user:=%v post=%v title=%v content=%v layer=%v",
 		userId, postId, title, content, layer)
 
 	err := b.rep.InsertPost(ctx, userId, postId, title, content, layer)
-	logger.StandardDebugF(op, "InsertPost=%v err=%v", postId, err)
+	logger.StandardDebugF(ctx, op, "InsertPost=%v err=%v", postId, err)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -79,7 +80,7 @@ func (b *Behavior) insertPost(ctx context.Context, userId uuid.UUID, postId uuid
 func (b *Behavior) isUserAuthor(ctx context.Context, userId uuid.UUID) (bool, error) {
 	op := "content.service.isUserAuthor"
 
-	logger.StandardDebugF(op, "Want to check if user %v author", userId)
+	logger.StandardDebugF(ctx, op, "Want to check if user %v author", userId)
 
 	role, err := b.rep.GetUserRole(ctx, userId)
 	if err != nil {
@@ -87,7 +88,7 @@ func (b *Behavior) isUserAuthor(ctx context.Context, userId uuid.UUID) (bool, er
 	}
 
 	isAuthor := models.StringToRole(role) == models.Author
-	logger.StandardDebugF(op, "Role = %v userID = %v isAuthor=%v", role, userId, isAuthor)
+	logger.StandardDebugF(ctx, op, "Role = %v userID = %v isAuthor=%v", role, userId, isAuthor)
 
 	if isAuthor {
 		return true, nil

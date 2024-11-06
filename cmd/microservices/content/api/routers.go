@@ -1,13 +1,15 @@
 package api
 
 import (
+	"context"
+	"net/http"
+	"strings"
+
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/interfaces"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 	"github.com/gorilla/mux"
-	"net/http"
-	"strings"
 )
 
 type Route struct {
@@ -78,7 +80,7 @@ func handleAuth(router *mux.Router, behavior interfaces.ContentBehavior) *mux.Ro
 	for _, route := range routes {
 		var handler http.Handler
 		handler = route.HandlerFunc
-		logger.StandardInfoF(op, "Registered: %s %s", route.Method, route.Pattern)
+		logger.StandardInfoF(context.Background(), op, "Registered: %s %s", route.Method, route.Pattern)
 
 		router.
 			Methods(route.Method).
@@ -134,7 +136,7 @@ func handleOther(router *mux.Router, behavior interfaces.ContentBehavior) {
 	for _, route := range routes {
 		var handler http.Handler
 		handler = route.HandlerFunc
-		logger.StandardInfoF(op, "Registered: %s %s", route.Method, route.Pattern)
+		logger.StandardInfoF(context.Background(), op, "Registered: %s %s", route.Method, route.Pattern)
 
 		router.
 			Methods(route.Method).

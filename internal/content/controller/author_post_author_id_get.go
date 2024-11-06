@@ -2,6 +2,8 @@ package controller
 
 import (
 	"encoding/json"
+	"net/http"
+
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models/mapper"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
@@ -9,7 +11,6 @@ import (
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	utils2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 func (h Handler) AuthorPostAuthorIdGet(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +44,7 @@ func (h Handler) AuthorPostAuthorIdGet(w http.ResponseWriter, r *http.Request) {
 
 	posts, err := h.b.GetAuthorPosts(ctx, userId, authorId, opt)
 	if err != nil {
-		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
 		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
@@ -54,7 +55,7 @@ func (h Handler) AuthorPostAuthorIdGet(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	if err = json.NewEncoder(w).Encode(tPosts); err != nil {
-		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 	}
 }

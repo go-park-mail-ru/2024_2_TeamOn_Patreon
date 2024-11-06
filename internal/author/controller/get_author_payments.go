@@ -16,13 +16,14 @@ import (
 func (handler *Handler) GetAuthorPayments(w http.ResponseWriter, r *http.Request) {
 	op := "internal.author.controller.GetAuthorPayments"
 
+	ctx := r.Context()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Извлекаем userData из контекста
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
 
 	if !ok {
-		logger.StandardResponse("userData not found in context", http.StatusUnauthorized, r.Host, op)
+		logger.StandardResponse(ctx, "userData not found in context", http.StatusUnauthorized, r.Host, op)
 		// Status 401
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -31,7 +32,7 @@ func (handler *Handler) GetAuthorPayments(w http.ResponseWriter, r *http.Request
 	// Валидация authorID на соответствие стандарту UUIDv4
 	if ok := utils.IsValidUUIDv4(string(userData.UserID)); !ok {
 		// Status 400
-		logger.StandardResponse("invalid authorID format", http.StatusBadRequest, r.Host, op)
+		logger.StandardResponse(ctx, "invalid authorID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -39,7 +40,7 @@ func (handler *Handler) GetAuthorPayments(w http.ResponseWriter, r *http.Request
 	// Обращение к service для получения данных
 	amountPayments, err := handler.serv.GetAuthorPayments(r.Context(), string(userData.UserID))
 	if err != nil {
-		logger.StandardDebugF(op, "Received author payments error {%v}", err)
+		logger.StandardDebugF(ctx, op, "Received author payments error {%v}", err)
 		// Status 500
 		w.WriteHeader(http.StatusInternalServerError)
 		return

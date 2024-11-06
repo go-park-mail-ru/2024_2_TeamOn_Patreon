@@ -1,12 +1,14 @@
 package models
 
 import (
+	"context"
 	"fmt"
+	"regexp"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 	"github.com/pkg/errors"
-	"regexp"
 )
 
 type Login struct {
@@ -42,7 +44,7 @@ func (lg *Login) validateUsername() error {
 
 	// Длина не менее 4 символов
 	if len(lg.Username) < 4 {
-		logger.StandardDebugF(op, "login isn't valid: '%v'", lg.Username)
+		logger.StandardDebugF(context.Background(), op, "login isn't valid: '%v'", lg.Username)
 		return global.ErrSmallLogin
 	}
 

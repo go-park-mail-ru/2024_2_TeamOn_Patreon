@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
@@ -37,7 +38,7 @@ func (a *AuthRepository) GetPasswordHashByID(ctx context.Context, userID uuid.UU
 		if err = rows.Scan(&hash); err != nil {
 			return "", errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op, "GetPasswordHashByID found hash: %s", hash)
+		logger.StandardDebugF(ctx, op, "GetPasswordHashByID found hash: %s", hash)
 		return hash, nil
 	}
 	return "", errors.Wrap(global.ErrUserNotFound, op)

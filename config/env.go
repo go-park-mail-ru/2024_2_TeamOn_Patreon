@@ -2,10 +2,12 @@ package config
 
 import (
 	"bufio"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/pkg/errors"
+	"context"
 	"os"
 	"strings"
+
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/pkg/errors"
 )
 
 func GetEnv(key, def string) string {
@@ -27,7 +29,8 @@ func InitEnvErr(pathToCommonEnv string, pathToServiceEnv string) error {
 	op := "pkg.global.env.InitEnv"
 
 	wd, _ := os.Getwd()
-	logger.StandardDebugF(op, "Current working directory:", wd)
+	ctx := context.Background()
+	logger.StandardDebugF(ctx, op, "Current working directory:", wd)
 
 	// Достаем из окружения информацию в докере ли мы
 	key := "IN_DOCKER"
@@ -51,10 +54,10 @@ func InitEnvErr(pathToCommonEnv string, pathToServiceEnv string) error {
 	}
 
 	// Пример вывода переменных окружения
-	logger.StandardDebugF(op, "Переменные окружения установлены:")
+	logger.StandardDebugF(ctx, op, "Переменные окружения установлены:")
 
 	for _, key := range []string{"STATUS", "IN_DOCKER", "DB_HOST", "SERVICE_NAME", "PORT"} {
-		logger.StandardDebugF(op, "%s=%s", key, os.Getenv(key))
+		logger.StandardDebugF(ctx, op, "%s=%s", key, os.Getenv(key))
 	}
 
 	return nil
@@ -62,12 +65,13 @@ func InitEnvErr(pathToCommonEnv string, pathToServiceEnv string) error {
 
 func initEnv(pathToEnv string) error {
 	op := "pkg.global.env.initEnv"
+	ctx := context.Background()
 
 	// Открываем файл с переменными окружения
 	file, err := os.Open(pathToEnv)
 
 	if err != nil {
-		logger.StandardDebugF(op, "Didn't open env file, err=%s", err.Error())
+		logger.StandardDebugF(ctx, op, "Didn't open env file, err=%s", err.Error())
 		return errors.Wrap(err, op)
 
 	}
@@ -89,7 +93,7 @@ func initEnv(pathToEnv string) error {
 		parts := strings.SplitN(line, "=", 2)
 
 		if len(parts) != 2 {
-			logger.StandardDebugF(op, "Неверный формат строки: %v", line)
+			logger.StandardDebugF(ctx, op, "Неверный формат строки: %v", line)
 			continue
 		}
 
@@ -102,14 +106,14 @@ func initEnv(pathToEnv string) error {
 		err := os.Setenv(key, value)
 
 		if err != nil {
-			logger.StandardDebugF(op, "Ошибка при установке переменной окружения: %v", err)
+			logger.StandardDebugF(ctx, op, "Ошибка при установке переменной окружения: %v", err)
 			return errors.Wrap(err, op)
 		}
 
 	}
 
 	if err := scanner.Err(); err != nil {
-		logger.StandardDebugF(op, "Ошибка при чтении файла: %v", err)
+		logger.StandardDebugF(ctx, op, "Ошибка при чтении файла: %v", err)
 		return errors.Wrap(err, op)
 
 	}

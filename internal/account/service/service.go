@@ -28,7 +28,7 @@ func (s *Service) GetAccDataByID(ctx context.Context, userID string) (sModels.Us
 	op := "internal.account.service.GetAccDataByID"
 
 	// получаем данные пользователя из rep
-	logger.StandardDebugF(op, "want to get user data for userID = %v", userID)
+	logger.StandardDebugF(ctx, op, "want to get user data for userID = %v", userID)
 
 	user, err := s.rep.UserByID(ctx, userID)
 	if err != nil {
@@ -36,6 +36,7 @@ func (s *Service) GetAccDataByID(ctx context.Context, userID string) (sModels.Us
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful get user=%v, role=%v, email=%v", user.Username, user.Role, user.Email),
 		op)
 
@@ -52,7 +53,7 @@ func (s *Service) GetAccSubscriptions(ctx context.Context, userID string) ([]sMo
 	op := "internal.account.service.GetAccSubscriptions"
 
 	// получаем подписки пользователя из rep
-	logger.StandardDebugF(op, "want to get subscriptions for user with userID %v", userID)
+	logger.StandardDebugF(ctx, op, "want to get subscriptions for user with userID %v", userID)
 	repSubscriptions, err := s.rep.SubscriptionsByID(ctx, userID)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
@@ -68,6 +69,7 @@ func (s *Service) GetAccSubscriptions(ctx context.Context, userID string) ([]sMo
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful get subscriptions: %v", subscriptions),
 		op)
 	return subscriptions, nil
@@ -78,7 +80,7 @@ func (s *Service) GetAvatarByID(ctx context.Context, userID string) ([]byte, err
 	op := "internal.account.service.GetAvatarByID"
 
 	// ОБращаемся в репозиторий для получения пути до аватара
-	logger.StandardDebugF(op, "want to find avatarPATH for userID = %v", userID)
+	logger.StandardDebugF(ctx, op, "want to find avatarPATH for userID = %v", userID)
 
 	avatarPath, err := s.rep.AvatarPathByID(ctx, userID)
 	if err != nil {
@@ -87,13 +89,14 @@ func (s *Service) GetAvatarByID(ctx context.Context, userID string) ([]byte, err
 	}
 
 	// По найденному пути открываем файл аватара
-	logger.StandardDebugF(op, "want to read file with path: %v", avatarPath)
+	logger.StandardDebugF(ctx, op, "want to read file with path: %v", avatarPath)
 	avatar, err := os.ReadFile(avatarPath)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful get avatar file with path %v for user with userID %v", avatarPath, userID),
 		op)
 
@@ -105,23 +108,25 @@ func (s *Service) PostUpdateAvatar(ctx context.Context, userID string, avatarFil
 	op := "internal.account.service.PostAccountUpdateAvatar"
 
 	// Удаляем старый аватар, если он есть
-	logger.StandardDebugF(op, "want to delete old avatar file")
+	logger.StandardDebugF(ctx, op, "want to delete old avatar file")
 	if err := s.rep.DeleteAvatar(ctx, userID); err != nil {
 		return errors.Wrap(err, op)
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful delete old avatar for userID %v", userID),
 		op,
 	)
 
 	// Сохраняем новый
-	logger.StandardDebugF(op, "want to save new avatar file")
+	logger.StandardDebugF(ctx, op, "want to save new avatar file")
 	if err := s.rep.UpdateAvatar(ctx, userID, avatarFile, fileName); err != nil {
 		return errors.Wrap(err, op)
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful save new avatar for userID %v", userID),
 		op,
 	)
@@ -143,6 +148,7 @@ func (s *Service) PostUpdateRole(ctx context.Context, userID string) error {
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful change role for userID: %v", userID),
 		op)
 
@@ -156,6 +162,7 @@ func (s *Service) UpdateUsername(ctx context.Context, userID string, username st
 		return errors.Wrap(err, op)
 	}
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful update username: %v", username),
 		op)
 	return nil
@@ -173,6 +180,7 @@ func (s *Service) UpdatePassword(ctx context.Context, userID string, password st
 		return errors.Wrap(err, op)
 	}
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful update password: %v", hash),
 		op)
 
@@ -186,6 +194,7 @@ func (s *Service) UpdateEmail(ctx context.Context, userID string, email string) 
 		return errors.Wrap(err, op)
 	}
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful update email: %v", email),
 		op)
 
@@ -198,7 +207,7 @@ func (s *Service) updateRole(ctx context.Context, userID string) error {
 	if err := s.rep.UpdateRole(ctx, userID); err != nil {
 		return errors.Wrap(err, op)
 	}
-	logger.StandardInfo("successful change role", op)
+	logger.StandardInfo(ctx, "successful change role", op)
 	return nil
 }
 
@@ -208,6 +217,6 @@ func (s *Service) initPage(ctx context.Context, userID string) error {
 	if err := s.rep.InitPage(ctx, userID); err != nil {
 		return errors.Wrap(err, op)
 	}
-	logger.StandardInfo("successful create page for user with userID: %v", userID)
+	logger.StandardInfo(ctx, "successful create page for user with userID: %v", userID)
 	return nil
 }

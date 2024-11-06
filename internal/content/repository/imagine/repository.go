@@ -1,12 +1,14 @@
 package imagine
 
 import (
+	"context"
+	"sync"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"sync"
 )
 
 type ContentRepository struct {
@@ -20,8 +22,9 @@ var rep *ContentRepository
 
 func New() *ContentRepository {
 	op := "content.repository.imagine.repository.ContentRepository"
+	ctx := context.Background()
 	if rep == nil {
-		logger.StandardDebugF(op, "New repository")
+		logger.StandardDebugF(ctx, op, "New repository")
 		rep = &ContentRepository{}
 		rep.posts = make(map[uuid.UUID]*Post)
 		rep.authors = make(map[uuid.UUID]*Author)
@@ -33,11 +36,12 @@ func New() *ContentRepository {
 
 func (pr *ContentRepository) InsertPost(userId uuid.UUID, postId uuid.UUID, title string, content string, layer int) error {
 	op := "content.repository.imagine.repository.InsertPost"
+	ctx := context.Background()
 
-	logger.StandardDebugF(op, "post.PostId=%v", postId)
+	logger.StandardDebugF(ctx, op, "post.PostId=%v", postId)
 	post := Post{postId: postId, title: title, content: content, layer: layer, authorID: userId}
 
-	logger.StandardDebugF(op, "post.PostId=%v post=%v", post.postId, post)
+	logger.StandardDebugF(ctx, op, "post.PostId=%v post=%v", post.postId, post)
 	pr.mu.Lock()
 	defer pr.mu.Unlock()
 	pr.posts[postId] = &post
@@ -47,7 +51,9 @@ func (pr *ContentRepository) InsertPost(userId uuid.UUID, postId uuid.UUID, titl
 
 func (pr *ContentRepository) GetPopularPosts(offset int, limits int) ([]models.Post, error) {
 	op := "content.repository.imagine.repository.GetPopularPostsForUser"
-	logger.StandardDebugF(op, "offset=%v limits=%v", offset, limits)
+	ctx := context.Background()
+
+	logger.StandardDebugF(ctx, op, "offset=%v limits=%v", offset, limits)
 
 	pr.mu.Lock()
 	defer pr.mu.Unlock()
@@ -61,21 +67,21 @@ func (pr *ContentRepository) GetPopularPosts(offset int, limits int) ([]models.P
 	if limits < top {
 		top = limits
 	}
-	logger.StandardDebugF(op, "offset=%v, top=%v keys=%v", offset, top, pr.keysPost)
+	logger.StandardDebugF(ctx, op, "offset=%v, top=%v keys=%v", offset, top, pr.keysPost)
 
 	var popularPosts []models.Post
 
 	slicePosts := pr.keysPost[offset:top]
-	logger.StandardDebugF(op, "slicePosts=%v", slicePosts)
+	logger.StandardDebugF(ctx, op, "slicePosts=%v", slicePosts)
 
 	for _, postId := range slicePosts {
-		logger.StandardDebugF(op, "post.PostId=%v", postId)
+		logger.StandardDebugF(ctx, op, "post.PostId=%v", postId)
 		repPost, ok := pr.posts[postId]
 		if !ok {
-			logger.StandardDebugF(op, "post.PostId=%v", postId)
+			logger.StandardDebugF(ctx, op, "post.PostId=%v", postId)
 			return nil, errors.Wrap(global.ErrServer, op)
 		}
-		logger.StandardDebugF(op, "repPost = %v", repPost)
+		logger.StandardDebugF(ctx, op, "repPost = %v", repPost)
 		pkgPost := MapRepositoryPostToPkgPost(*repPost)
 
 		_, ok = pr.authors[postId]
@@ -108,13 +114,13 @@ func (r *ContentRepository) GetAuthorByPost(postID uuid.UUID) (uuid.UUID, error)
 
 func (r *ContentRepository) UpdatePost(authorId uuid.UUID, postId uuid.UUID, updatePost models.Post) error {
 	op := "content.repository.imagine.repository.UpdatePost"
-
-	logger.StandardDebugF(op, "post.PostId=%v", updatePost.PostId)
+	ctx := context.Background()
+	logger.StandardDebugF(ctx, op, "post.PostId=%v", updatePost.PostId)
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	post, ok := r.posts[postId]
 	if !ok {
-		logger.StandardDebugF(op, "post.PostId=%v", updatePost.PostId)
+		logger.StandardDebugF(ctx, op, "post.PostId=%v", updatePost.PostId)
 		return global.ErrPostDoesntExists
 	}
 
@@ -134,25 +140,29 @@ func (r *ContentRepository) UpdatePost(authorId uuid.UUID, postId uuid.UUID, upd
 
 func (cr *ContentRepository) IsLikePutPost(userId uuid.UUID, postID uuid.UUID) (bool, error) {
 	op := "content.repository.imagine.repository.GetPostLike"
-	logger.StandardDebugF(op, "post.PostId=%v", postID)
+	ctx := context.Background()
+	logger.StandardDebugF(ctx, op, "post.PostId=%v", postID)
 	return false, nil
 }
 
 func (cr *ContentRepository) InsertLikePost(userId uuid.UUID, postID uuid.UUID) error {
 	op := "content.repository.imagine.repository.InsertLikePost"
-	logger.StandardDebugF(op, "post.PostId=%v", postID)
+	ctx := context.Background()
+	logger.StandardDebugF(ctx, op, "post.PostId=%v", postID)
 	return nil
 }
 
 func (cr *ContentRepository) DeleteLikePost(userId uuid.UUID, postID uuid.UUID) error {
 	op := "content.repository.imagine.repository.DeleteLikePost"
-	logger.StandardDebugF(op, "post.PostId=%v", postID)
+	ctx := context.Background()
+	logger.StandardDebugF(ctx, op, "post.PostId=%v", postID)
 	return nil
 }
 
 func (cr *ContentRepository) GetPostLikes(postID uuid.UUID) (int, error) {
 	op := "content.repository.imagine.repository.GetPostLikes"
-	logger.StandardDebugF(op, "post.PostId=%v", postID)
+	ctx := context.Background()
+	logger.StandardDebugF(ctx, op, "post.PostId=%v", postID)
 	return 0, nil
 }
 

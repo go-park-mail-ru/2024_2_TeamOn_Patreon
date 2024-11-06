@@ -20,7 +20,7 @@ func HandlerAuth(next http.Handler) http.Handler {
 		// парсинг jwt токена
 		tokenClaims, err := jwt.ParseJWTFromCookie(r)
 		if err != nil || tokenClaims == nil {
-			logger.StandardDebugF(op, "Auth failed: fail get user from ctx")
+			logger.StandardDebugF(r.Context(), op, "Auth failed: fail get user from ctx")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -32,6 +32,7 @@ func HandlerAuth(next http.Handler) http.Handler {
 		// передаем в контекст
 		ctx := context.WithValue(r.Context(), global.UserKey, user)
 		logger.StandardDebug(
+			ctx,
 			fmt.Sprintf("Transferred user (id={%v}, name={%v}) in ctx", user.UserID, user.Username),
 			op,
 		)

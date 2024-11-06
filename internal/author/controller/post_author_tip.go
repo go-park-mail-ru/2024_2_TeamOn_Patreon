@@ -17,6 +17,7 @@ import (
 func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 	op := "internal.account.controller.PostAuthorUpdateInfo"
 
+	ctx := r.Context()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Определяем authorID
@@ -26,7 +27,7 @@ func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 	// Извлекаем userID из контекста
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
 	if !ok {
-		logger.StandardResponse("userData not found in context", http.StatusUnauthorized, r.Host, op)
+		logger.StandardResponse(ctx, "userData not found in context", http.StatusUnauthorized, r.Host, op)
 		// Status 401
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -35,7 +36,7 @@ func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 
 	// Если пользователь пытается задонатить себе
 	if userID == authorID {
-		logger.StandardResponse("user can't donate to himself", http.StatusBadRequest, r.Host, op)
+		logger.StandardResponse(ctx, "user can't donate to himself", http.StatusBadRequest, r.Host, op)
 		// Status 400
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -44,7 +45,7 @@ func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 	// Валидация userID на соответствие стандарту UUIDv4
 	if ok := utils.IsValidUUIDv4(userID); !ok {
 		// Status 400
-		logger.StandardResponse("invalid userID format", http.StatusBadRequest, r.Host, op)
+		logger.StandardResponse(ctx, "invalid userID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -52,7 +53,7 @@ func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 	// Валидация authorID на соответствие стандарту UUIDv4
 	if ok := utils.IsValidUUIDv4(authorID); !ok {
 		// Status 400
-		logger.StandardResponse("invalid authorID format", http.StatusBadRequest, r.Host, op)
+		logger.StandardResponse(ctx, "invalid authorID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -60,7 +61,7 @@ func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 	// Парсинг данных из json
 	tipInfo := &cModels.Tip{}
 	if err := json.NewDecoder(r.Body).Decode(&tipInfo); err != nil {
-		logger.StandardWarnF(op, "json parsing error {%v}", err)
+		logger.StandardWarnF(ctx, op, "json parsing error {%v}", err)
 		// Status 400
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -68,7 +69,7 @@ func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 
 	// Валидация суммы (не меньше 10 р)
 	if tipInfo.Cost < 10 {
-		logger.StandardWarnF(op, "the donation amount cannot be less than 10 rubles")
+		logger.StandardWarnF(ctx, op, "the donation amount cannot be less than 10 rubles")
 		// Status 400
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -76,7 +77,7 @@ func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 
 	// Обращение к service
 	if err := handler.serv.PostTip(r.Context(), userID, authorID, tipInfo.Cost, tipInfo.Message); err != nil {
-		logger.StandardWarnF(op, "update info error {%v}", err)
+		logger.StandardWarnF(ctx, op, "update info error {%v}", err)
 		// Status 500
 		w.WriteHeader(http.StatusInternalServerError)
 	}
