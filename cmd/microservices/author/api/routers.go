@@ -76,7 +76,7 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 		Route{
 			"GetCSRFToken",
 			strings.ToUpper("Post"),
-			"/author/{authorId}/following ",
+			"/author/{authorId}/following",
 			handler.PostFollowing,
 		},
 	}
