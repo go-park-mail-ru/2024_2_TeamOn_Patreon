@@ -18,9 +18,10 @@ package middlewares
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 func Logging(handler http.Handler) http.Handler {
@@ -31,6 +32,7 @@ func Logging(handler http.Handler) http.Handler {
 			op = route.GetName()
 		}
 		logger.StandardInfo(
+			r.Context(),
 			fmt.Sprintf("Received request %s %s", r.Method, r.URL.Path),
 			op,
 		)

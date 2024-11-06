@@ -2,9 +2,9 @@ package utils
 
 import (
 	"encoding/json"
-	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"net/http"
+
+	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
 )
 
 func SendStringModel(model tModels.Model, w http.ResponseWriter, op string) {
@@ -13,7 +13,7 @@ func SendStringModel(model tModels.Model, w http.ResponseWriter, op string) {
 
 	// Сериализуем модель в JSON и отправляем в ответ
 	json.NewEncoder(w).Encode(model)
-	logger.StandardSendModel(model.String(), op)
+	// logger.StandardSendModel(model.String(), op)
 }
 
 func SendModel(model any, w http.ResponseWriter, op string) {

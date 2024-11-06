@@ -1,18 +1,20 @@
 package validator
 
 import (
+	"context"
+	"regexp"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/config"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/pkg/errors"
-	"regexp"
 )
 
 func validateUsername(username string) (string, error) {
 	op := "internal.auth.service.validator.validateUsername"
 	// Длина не менее 4 символов
 	if len(username) < config.MinUsernameLen {
-		logger.StandardDebugF(op, "Username is too short username=%v", username)
+		logger.StandardDebugF(context.Background(), op, "Username is too short username=%v", username)
 		return username, errors.Wrap(global.ErrNotValidUserAndPassword, op)
 	}
 

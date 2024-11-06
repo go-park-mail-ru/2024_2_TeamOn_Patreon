@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
@@ -50,12 +51,12 @@ func (b *Behavior) updateTitleInPost(ctx context.Context, postId uuid.UUID, titl
 		return nil
 	}
 
-	logger.StandardDebugF(op, "Want to update title=%v of post with id: %s", postId, title)
+	logger.StandardDebugF(ctx, op, "Want to update title=%v of post with id: %s", postId, title)
 	err := b.rep.UpdateTitleOfPost(ctx, postId, title)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
-	logger.StandardDebugF(op, "Update title of post with id: %s", postId)
+	logger.StandardDebugF(ctx, op, "Update title of post with id: %s", postId)
 	return nil
 }
 
@@ -66,11 +67,11 @@ func (b *Behavior) updateContentInPost(ctx context.Context, postId uuid.UUID, co
 		return nil
 	}
 
-	logger.StandardDebugF(op, "Want to update content=%v of post with id: %s", postId, content)
+	logger.StandardDebugF(ctx, op, "Want to update content=%v of post with id: %s", postId, content)
 	err := b.rep.UpdateContentOfPost(ctx, postId, content)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
-	logger.StandardDebugF(op, "Update content in post with id: %v", postId)
+	logger.StandardDebugF(ctx, op, "Update content in post with id: %v", postId)
 	return nil
 }

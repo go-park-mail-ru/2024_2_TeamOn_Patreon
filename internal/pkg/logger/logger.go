@@ -1,10 +1,12 @@
 package logger
 
 import (
+	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"log/slog"
 	"os"
+
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 )
 
 func New() {
@@ -17,49 +19,63 @@ func New() {
 
 	slog.SetDefault(logger)
 
-	StandardInfo("created logger", op)
+	StandardInfo(context.Background(), "created logger", op)
 }
 
-func StandardInfo(msg string, op string) {
-	slog.Info(standardInput(msg, op))
+func StandardInfo(ctx context.Context, msg string, op string) {
+	reqID := extractReqID(ctx)
+	slog.Info(standardInput(msg, op, reqID))
 }
 
-func StandardInfoF(op string, format string, a ...any) {
-	StandardInfo(fmt.Sprintf(format, a...), op)
+func StandardInfoF(ctx context.Context, op string, format string, a ...any) {
+	StandardInfo(ctx, fmt.Sprintf(format, a...), op)
 }
 
-func StandardWarn(msg string, op string) {
-	slog.Warn(standardInput(msg, op))
+func StandardWarn(ctx context.Context, msg string, op string) {
+	reqID := extractReqID(ctx)
+	slog.Warn(standardInput(msg, op, reqID))
 }
 
-func StandardWarnF(op string, format string, a ...any) {
-	StandardWarn(fmt.Sprintf(format, a...), op)
+func StandardWarnF(ctx context.Context, op string, format string, a ...any) {
+	StandardWarn(ctx, fmt.Sprintf(format, a...), op)
 }
 
-func StandardError(msg string, op string) {
-	slog.Error(standardInput(msg, op))
+func StandardError(ctx context.Context, msg string, op string) {
+	reqID := extractReqID(ctx)
+	slog.Error(standardInput(msg, op, reqID))
 }
 
-func Debug(msg string, args ...any) {
-	slog.Debug(msg, args...)
+func Debug(ctx context.Context, msg string, args ...any) {
+	reqID := extractReqID(ctx)
+	slog.Debug(fmt.Sprintf("[ReqID: %s] %s", reqID, msg), args...)
 }
 
-func StandardDebug(op string, msg string) {
-	Debug(standardInput(msg, op))
+func StandardDebug(ctx context.Context, op string, msg string) {
+	reqID := extractReqID(ctx)
+	Debug(ctx, standardInput(msg, op, reqID))
 }
 
-func StandardDebugF(op string, msg string, a ...any) {
-	StandardDebug(op, fmt.Sprintf(msg, a...))
+func StandardDebugF(ctx context.Context, op string, msg string, a ...any) {
+	StandardDebug(ctx, op, fmt.Sprintf(msg, a...))
 }
 
-func standardInput(msg string, op string) string {
-	return fmt.Sprintf("{%v}                 | in %v", msg, op)
+func standardInput(msg string, op string, reqID string) string {
+	return fmt.Sprintf("{%v}                 | in %v | reqID=%v", msg, op, reqID)
 }
 
-func StandardResponse(msg string, status int, host string, op string) {
-	StandardInfoF(op, "Response sent, status ='%v', message={%v} to host=%v", status, msg, host)
+func StandardResponse(ctx context.Context, msg string, status int, host string, op string) {
+	StandardInfoF(ctx, op, "Response sent, status ='%v', message={%v} to host=%v", status, msg, host)
 }
 
-func StandardSendModel(msg, op string) {
-	StandardInfoF(op, "Sent model '%v'", msg)
+func StandardSendModel(ctx context.Context, msg, op string) {
+	StandardInfoF(ctx, op, "Sent model '%v'", msg)
+}
+
+// Функция для извлечения reqID из контекста
+func extractReqID(ctx context.Context) string {
+	reqID, ok := ctx.Value("request_id").(string)
+	if !ok {
+		return "unknown"
+	}
+	return reqID
 }

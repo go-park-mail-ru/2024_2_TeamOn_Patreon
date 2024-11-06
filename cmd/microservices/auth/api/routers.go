@@ -4,16 +4,19 @@
 package api
 
 import (
+	"context"
 	"fmt"
+	"strings"
+
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller"
 	bInterfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/interafces"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
-	"strings"
 
 	// The "net/http" library has methods to implement HTTP clients and servers
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type Route struct {
@@ -66,6 +69,7 @@ func NewRouter(behavior bInterfaces.AuthBehavior) *mux.Router {
 		var handler http.Handler
 		handler = route.HandlerFunc
 		logger.StandardInfo(
+			context.Background(),
 			fmt.Sprintf("Registered: %s %s", route.Method, route.Pattern),
 			op,
 		)

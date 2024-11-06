@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
@@ -67,14 +68,14 @@ func (cr *ContentRepository) GetUserLayerForAuthor(ctx context.Context, userId u
 		if err = rows.Scan(&layer); err != nil {
 			return 0, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op, "Got layer= %s user= %s author %s", layer, userId, authorId)
+		logger.StandardDebugF(ctx, op, "Got layer= %s user= %s author %s", layer, userId, authorId)
 	}
 
 	// Rows.Err will report the last error encountered by Rows.Scan.
 	if err := rows.Err(); err != nil {
 		return 0, errors.Wrap(global.ErrServer, op)
 	}
-	logger.StandardDebugF(op, "Got layer= %s user= %s author %s", layer, userId, authorId)
+	logger.StandardDebugF(ctx, op, "Got layer= %s user= %s author %s", layer, userId, authorId)
 
 	return 0, nil
 }
@@ -82,7 +83,7 @@ func (cr *ContentRepository) GetUserLayerForAuthor(ctx context.Context, userId u
 func (cr *ContentRepository) GetUserRole(ctx context.Context, userId uuid.UUID) (string, error) {
 	op := "internal.content.repository.user.GetUserRole"
 
-	logger.StandardDebugF(op, "Want to get user role userID=%v, db = %v", userId, cr.db)
+	logger.StandardDebugF(ctx, op, "Want to get user role userID=%v, db = %v", userId, cr.db)
 
 	rows, err := cr.db.Query(ctx, getUserRoleSQL, userId.String())
 	if err != nil {
@@ -98,7 +99,7 @@ func (cr *ContentRepository) GetUserRole(ctx context.Context, userId uuid.UUID) 
 		if err = rows.Scan(&role); err != nil {
 			return "", errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op, "Got layer= %s user= %s", role, userId)
+		logger.StandardDebugF(ctx, op, "Got layer= %s user= %s", role, userId)
 		return role, nil
 	}
 
@@ -108,7 +109,7 @@ func (cr *ContentRepository) GetUserRole(ctx context.Context, userId uuid.UUID) 
 func (cr *ContentRepository) GetUserLayerOfAuthor(ctx context.Context, userId, authorId uuid.UUID) (int, error) {
 	op := "internal.content.repository.post.GetUserLayerOfAuthor"
 
-	logger.StandardDebugF(op, "Want to get user layer userID=%v, author = %v", userId, authorId)
+	logger.StandardDebugF(ctx, op, "Want to get user layer userID=%v, author = %v", userId, authorId)
 
 	rows, err := cr.db.Query(ctx, getUserLayerOfAuthor, userId, authorId)
 	if err != nil {
@@ -124,7 +125,7 @@ func (cr *ContentRepository) GetUserLayerOfAuthor(ctx context.Context, userId, a
 		if err = rows.Scan(&layer); err != nil {
 			return 0, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op, "Got layer= %s user= %s", layer, userId)
+		logger.StandardDebugF(ctx, op, "Got layer= %s user= %s", layer, userId)
 		return layer, nil
 	}
 

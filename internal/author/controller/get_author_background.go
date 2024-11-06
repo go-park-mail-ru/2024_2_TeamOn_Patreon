@@ -14,6 +14,7 @@ import (
 func (handler *Handler) GetAuthorBackground(w http.ResponseWriter, r *http.Request) {
 	op := "internal.account.controller.GetAccountAvatar"
 
+	ctx := r.Context()
 	// Определяем authorID
 	vars := mux.Vars(r)
 	authorID := vars["authorID"]
@@ -22,7 +23,7 @@ func (handler *Handler) GetAuthorBackground(w http.ResponseWriter, r *http.Reque
 		// Извлекаем userID из контекста
 		userData, ok := r.Context().Value(global.UserKey).(bModels.User)
 		if !ok {
-			logger.StandardResponse("userData not found in context", http.StatusUnauthorized, r.Host, op)
+			logger.StandardResponse(ctx, "userData not found in context", http.StatusUnauthorized, r.Host, op)
 			// Status 401
 			w.WriteHeader(http.StatusUnauthorized)
 			return
@@ -33,7 +34,7 @@ func (handler *Handler) GetAuthorBackground(w http.ResponseWriter, r *http.Reque
 	// Валидация authorID на соответствие стандарту UUIDv4
 	if ok := utils.IsValidUUIDv4(authorID); !ok {
 		// Status 400
-		logger.StandardResponse("invalid userID format", http.StatusBadRequest, r.Host, op)
+		logger.StandardResponse(ctx, "invalid userID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -42,7 +43,7 @@ func (handler *Handler) GetAuthorBackground(w http.ResponseWriter, r *http.Reque
 	avatar, err := handler.serv.GetBackgroundByID(r.Context(), authorID)
 
 	if err != nil {
-		logger.StandardDebugF(op, "received background error {%v}", err)
+		logger.StandardDebugF(ctx, op, "received background error {%v}", err)
 		// Status 500
 		w.WriteHeader(http.StatusInternalServerError)
 		return

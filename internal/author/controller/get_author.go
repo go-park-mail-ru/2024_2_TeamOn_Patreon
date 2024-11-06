@@ -17,6 +17,7 @@ import (
 func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	op := "internal.author.controller.GetAuthor"
 
+	ctx := r.Context()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Определяем authorID
@@ -28,7 +29,7 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 		// Извлекаем userID из контекста
 		userData, ok := r.Context().Value(global.UserKey).(s2Models.User)
 		if !ok {
-			logger.StandardResponse("userData not found in context", http.StatusUnauthorized, r.Host, op)
+			logger.StandardResponse(ctx, "userData not found in context", http.StatusUnauthorized, r.Host, op)
 			// Status 401
 			w.WriteHeader(http.StatusUnauthorized)
 			return
@@ -39,7 +40,7 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	// Валидация authorID на соответствие стандарту UUIDv4
 	if ok := utils.IsValidUUIDv4(authorID); !ok {
 		// Status 400
-		logger.StandardResponse("invalid authorID format", http.StatusBadRequest, r.Host, op)
+		logger.StandardResponse(ctx, "invalid authorID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -47,7 +48,7 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	// Обращение к service для получения данных автора
 	authorData, err := handler.serv.GetAuthorDataByID(r.Context(), authorID)
 	if err != nil {
-		logger.StandardDebugF(op, "Received author error {%v}", err)
+		logger.StandardDebugF(ctx, op, "Received author error {%v}", err)
 		// Status 500
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -56,7 +57,7 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	// Обращение к service для получения подписок автора
 	subscriptions, err := handler.serv.GetAuthorSubscriptions(r.Context(), authorID)
 	if err != nil {
-		logger.StandardDebugF(op, "Received author subscriptions error {%v}", err)
+		logger.StandardDebugF(ctx, op, "Received author subscriptions error {%v}", err)
 		// Status 500
 		w.WriteHeader(http.StatusInternalServerError)
 		return

@@ -48,6 +48,7 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*repModels.
 		if err == sql.ErrNoRows {
 			// Если автор не найден, возвращаем nil без ошибки
 			logger.StandardInfoF(
+				ctx,
 				"author with authorID='%v' not found", authorID,
 				op)
 			return nil, nil
@@ -72,7 +73,7 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*repModels.
 			// Если подписчики не найдены, проставляем ноль
 			author.Followers = 0
 		}
-		logger.StandardDebugF(op, "get followers error: {%v}", err)
+		logger.StandardDebugF(ctx, op, "get followers error: {%v}", err)
 		return nil, errors.Wrap(err, op)
 	}
 
@@ -103,7 +104,7 @@ func (p *Postgres) SubscriptionsByID(ctx context.Context, authorID string) ([]re
 	}
 	defer rows.Close()
 
-	logger.StandardDebugF(op, "wants to form an map of subscriptions for author with authorID %v", authorID)
+	logger.StandardDebugF(ctx, op, "wants to form an map of subscriptions for author with authorID %v", authorID)
 	var subscriptions []repModels.Subscription
 	for rows.Next() {
 		var subscription repModels.Subscription
@@ -164,6 +165,7 @@ func (p *Postgres) Payments(ctx context.Context, authorID string) (int, error) {
 		if err == sql.ErrNoRows {
 			// Если автор не найден, возвращаем 0 без ошибки
 			logger.StandardInfoF(
+				ctx,
 				"payments fpr authorID='%v' not found", authorID,
 				op)
 			return 0, nil
@@ -186,6 +188,7 @@ func (p *Postgres) BackgroundPathByID(ctx context.Context, authorID string) (str
 	err := p.db.QueryRow(ctx, query, authorID).Scan(&backgroundPath)
 	if err != nil {
 		logger.StandardInfo(
+			ctx,
 			fmt.Sprintf("background doesn`t exist for author with authorID %s", authorID),
 			op,
 		)
@@ -199,18 +202,19 @@ func (p *Postgres) DeleteBackground(ctx context.Context, authorID string) error 
 	op := "internal.account.repository.DeleteBackground"
 
 	// Получаем путь до старого фона
-	logger.StandardDebugF(op, "want to get path to old background for authorID %v", authorID)
+	logger.StandardDebugF(ctx, op, "want to get path to old background for authorID %v", authorID)
 	oldBackgroundPath, err := p.BackgroundPathByID(ctx, authorID)
 
 	if err != nil {
 		logger.StandardInfo(
+			ctx,
 			fmt.Sprintf("old background doesn`t exist for author with authorID %s", authorID),
 			op,
 		)
 		return nil
 	}
 
-	logger.StandardDebugF(op, "want to delete old background with path %v", oldBackgroundPath)
+	logger.StandardDebugF(ctx, op, "want to delete old background with path %v", oldBackgroundPath)
 	if err := os.Remove(oldBackgroundPath); err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -236,7 +240,7 @@ func (p *Postgres) UpdateBackground(ctx context.Context, authorID string, backgr
 	// Формируем путь к файлу из папки сохранения и названия файла
 	backgroundPath := filepath.Join(backgroundDir, fileFullName)
 
-	logger.StandardDebugF(op, "want to save new file with path %v", backgroundPath)
+	logger.StandardDebugF(ctx, op, "want to save new file with path %v", backgroundPath)
 	out, err := os.Create(backgroundPath)
 	if err != nil {
 		return fmt.Errorf(op, err)
@@ -244,13 +248,13 @@ func (p *Postgres) UpdateBackground(ctx context.Context, authorID string, backgr
 	defer out.Close()
 
 	// Сохраняем файл
-	logger.StandardDebugF(op, "want to copy new background to path %v", backgroundPath)
+	logger.StandardDebugF(ctx, op, "want to copy new background to path %v", backgroundPath)
 	if _, err := io.Copy(out, background); err != nil {
 		return fmt.Errorf(op, err)
 	}
 
 	// Обновляем информацию в БД
-	logger.StandardDebugF(op, "want to save background URL %v in DB", backgroundPath)
+	logger.StandardDebugF(ctx, op, "want to save background URL %v in DB", backgroundPath)
 
 	// Запрос на изменение графы "фон" для автора
 	query := `
@@ -264,6 +268,7 @@ func (p *Postgres) UpdateBackground(ctx context.Context, authorID string, backgr
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful update record for authorID: %s", authorID),
 		op,
 	)
@@ -289,6 +294,7 @@ func (p *Postgres) NewTip(ctx context.Context, userID, authorID string, cost int
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful create new record for authorID: %s", authorID),
 		op,
 	)

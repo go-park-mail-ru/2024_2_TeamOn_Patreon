@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -37,7 +38,7 @@ func (cr *ContentRepository) GetPostLayerBuPostId(ctx context.Context, postID uu
 		if err = rows.Scan(&layer); err != nil {
 			return 0, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op, "Got  layer='%v' for post='%v'", layer, postID)
+		logger.StandardDebugF(ctx, op, "Got  layer='%v' for post='%v'", layer, postID)
 		return layer, nil
 	}
 

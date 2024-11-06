@@ -1,9 +1,11 @@
 package api
 
 import (
+	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 	"strings"
+
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 
 	"net/http"
 
@@ -69,8 +71,11 @@ func NewRouter(service interfaces.AccountService) *mux.Router {
 	// Declare a new router
 	router := mux.NewRouter().StrictSlash(true)
 
+	ctx := context.Background()
+
 	for _, route := range routes {
 		logger.StandardInfo(
+			ctx,
 			fmt.Sprintf("Registered: %s %s", route.Method, route.Pattern),
 			op,
 		)
