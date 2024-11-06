@@ -73,6 +73,12 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			"/token-endpoint",
 			middlewares.GetCSRFTokenHandler,
 		},
+		Route{
+			"GetCSRFToken",
+			strings.ToUpper("Get"),
+			"/token-endpoint",
+			middlewares.GetCSRFTokenHandler,
+		},
 	}
 	// Declare a new router
 	router := mux.NewRouter().StrictSlash(true)
