@@ -12,6 +12,9 @@ type AuthorService interface {
 	// GetAuthorDataByID - получение данных автора по authorID
 	GetAuthorDataByID(ctx context.Context, authorID string) (sModels.Author, error)
 
+	// GetUserIsSubscribe - получение статуса подписки на автора
+	GetUserIsSubscribe(ctx context.Context, authorID, userID string) (bool, error)
+
 	// GetAuthorSubscriptions - получение подписок автора по authorID
 	GetAuthorSubscriptions(ctx context.Context, authorID string) ([]sModels.Subscription, error)
 

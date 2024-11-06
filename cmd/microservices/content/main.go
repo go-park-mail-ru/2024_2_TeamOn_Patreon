@@ -38,10 +38,10 @@ func main() {
 	router := api.NewRouter(beh)
 
 	// регистрируем middlewares
+	router.Use(middlewares.AddRequestID)
 	router.Use(middlewares.Logging) // 1
 	router.Use(middlewares.CsrfMiddleware)
 	// auth middleware registered in api.New
-	router.Use(middlewares.AddRequestID)
 
 	// run end-to-end
 	port := config.GetEnv("SERVICE_PORT", "8084")

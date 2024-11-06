@@ -33,10 +33,10 @@ func main() {
 	router := api.NewRouter(serv)
 
 	// регистрируем middlewares
+	router.Use(middlewares.AddRequestID)
 	router.Use(middlewares.Logging)     // 1
 	router.Use(middlewares.HandlerAuth) // 2 для ручек, где требуется аутентификация
 	router.Use(middlewares.CsrfMiddleware)
-	router.Use(middlewares.AddRequestID)
 
 	// run server
 	logger.StandardInfo(context.Background(), "Starting server at: 8082", op)

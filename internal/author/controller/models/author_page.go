@@ -15,14 +15,17 @@ type AuthorPage struct {
 	Followers int `json:"followers"`
 	// Подписки автора
 	Subscriptions []sModels.Subscription `json:"subscriptions"`
+	// Статус подписки на автора
+	UserIsSubscribe bool `json:"isSubscribe"`
 }
 
 // MapAuthorToAuthorPage конвертирует модель автора в модель controller страницы автора
-func MapAuthorToAuthorPage(author sModels.Author, subscriptions []sModels.Subscription) AuthorPage {
+func MapAuthorToAuthorPage(author sModels.Author, subscriptions []sModels.Subscription, isSubscribe bool) AuthorPage {
 	return AuthorPage{
-		Username:      valid.Sanitize(author.Username),
-		Info:          valid.Sanitize(author.Info),
-		Followers:     author.Followers,
-		Subscriptions: subscriptions,
+		Username:        valid.Sanitize(author.Username),
+		Info:            valid.Sanitize(author.Info),
+		Followers:       author.Followers,
+		Subscriptions:   subscriptions,
+		UserIsSubscribe: isSubscribe,
 	}
 }

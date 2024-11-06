@@ -35,10 +35,10 @@ func main() {
 	router := api.NewRouter(beh)
 
 	// регистрируем middlewares
+	router.Use(middlewares.AddRequestID)
 	router.Use(middlewares.Logging) // 1
 	// router.Use(middlewares.HandlerAuth) // 2 только для ручек, где требуется аутентификация
 	router.Use(middlewares.CsrfMiddleware)
-	router.Use(middlewares.AddRequestID)
 
 	// run end-to-end
 	port := config.GetEnv("SERVICE_PORT", "8081")
