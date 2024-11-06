@@ -60,7 +60,7 @@ func StandardDebugF(ctx context.Context, op string, msg string, a ...any) {
 }
 
 func standardInput(msg string, op string, reqID string) string {
-	return fmt.Sprintf("{%v}                 | in %v | reqID=%v", msg, op, reqID)
+	return fmt.Sprintf("[ReqID: %s] {%v}                 | in %v", reqID, msg, op)
 }
 
 func StandardResponse(ctx context.Context, msg string, status int, host string, op string) {
