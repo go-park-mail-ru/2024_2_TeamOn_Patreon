@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"net/http"
+
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/auth/api"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/postgresql"
@@ -9,7 +11,6 @@ import (
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
-	"net/http"
 )
 
 func main() {
@@ -37,9 +38,10 @@ func main() {
 	router.Use(middlewares.Logging) // 1
 	// router.Use(middlewares.HandlerAuth) // 2 только для ручек, где требуется аутентификация
 	router.Use(middlewares.CsrfMiddleware)
+	router.Use(middlewares.AddRequestID)
 
 	// run end-to-end
 	port := config.GetEnv("SERVICE_PORT", "8081")
-	logger.StandardInfoF(op, "Starting server at: %v", port)
+	logger.StandardInfoF(context.Background(), op, "Starting server at: %v", port)
 	http.ListenAndServe(":"+port, router)
 }

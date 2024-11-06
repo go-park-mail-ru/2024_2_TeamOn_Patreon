@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
@@ -64,7 +65,7 @@ func (a *AuthRepository) GetUserByUserId(ctx context.Context, userId uuid.UUID) 
 		if err = rows.Scan(&username, &role); err != nil {
 			return "", "", errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op, "Got username='%s' role = %v of userId='%v'", userId, role, userId)
+		logger.StandardDebugF(ctx, op, "Got username='%s' role = %v of userId='%v'", userId, role, userId)
 		return username, role, nil
 	}
 	return "", "", errors.Wrap(global.ErrUserNotFound, op)
@@ -89,7 +90,7 @@ func (a *AuthRepository) GetUserByUsername(ctx context.Context, username string)
 		if err = rows.Scan(&userId, &role); err != nil {
 			return uuid.Nil, "", errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op, "Got username='%s' role = %v of userId='%v'", userId, role, userId)
+		logger.StandardDebugF(ctx, op, "Got username='%s' role = %v of userId='%v'", userId, role, userId)
 		return userId, role, nil
 	}
 	return uuid.Nil, "", errors.Wrap(global.ErrUserNotFound, op)
@@ -115,7 +116,7 @@ func (a *AuthRepository) UserExists(ctx context.Context, username string) (bool,
 			return false, errors.Wrap(err, op)
 		}
 		exist := userExist == 1
-		logger.StandardDebugF(op, "Got username='%s' userExist='%v'", username, exist)
+		logger.StandardDebugF(ctx, op, "Got username='%s' userExist='%v'", username, exist)
 
 		return exist, nil
 	}

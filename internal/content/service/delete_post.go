@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
@@ -16,7 +17,7 @@ func (b *Behavior) DeletePost(ctx context.Context, userId, postId string) error 
 		return errors.Wrap(err, op)
 	}
 	postIdUuid, err := uuid.FromString(postId)
-	logger.StandardDebugF(op, "userId= %v post_id = '%v'", userId, postId)
+	logger.StandardDebugF(ctx, op, "userId= %v post_id = '%v'", userId, postId)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -45,7 +46,7 @@ func (b *Behavior) isUserAuthorOfPost(ctx context.Context, postId, userId uuid.U
 	op := "service.behavior.isUserAuthorPost"
 
 	authorId, err := b.rep.GetAuthorOfPost(ctx, postId)
-	logger.StandardDebugF(op, "Got author=%v of post=%v", authorId, postId)
+	logger.StandardDebugF(ctx, op, "Got author=%v of post=%v", authorId, postId)
 
 	if err != nil {
 		return false, errors.Wrap(err, op)
@@ -65,6 +66,6 @@ func (b *Behavior) deletePost(ctx context.Context, postId uuid.UUID) error {
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
-	logger.StandardDebugF(op, "Successfully deleted post=%v", postId)
+	logger.StandardDebugF(ctx, op, "Successfully deleted post=%v", postId)
 	return nil
 }

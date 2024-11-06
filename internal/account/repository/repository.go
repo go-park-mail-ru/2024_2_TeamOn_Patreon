@@ -48,6 +48,7 @@ func (p *Postgres) UserByID(ctx context.Context, userID string) (*repModels.User
 		if err == sql.ErrNoRows {
 			// Если пользователь не найден, возвращаем nil без ошибки
 			logger.StandardInfoF(
+				ctx,
 				"user with userID='%v' not found", userID,
 				op)
 			return nil, nil
@@ -82,7 +83,7 @@ func (p *Postgres) SubscriptionsByID(ctx context.Context, userID string) ([]repM
 	}
 	defer rows.Close()
 
-	logger.StandardDebugF(op, "wants to form an map of subscriptions for user with userID %v", userID)
+	logger.StandardDebugF(ctx, op, "wants to form an map of subscriptions for user with userID %v", userID)
 	var subscriptions []repModels.Subscription
 	for rows.Next() {
 		var subscription repModels.Subscription
@@ -184,6 +185,7 @@ func (p *Postgres) DeleteAvatar(ctx context.Context, userID string) error {
 	avatarPath, err := p.AvatarPathByID(ctx, userID)
 	if err != nil {
 		logger.StandardInfo(
+			ctx,
 			fmt.Sprintf("old avatar doesn`t exist for user with userID %s", userID),
 			op,
 		)
@@ -196,10 +198,10 @@ func (p *Postgres) DeleteAvatar(ctx context.Context, userID string) error {
 		WHERE user_id = $1
 	`
 
-	logger.StandardDebugF(op, "want to delete record with old avatar")
+	logger.StandardDebugF(ctx, op, "want to delete record with old avatar")
 	p.db.Exec(ctx, deleteQuery, userID)
 
-	logger.StandardDebugF(op, "want to delete old avatar file")
+	logger.StandardDebugF(ctx, op, "want to delete old avatar file")
 	if err := os.Remove(avatarPath); err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -225,7 +227,7 @@ func (p *Postgres) UpdateAvatar(ctx context.Context, userID string, avatar multi
 	// Формируем путь к файлу из папки сохранения и названия файла
 	avatarPath := filepath.Join(avatarDir, fileFullName)
 
-	logger.StandardDebugF(op, "want to save new file with path %v", avatarPath)
+	logger.StandardDebugF(ctx, op, "want to save new file with path %v", avatarPath)
 	out, err := os.Create(avatarPath)
 	if err != nil {
 		return fmt.Errorf(op, err)
@@ -233,7 +235,7 @@ func (p *Postgres) UpdateAvatar(ctx context.Context, userID string, avatar multi
 	defer out.Close()
 
 	// Сохраняем файл
-	logger.StandardDebugF(op, "want to copy new avatar to path %v", avatarPath)
+	logger.StandardDebugF(ctx, op, "want to copy new avatar to path %v", avatarPath)
 	if _, err := io.Copy(out, avatar); err != nil {
 		return fmt.Errorf(op, err)
 	}
@@ -276,6 +278,7 @@ func (p *Postgres) UpdateRole(ctx context.Context, userID string) error {
 	}
 
 	logger.StandardInfo(
+		ctx,
 		fmt.Sprintf("successful change role for userID: %s", userID),
 		op,
 	)

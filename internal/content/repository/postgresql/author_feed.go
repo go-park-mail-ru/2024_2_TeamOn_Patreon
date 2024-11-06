@@ -2,11 +2,12 @@ package postgresql
 
 import (
 	"context"
+	"time"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"time"
 )
 
 const (
@@ -145,7 +146,7 @@ func (cr *ContentRepository) GetAuthorPostsForMe(ctx context.Context, authorId u
 		if err = rows.Scan(&postID, &title, &content, &_authorId, &authorUsername, &likes, &createdDate); err != nil {
 			return nil, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op,
+		logger.StandardDebugF(ctx, op,
 			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
 			postID, title, authorId, authorUsername, likes, createdDate)
 		posts = append(posts, &models.Post{
@@ -189,7 +190,7 @@ func (cr *ContentRepository) GetAuthorPostsForLayer(ctx context.Context, layer i
 		if err = rows.Scan(&postID, &title, &content, &_authorId, &authorUsername, &likes, &createdDate); err != nil {
 			return nil, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op,
+		logger.StandardDebugF(ctx, op,
 			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
 			postID, title, authorId, authorUsername, likes, createdDate)
 		posts = append(posts, &models.Post{
@@ -233,7 +234,7 @@ func (cr *ContentRepository) GetAuthorPostsForAnon(ctx context.Context, authorId
 		if err = rows.Scan(&postID, &title, &content, &_authorId, &authorUsername, &likes, &createdDate); err != nil {
 			return nil, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op,
+		logger.StandardDebugF(ctx, op,
 			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
 			postID, title, authorId, authorUsername, likes, createdDate)
 		posts = append(posts, &models.Post{

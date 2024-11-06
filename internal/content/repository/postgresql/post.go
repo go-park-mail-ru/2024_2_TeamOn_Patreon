@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
@@ -94,7 +95,7 @@ func (cr *ContentRepository) GetAuthorOfPost(ctx context.Context, postID uuid.UU
 		if err = rows.Scan(&authorId); err != nil {
 			return uuid.UUID{}, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op, "Got author='%s' of post='%v'", authorId, postID)
+		logger.StandardDebugF(ctx, op, "Got author='%s' of post='%v'", authorId, postID)
 		return authorId, nil
 	}
 	return uuid.UUID{}, errors.Wrap(global.ErrPostDoesntExists, op)

@@ -2,11 +2,12 @@ package postgresql
 
 import (
 	"context"
+	"time"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"time"
 )
 
 const (
@@ -87,7 +88,7 @@ func (cr *ContentRepository) CheckCustomLayer(ctx context.Context, authorId uuid
 			return false, errors.Wrap(err, op)
 		}
 		layerExists := subscription != ""
-		logger.StandardDebugF(op, "Got subscription='%s' user='%s' layer='%v' is='%v'",
+		logger.StandardDebugF(ctx, op, "Got subscription='%s' user='%s' layer='%v' is='%v'",
 			subscription, authorId, layer, layerExists)
 		return layerExists, nil
 	}
@@ -121,7 +122,7 @@ func (cr ContentRepository) GetSubscriptionPostsForUser(ctx context.Context, use
 		if err = rows.Scan(&postID, &title, &content, &authorId, &authorUsername, &likes, &createdDate); err != nil {
 			return nil, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(op,
+		logger.StandardDebugF(ctx, op,
 			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
 			postID, title, authorId, authorUsername, likes, createdDate)
 		posts = append(posts, &models.Post{

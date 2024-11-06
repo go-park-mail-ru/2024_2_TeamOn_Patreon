@@ -33,6 +33,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			// передаем в контекст
 			ctx := context.WithValue(r.Context(), global.UserKey, user)
 			logger.StandardDebug(
+				r.Context(),
 				fmt.Sprintf("Transferred user (id={%v}, name={%v}) in ctx", user.UserID, user.Username),
 				op,
 			)

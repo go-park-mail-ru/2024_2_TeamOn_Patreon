@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -81,7 +82,7 @@ func (b *Behavior) GetAuthorPosts(ctx context.Context, userId, authorId string, 
 func (b *Behavior) getAuthorMyPosts(ctx context.Context, userId uuid.UUID, offset, limit int) ([]*models.Post, error) {
 	op := "internal.content.repository.author_post.GetAuthorMyPosts"
 
-	logger.StandardDebugF(op, "Getting my posts for authorId='%v'", userId)
+	logger.StandardDebugF(ctx, op, "Getting my posts for authorId='%v'", userId)
 
 	posts, err := b.rep.GetAuthorPostsForMe(ctx, userId, offset, limit)
 	if err != nil {
@@ -99,7 +100,7 @@ func (b *Behavior) getAuthorMyPosts(ctx context.Context, userId uuid.UUID, offse
 func (b *Behavior) getAuthorPostsForAnon(ctx context.Context, authorId uuid.UUID, offset, limit int) ([]*models.Post, error) {
 	op := "internal.content.repository.author_feed.GetAuthorPostsForAnon"
 
-	logger.StandardDebugF(op, "Getting posts by authorId='%v' for anon", authorId)
+	logger.StandardDebugF(ctx, op, "Getting posts by authorId='%v' for anon", authorId)
 
 	posts, err := b.rep.GetAuthorPostsForAnon(ctx, authorId, offset, limit)
 	if err != nil {
@@ -111,7 +112,7 @@ func (b *Behavior) getAuthorPostsForAnon(ctx context.Context, authorId uuid.UUID
 func (b *Behavior) getAuthorPostsForUser(ctx context.Context, userId, authorId uuid.UUID, offset, limit int) ([]*models.Post, error) {
 	op := "internal.content.repository.author_post.GetAuthorPostsForUser"
 
-	logger.StandardDebugF(op, "Getting posts by authorId='%v' for userId='%v'", authorId, userId)
+	logger.StandardDebugF(ctx, op, "Getting posts by authorId='%v' for userId='%v'", authorId, userId)
 
 	layer, err := b.rep.GetUserLayerOfAuthor(ctx, userId, authorId)
 

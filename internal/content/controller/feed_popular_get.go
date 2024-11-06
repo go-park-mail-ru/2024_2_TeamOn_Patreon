@@ -2,13 +2,14 @@ package controller
 
 import (
 	"encoding/json"
+	"net/http"
+
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models/mapper"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
-	"net/http"
 )
 
 func (h *Handler) FeedPopularGet(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +31,7 @@ func (h *Handler) FeedPopularGet(w http.ResponseWriter, r *http.Request) {
 
 	posts, err := h.b.GetPopularPosts(ctx, userId, opt)
 	if err != nil {
-		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
@@ -40,7 +41,7 @@ func (h *Handler) FeedPopularGet(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	if err = json.NewEncoder(w).Encode(popularPosts); err != nil {
-		logger.StandardResponse(err.Error(), global.GetCodeError(err), r.Host, op)
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 	}
 }
