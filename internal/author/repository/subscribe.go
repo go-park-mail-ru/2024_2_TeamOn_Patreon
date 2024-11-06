@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+
 	"github.com/pkg/errors"
 )
 
@@ -10,14 +11,14 @@ const (
 	createSubscription = `
 INSERT INTO public.subscription(
 	subscription_id, user_id, custom_subscription_id, started_date, finished_date)
-	VALUES (generate_random_uuid(), $1, $2, NOW(), NOW() + INTERVAL '30 days');
+	VALUES ($3, $1, $2, NOW(), NOW() + INTERVAL '30 days');
 `
 
 	// создает кастомную подписку
 	createCustomSubscription = `
 INSERT INTO public.custom_subscription(
 	custom_subscription_id, author_id, custom_name, cost, subscription_layer_id)
-	VALUES (generate_random_uuid(), $1, 'default', 10, (select  subscription_layer_id from subscription_layer where layer = 1));
+	VALUES ($2, $1, 'default', 10, (select  subscription_layer_id from subscription_layer where layer = 1));
 `
 
 	// проверяет есть ли кастомная подписка у автора
@@ -80,8 +81,8 @@ func (p *Postgres) Subscribe(ctx context.Context, userID string, authorID string
 
 func (p *Postgres) createCustomSubscription(ctx context.Context, authorId string) error {
 	op := "internal.author.repository.CreateCustomSubscription"
-
-	_, err := p.db.Exec(ctx, createCustomSubscription, authorId)
+	customSubscrID := p.GenerateID()
+	_, err := p.db.Exec(ctx, createCustomSubscription, authorId, customSubscrID)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -135,7 +136,8 @@ func (p *Postgres) getCustomSubscription(ctx context.Context, authorId string) (
 
 func (p *Postgres) createSubscription(ctx context.Context, customSubID, userID string) error {
 	op := "internal.author.repository.CreateSubscription"
-	_, err := p.db.Exec(ctx, createSubscription, userID, customSubID)
+	subscriptionID := p.GenerateID()
+	_, err := p.db.Exec(ctx, createSubscription, userID, customSubID, subscriptionID)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
