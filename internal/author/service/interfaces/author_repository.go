@@ -39,5 +39,5 @@ type AuthorRepository interface {
 	// GenerateID генерирует ID в формате UUIDv4
 	GenerateID() string
 
-	Subscribe(ctx context.Context, userID, authorID string) error
+	Subscribe(ctx context.Context, userID, authorID string) (bool, error)
 }

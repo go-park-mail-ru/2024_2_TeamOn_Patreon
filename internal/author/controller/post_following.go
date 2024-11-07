@@ -46,9 +46,8 @@ func (handler *Handler) PostFollowing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: подписываемся
-
 	err := handler.serv.Subscribe(ctx, userID, authorID)
+	logger.StandardDebugF(ctx, op, "err: %v", err)
 	if err != nil {
 		logger.StandardResponse(ctx, op, http.StatusInternalServerError, r.Host, op)
 		w.WriteHeader(http.StatusInternalServerError)

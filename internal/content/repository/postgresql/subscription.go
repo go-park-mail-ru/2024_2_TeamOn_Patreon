@@ -36,7 +36,7 @@ SELECT
     post.About, 
     author.user_id AS author_id, 
     author.Username AS author_username, 
-    COUNT(Like_Post.like_post_id) AS likes,
+    (SELECT like_post_id FROM Like_Post where like_post.post_id = post.post_id) AS likes,
     post.created_date
 FROM 
     post
@@ -54,12 +54,6 @@ WHERE
         JOIN Subscription_Layer ON Custom_Subscription.subscription_layer_id = Subscription_Layer.subscription_layer_id
         WHERE Custom_Subscription.author_id = author.user_id AND Subscription.user_id = $1
     )
-GROUP BY 
-    post.post_id,  
-    post.About, 
-    post.Title, 
-    author_id, 
-    author_username
 ORDER BY 
     created_date DESC
 LIMIT $3

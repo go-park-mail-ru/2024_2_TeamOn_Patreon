@@ -9,14 +9,23 @@ import (
 
 func (s *Service) Subscribe(ctx context.Context, userID, authorID string) error {
 	op := "internal.author.service.Subscribe"
-
-	if err := s.rep.Subscribe(ctx, userID, authorID); err != nil {
-		return errors.Wrap(err, op)
-	}
 	logger.StandardInfo(
 		ctx,
-		fmt.Sprintf("successful subscribe info: %v from %v", authorID, userID),
+		fmt.Sprintf("want to subscribe info: %v from %v", authorID, userID),
 		op)
+	isSub, err := s.rep.Subscribe(ctx, userID, authorID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+	if isSub {
+		logger.StandardInfo(
+			ctx,
+			fmt.Sprintf("successful subscribe info: %v from %v", authorID, userID),
+			op)
+	}
+	if !isSub {
+		logger.StandardDebugF(ctx, op, "successful unscribe info: %v from %v", authorID, userID)
+	}
 
 	return nil
 }
