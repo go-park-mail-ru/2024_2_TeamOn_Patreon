@@ -19,7 +19,7 @@ func main() {
 	logger.New()
 
 	// connect to DB
-	pool := postgres.InitPostgres()
+	pool := postgres.InitPostgres(context.Background())
 
 	defer pool.Close()
 
