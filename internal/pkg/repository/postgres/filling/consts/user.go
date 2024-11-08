@@ -1,7 +1,7 @@
 package consts
 
 const (
-	COUNT_USER = 20
+	COUNT_USER = 0
 
 	USERNAME          = "user_%v"   // index
 	AUTHOR_NAME       = "author_%v" // index
