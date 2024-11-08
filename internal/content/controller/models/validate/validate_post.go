@@ -5,11 +5,11 @@ import (
 )
 
 func Title(title string) error {
-	if len(title) == 0 {
+	if len(title) < 3 {
 		return global.ErrFieldTooShort
 	}
 
-	if len(title) > 64 {
+	if len(title) > 100 {
 		return global.ErrFieldTooLong
 	}
 
@@ -17,7 +17,7 @@ func Title(title string) error {
 }
 
 func Content(content string) error {
-	if len(content) > 64 {
+	if len(content) > 1000 {
 		return global.ErrFieldTooLong
 	}
 

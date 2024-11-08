@@ -47,4 +47,4 @@ COPY --from=builder /app/filling-service /app/filling-service
 # RUN export $(grep -v '^#' /app/env | xargs)
 
 # Запускаем приложение
-CMD ["sh", "-c", "/app/filling-service"]
+# CMD ["sh", "-c", "/app/filling-service"]
