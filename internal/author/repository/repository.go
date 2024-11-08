@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
 
@@ -217,6 +217,7 @@ func (p *Postgres) BackgroundPathByID(ctx context.Context, authorID string) (str
 	return backgroundPath, nil
 }
 
+// Сейчас не используется
 func (p *Postgres) DeleteBackground(ctx context.Context, authorID string) error {
 	op := "internal.account.repository.DeleteBackground"
 

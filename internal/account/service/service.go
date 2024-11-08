@@ -108,16 +108,16 @@ func (s *Service) PostUpdateAvatar(ctx context.Context, userID string, avatarFil
 	op := "internal.account.service.PostAccountUpdateAvatar"
 
 	// Удаляем старый аватар, если он есть
-	logger.StandardDebugF(ctx, op, "want to delete old avatar file")
-	if err := s.rep.DeleteAvatar(ctx, userID); err != nil {
-		return errors.Wrap(err, op)
-	}
+	// logger.StandardDebugF(ctx, op, "want to delete old avatar file")
+	// if err := s.rep.DeleteAvatar(ctx, userID); err != nil {
+	// 	return errors.Wrap(err, op)
+	// }
 
-	logger.StandardInfo(
-		ctx,
-		fmt.Sprintf("successful delete old avatar for userID %v", userID),
-		op,
-	)
+	// logger.StandardInfo(
+	// 	ctx,
+	// 	fmt.Sprintf("successful delete old avatar for userID %v", userID),
+	// 	op,
+	// )
 
 	// Сохраняем новый
 	logger.StandardDebugF(ctx, op, "want to save new avatar file")
