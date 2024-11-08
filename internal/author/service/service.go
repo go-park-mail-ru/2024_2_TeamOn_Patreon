@@ -153,16 +153,16 @@ func (s *Service) PostUpdateBackground(ctx context.Context, authorID string, bac
 	op := "internal.author.service.PostAccountUpdateBackground"
 
 	// Удаляем старый фон, если он есть
-	logger.StandardDebugF(ctx, op, "want to delete old background file")
-	if err := s.rep.DeleteBackground(ctx, authorID); err != nil {
-		return errors.Wrap(err, op)
-	}
+	// logger.StandardDebugF(ctx, op, "want to delete old background file")
+	// if err := s.rep.DeleteBackground(ctx, authorID); err != nil {
+	// 	return errors.Wrap(err, op)
+	// }
 
-	logger.StandardInfo(
-		ctx,
-		fmt.Sprintf("successful delete old background for authorID %s", authorID),
-		op,
-	)
+	// logger.StandardInfo(
+	// 	ctx,
+	// 	fmt.Sprintf("successful delete old background for authorID %s", authorID),
+	// 	op,
+	// )
 
 	// Сохраняем новый
 	logger.StandardDebugF(ctx, op, "want to save new background file")

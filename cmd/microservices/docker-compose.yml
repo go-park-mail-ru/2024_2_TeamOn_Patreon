@@ -43,7 +43,7 @@ services:
     ports:
       - "8082:8082"
     volumes:
-      - ./static/avatar:/app/static/avatar  # Указываем путь к локальной папке
+      - ../../static/avatar:/app/static/avatar  # Указываем путь к локальной папке
     depends_on:
       - postgres
 
@@ -54,7 +54,7 @@ services:
     ports:
       - "8083:8083"
     volumes:
-      - ./static/background:/app/static/background  # Указываем путь к локальной папке
+      - ../../static/background:/app/static/background  # Указываем путь к локальной папке
     depends_on:
       - postgres
 

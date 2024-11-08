@@ -13,7 +13,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/gofrs/uuid"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
 
@@ -112,7 +112,13 @@ func (p *Postgres) AvatarPathByID(ctx context.Context, userID string) (string, e
 	var avatarPath string
 	err := p.db.QueryRow(ctx, query, userID).Scan(&avatarPath)
 	if err != nil {
-		return "", errors.Wrap(err, op)
+		logger.StandardInfo(
+			ctx,
+			fmt.Sprintf("avatar not found for user with userID %s", userID),
+			op,
+		)
+		// return p.getPathForDefaultAvatar(), errors.Wrap(err, op)
+		avatarPath = p.getPathForDefaultAvatar()
 	}
 
 	return avatarPath, nil
@@ -178,6 +184,7 @@ func (p *Postgres) UpdateEmail(ctx context.Context, userID string, email string)
 	return nil
 }
 
+// Сейчас не используется
 func (p *Postgres) DeleteAvatar(ctx context.Context, userID string) error {
 	op := "internal.account.repository.DeleteAvatar"
 
@@ -291,16 +298,31 @@ func (p *Postgres) InitPage(ctx context.Context, userID string) error {
 	op := "internal.account.repository.InitPage"
 
 	pageID := p.GenerateID()
+	backgroundURL := p.getPathForDefaultBackground()
 
 	query := `
 		INSERT INTO page (page_id, user_id, info, background_picture_url)
-		VALUES ($1, $2, NULL, NULL);
+		VALUES ($1, $2, NULL, $3);
 	`
 
-	if _, err := p.db.Exec(ctx, query, pageID, userID); err != nil {
+	if _, err := p.db.Exec(ctx, query, pageID, userID, backgroundURL); err != nil {
 		errors.Wrap(err, op)
 	}
 
 	// Возвращаем nil, если создание прошло успешно
 	return nil
+}
+
+func (p *Postgres) getPathForDefaultAvatar() string {
+	defaultDir := "./static/avatar"
+	defaultName := "default.jpg"
+	defaultPath := filepath.Join(defaultDir, defaultName)
+	return defaultPath
+}
+
+func (p *Postgres) getPathForDefaultBackground() string {
+	defaultDir := "./static/background"
+	defaultName := "default.jpg"
+	defaultPath := filepath.Join(defaultDir, defaultName)
+	return defaultPath
 }
