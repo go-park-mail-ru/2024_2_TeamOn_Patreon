@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// GetPopularPostsForUser отдаем популярные посты для конкретного пользователя
+// GetPopularPosts отдаем популярные посты для конкретного пользователя
 func (b *Behavior) GetPopularPosts(ctx context.Context, userId string, opt *models2.FeedOpt) ([]*models.Post, error) {
 	op := "service.behavior.GetPopularPosts"
 
