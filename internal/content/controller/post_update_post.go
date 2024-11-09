@@ -11,7 +11,7 @@ import (
 	utils2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
-func (h Handler) PostUpdatePost(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) PostUpdatePost(w http.ResponseWriter, r *http.Request) {
 	op := "content.controller.post_post"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	ctx := r.Context()
@@ -32,7 +32,7 @@ func (h Handler) PostUpdatePost(w http.ResponseWriter, r *http.Request) {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils2.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
 		return
 	}
 
@@ -43,7 +43,7 @@ func (h Handler) PostUpdatePost(w http.ResponseWriter, r *http.Request) {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils2.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
 		return
 	}
 
@@ -55,7 +55,7 @@ func (h Handler) PostUpdatePost(w http.ResponseWriter, r *http.Request) {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils2.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 	}
 
 	// Пост обновлен
