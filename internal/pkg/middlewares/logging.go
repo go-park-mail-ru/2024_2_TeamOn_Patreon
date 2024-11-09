@@ -17,7 +17,6 @@ router.Use(middlewares.Logging)
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -26,16 +25,13 @@ import (
 
 func Logging(handler http.Handler) http.Handler {
 	op := "pkg.middlewares.Logging"
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		route := mux.CurrentRoute(r)
 		if route != nil {
 			op = route.GetName()
 		}
-		logger.StandardInfo(
-			r.Context(),
-			fmt.Sprintf("Received request %s %s", r.Method, r.URL.Path),
-			op,
-		)
+		logger.StandardInfoF(r.Context(), op, "Received request %s %s", r.Method, r.URL.Path)
 		handler.ServeHTTP(w, r)
 	})
 }
