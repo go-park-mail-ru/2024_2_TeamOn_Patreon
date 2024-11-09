@@ -12,6 +12,12 @@ import (
 	utils2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
+// FeedSubscriptionsGet обрабатывает http запрос на выдачу постов всех авторов, на которых подписан читатель
+// Недавние = посты авторов, на которых я подписан отсортированных по дате
+// authorIDParam - имя для параметра идентификатора автора
+// offsetParam - имя для параметра смещения, limitParam - имя для параметра смещения
+// Метод: GET
+// Writer output: posts
 func (h *Handler) FeedSubscriptionsGet(w http.ResponseWriter, r *http.Request) {
 	op := "internal.content.controller.FeedSubscriptionGet"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -42,7 +48,7 @@ func (h *Handler) FeedSubscriptionsGet(w http.ResponseWriter, r *http.Request) {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils2.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
 	}
 
 	// мапим посты

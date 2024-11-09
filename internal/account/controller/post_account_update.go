@@ -36,7 +36,7 @@ func (handler *Handler) PostAccountUpdate(w http.ResponseWriter, r *http.Request
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
 		return
 	}
 

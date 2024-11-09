@@ -23,10 +23,10 @@ func (handler *Handler) LogoutPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil || tokenClaims == nil {
 		err = global.ErrUserNotAuthorized
 		w.WriteHeader(global.GetCodeError(err))
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
 		err = global.ErrUserNotAuthorized
 		w.WriteHeader(global.GetCodeError(err))
-		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
 		return
 	}
 
@@ -37,7 +37,7 @@ func (handler *Handler) LogoutPost(w http.ResponseWriter, r *http.Request) {
 	err = handler.b.LogoutUser(ctx, user.UserID)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
 		return
 	}
 	// Сохранение токена в куки
