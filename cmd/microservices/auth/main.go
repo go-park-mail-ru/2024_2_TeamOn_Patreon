@@ -37,7 +37,7 @@ func main() {
 	// регистрируем middlewares
 	router.Use(middlewares.AddRequestID)
 	router.Use(middlewares.Logging) // 1
-	// router.Use(middlewares.HandlerAuth) // 2 только для ручек, где требуется аутентификация
+	router.Use(middlewares.Security)
 	router.Use(middlewares.CsrfMiddleware)
 
 	// run end-to-end
