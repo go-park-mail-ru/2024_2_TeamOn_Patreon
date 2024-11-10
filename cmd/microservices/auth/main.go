@@ -9,7 +9,6 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/postgresql"
 	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
 )
 
@@ -33,12 +32,6 @@ func main() {
 
 	// routers
 	router := api.NewRouter(beh)
-
-	// регистрируем middlewares
-	router.Use(middlewares.AddRequestID)
-	router.Use(middlewares.Logging) // 1
-	router.Use(middlewares.Security)
-	router.Use(middlewares.CsrfMiddleware)
 
 	// run end-to-end
 	port := config.GetEnv("SERVICE_PORT", "8081")
