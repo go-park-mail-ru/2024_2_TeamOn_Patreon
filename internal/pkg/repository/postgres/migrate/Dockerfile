@@ -40,8 +40,8 @@ WORKDIR /app
 COPY --from=builder /app/migrate-service /app/migrate-service
 
 COPY database/migrations /app/database/migrations
-# Копируем файл с переменными окружения из директории config
-#COPY internal/auth/config/env.docker /app/env
+# Копируем файл с переменными окружения из директории pkg
+#COPY internal/auth/pkg/env.docker /app/env
 
 # Экспортируем переменные окружения из файла env.docker
 # Используем формат key=value

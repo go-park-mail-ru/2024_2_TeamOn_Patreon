@@ -18,8 +18,8 @@ func main() {
 	// logger
 	logger.New()
 
-	// config
-	config.InitEnv("config/.env.default", "config/auth/.env.default")
+	// pkg
+	config.InitEnv("pkg/.env.default", "pkg/auth/.env.default")
 
 	// repository
 	db := postgres.InitPostgresDB(context.Background())

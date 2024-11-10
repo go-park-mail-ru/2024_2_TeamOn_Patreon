@@ -39,8 +39,8 @@ WORKDIR /app
 # Копируем скомпилированное приложение из builder-контейнера
 COPY --from=builder /app/auth-service /app/auth-service
 
-# Копируем файл с переменными окружения из директории config
-#COPY internal/auth/config/env.docker /app/env
+# Копируем файл с переменными окружения из директории pkg
+#COPY internal/auth/pkg/env.docker /app/env
 
 # Экспортируем переменные окружения из файла env.docker
 # Используем формат key=value
