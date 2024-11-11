@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/service/validate"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -11,6 +12,11 @@ import (
 
 func (b *Behavior) UpdatePost(ctx context.Context, userID string, postId string, title string, about string) error {
 	op := "content.service.behavior.UpdatePost"
+
+	title, about, _, err := validate.Post(ctx, title, about, 0)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
 
 	authorId, err := uuid.FromString(userID)
 	if err != nil {

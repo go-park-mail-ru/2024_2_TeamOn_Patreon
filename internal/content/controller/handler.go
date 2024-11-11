@@ -11,3 +11,12 @@ type Handler struct {
 func New(behavior interfaces.ContentBehavior) *Handler {
 	return &Handler{b: behavior}
 }
+
+const (
+	// Path param
+	authorIDParam string = "authorID"
+
+	// Query param
+	offsetParam string = "offset"
+	limitParam  string = "limit"
+)

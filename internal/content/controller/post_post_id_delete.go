@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (h Handler) PostsPostIdDelete(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) PostsPostIdDelete(w http.ResponseWriter, r *http.Request) {
 	op := "content.controller.post_post_id_delete.PostsPostIdDelete"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	ctx := r.Context()
@@ -28,7 +28,7 @@ func (h Handler) PostsPostIdDelete(w http.ResponseWriter, r *http.Request) {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
 		return
 	}
 
@@ -51,7 +51,7 @@ func (h Handler) PostsPostIdDelete(w http.ResponseWriter, r *http.Request) {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
 		return
 	}
 

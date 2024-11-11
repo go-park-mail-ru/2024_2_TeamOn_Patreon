@@ -6,8 +6,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller"
 	bInterfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/interafces"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -36,27 +34,27 @@ func NewRouter(behavior bInterfaces.AuthBehavior) *mux.Router {
 	var routes = Routes{
 		Route{
 			"LoginPost",
-			strings.ToUpper("Post"),
+			"POST",
 			"/auth/login",
 			handler.LoginPost,
 		},
 
 		Route{
 			"AuthRegisterPost",
-			strings.ToUpper("Post"),
+			"POST",
 			"/auth/register",
 			handler.AuthRegisterPost,
 		},
 
 		Route{
 			"LogoutPost",
-			strings.ToUpper("Post"),
+			"POST",
 			"/auth/logout",
 			handler.LogoutPost,
 		},
 		Route{
 			"GetCSRFToken",
-			strings.ToUpper("Get"),
+			"GET",
 			"/token-endpoint",
 			middlewares.GetCSRFTokenHandler,
 		},
@@ -80,6 +78,12 @@ func NewRouter(behavior bInterfaces.AuthBehavior) *mux.Router {
 			Name(route.Name).
 			Handler(handler)
 	}
+
+	// регистрируем middlewares
+	router.Use(middlewares.AddRequestID)
+	router.Use(middlewares.Logging)
+	router.Use(middlewares.Security)
+	router.Use(middlewares.CsrfMiddleware)
 
 	return router
 }

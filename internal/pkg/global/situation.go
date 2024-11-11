@@ -106,16 +106,16 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrUserNotAuthorized: {msg: "пользователь не авторизован", code: http.StatusUnauthorized},
 
 	// content
-	ErrFieldTooLong:             {msg: "field too long", code: http.StatusBadRequest},
-	ErrFieldTooShort:            {msg: "field too short", code: http.StatusBadRequest},
-	ErrFieldContainsSpecialChar: {msg: "field contains special char", code: http.StatusBadRequest},
+	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},
+	ErrFieldTooShort:            {msg: "поле слишком короткое", code: http.StatusBadRequest},
+	ErrFieldContainsSpecialChar: {msg: "поле содержит запрещенные символы", code: http.StatusBadRequest},
 
 	// uuid
-	ErrUuidIsInvalid: {msg: "uuiod is invalid", code: http.StatusBadRequest},
+	ErrUuidIsInvalid: {msg: "невалидный uuid", code: http.StatusBadRequest},
 
 	// rights
-	ErrNotEnoughRights:  {msg: "not enough rights", code: http.StatusBadRequest},
-	ErrPostDoesntExists: {msg: "post doesn't exists", code: http.StatusNoContent},
+	ErrNotEnoughRights:  {msg: "недостаточно прав", code: http.StatusBadRequest},
+	ErrPostDoesntExists: {msg: "пост не найден", code: http.StatusNoContent},
 }
 
 func GetMsgError(err error) string {

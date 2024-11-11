@@ -2,14 +2,15 @@ package validate
 
 import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 )
 
 func Title(title string) error {
-	if len(title) == 0 {
+	if len(title) < validate.MinLenTitle {
 		return global.ErrFieldTooShort
 	}
 
-	if len(title) > 64 {
+	if len(title) > validate.MaxLenTitle {
 		return global.ErrFieldTooLong
 	}
 
@@ -17,7 +18,7 @@ func Title(title string) error {
 }
 
 func Content(content string) error {
-	if len(content) > 64 {
+	if len(content) > validate.MaxLenContent {
 		return global.ErrFieldTooLong
 	}
 
@@ -25,7 +26,7 @@ func Content(content string) error {
 }
 
 func Layer(layer int) error {
-	if layer < 0 || layer > 3 {
+	if layer < validate.MinLayer || layer > validate.MaxLayer {
 		return global.ErrInvalidJSON
 	}
 

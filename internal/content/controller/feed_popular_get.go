@@ -12,6 +12,11 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
+// FeedPopularGet - обрабатывает запрос на получение ленты популярных постов
+// authorIDParam - имя для параметра идентификатора автора
+// offsetParam - имя для параметра смещения, limitParam - имя для параметра смещения
+// Метод: GET
+// Writer output: posts
 func (h *Handler) FeedPopularGet(w http.ResponseWriter, r *http.Request) {
 	op := "content.controller.post_post_id_delete.FeedPopularGet"
 	ctx := r.Context()
@@ -24,8 +29,8 @@ func (h *Handler) FeedPopularGet(w http.ResponseWriter, r *http.Request) {
 	userId := string(user.UserID)
 
 	// Получение параметров `offset` и `limit` из запроса
-	offsetStr := r.URL.Query().Get("offset")
-	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get(offsetParam)
+	limitStr := r.URL.Query().Get(limitParam)
 
 	opt := models.NewFeedOpt(offsetStr, limitStr)
 
@@ -33,7 +38,7 @@ func (h *Handler) FeedPopularGet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
-		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
 		return
 	}
 
