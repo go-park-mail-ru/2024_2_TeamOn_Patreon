@@ -33,7 +33,7 @@ func (h *Handler) PostPost(w http.ResponseWriter, r *http.Request) {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils2.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
+		utils2.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
@@ -44,7 +44,7 @@ func (h *Handler) PostPost(w http.ResponseWriter, r *http.Request) {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils2.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
+		utils2.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
@@ -53,10 +53,10 @@ func (h *Handler) PostPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
-		utils2.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
+		utils2.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	utils2.SendModel(&tModels.PostId{PostId: postID}, w, op, nil)
+	utils2.SendModel(&tModels.PostId{PostId: postID}, w, op, ctx)
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -43,52 +42,52 @@ INSERT INTO Like_Post (like_post_id, post_id, user_id, posted_date) VALUES
 `
 )
 
-func (cr *ContentRepository) GetPostLikeId(ctx context.Context, userId uuid.UUID, postID uuid.UUID) (uuid.UUID, error) {
+func (cr *ContentRepository) GetPostLikeID(ctx context.Context, userID string, postID string) (string, error) {
 	op := "internal.content.repository.postgresql.GetPostLikeId"
 
-	rows, err := cr.db.Query(ctx, getPostLikeIdSQL, postID, userId)
+	rows, err := cr.db.Query(ctx, getPostLikeIdSQL, postID, userID)
 	if err != nil {
-		return uuid.UUID{}, errors.Wrap(err, op)
+		return "", errors.Wrap(err, op)
 	}
 
 	defer rows.Close()
 
 	var (
-		postLikeId uuid.UUID
+		postLikeID string
 	)
 
 	for rows.Next() {
-		if err = rows.Scan(&postLikeId); err != nil {
-			return uuid.UUID{}, errors.Wrap(err, op)
+		if err = rows.Scan(&postLikeID); err != nil {
+			return "", errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(ctx, op, "Got  postLikeId='%v' for post='%v'", postLikeId, postID)
-		return postLikeId, nil
+		logger.StandardDebugF(ctx, op, "Got  postLikeID='%v' for post='%v'", postLikeID, postID)
+		return postLikeID, nil
 	}
 
-	return uuid.UUID{}, nil
+	return "", nil
 }
 
-func (cr *ContentRepository) InsertLikePost(ctx context.Context, userId uuid.UUID, postID uuid.UUID) error {
+func (cr *ContentRepository) InsertLikePost(ctx context.Context, userID string, postID string) error {
 	op := "internal.content.repository.InsertLikePost"
 
-	_, err := cr.db.Exec(ctx, insertPostLikeSQL, postID, userId)
+	_, err := cr.db.Exec(ctx, insertPostLikeSQL, postID, userID)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
 	return nil
 }
 
-func (cr *ContentRepository) DeleteLikePost(ctx context.Context, userId uuid.UUID, postID uuid.UUID) error {
+func (cr *ContentRepository) DeleteLikePost(ctx context.Context, userID string, postID string) error {
 	op := "internal.content.repository.DeleteLikePost"
 
-	_, err := cr.db.Exec(ctx, deletePostLikeSQL, postID, userId)
+	_, err := cr.db.Exec(ctx, deletePostLikeSQL, postID, userID)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
 	return nil
 }
 
-func (cr *ContentRepository) GetPostLikes(ctx context.Context, postID uuid.UUID) (int, error) {
+func (cr *ContentRepository) GetPostLikes(ctx context.Context, postID string) (int, error) {
 	op := "internal.content.repository.postgresql.GetPostLikes"
 
 	rows, err := cr.db.Query(ctx, getCountPostLikesSQL, postID)

@@ -1,6 +1,6 @@
 package models
 
-// Service модель автора
+// Author модель автора
 type Author struct {
 	Username      string
 	Info          string

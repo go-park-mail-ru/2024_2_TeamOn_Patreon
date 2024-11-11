@@ -28,7 +28,7 @@ func (h *Handler) PostsPostIdDelete(w http.ResponseWriter, r *http.Request) {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
@@ -51,7 +51,7 @@ func (h *Handler) PostsPostIdDelete(w http.ResponseWriter, r *http.Request) {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 

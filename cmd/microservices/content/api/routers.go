@@ -32,6 +32,12 @@ func NewRouter(behavior interfaces.ContentBehavior) *mux.Router {
 
 	authRouter.Use(middlewares.HandlerAuth)
 	router.Use(middlewares.AuthMiddleware)
+
+	// регистрируем middlewares
+	mainRouter.Use(middlewares.CsrfMiddleware)
+	mainRouter.Use(middlewares.Logging)
+	mainRouter.Use(middlewares.AddRequestID)
+
 	return mainRouter
 }
 

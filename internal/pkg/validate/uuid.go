@@ -7,7 +7,7 @@ import (
 
 func Uuid(uuid string) error {
 	if !utils.IsValidUUIDv4(uuid) {
-		return global.ErrUuidIsInvalid
+		return global.ErrIsInvalidUUID
 	}
 	return nil
 }

@@ -9,8 +9,8 @@ import (
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"github.com/satori/go.uuid"
 )
 
 type Behavior struct {
@@ -145,5 +145,5 @@ func (b *Behavior) LogoutUser(ctx context.Context, userID bModels.UserID) error 
 }
 
 func (b *Behavior) generateUUID() uuid.UUID {
-	return uuid.Must(uuid.NewV4())
+	return uuid.NewV4()
 }

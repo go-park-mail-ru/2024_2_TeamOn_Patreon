@@ -5,8 +5,8 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"github.com/satori/go.uuid"
 )
 
 const (

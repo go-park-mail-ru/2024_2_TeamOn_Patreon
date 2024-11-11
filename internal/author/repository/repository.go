@@ -11,9 +11,9 @@ import (
 	"time"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
@@ -323,7 +323,5 @@ func (p *Postgres) NewTip(ctx context.Context, userID, authorID string, cost int
 }
 
 func (p *Postgres) GenerateID() string {
-	id, _ := uuid.NewV4()
-
-	return id.String()
+	return utils.GenerateUUID()
 }

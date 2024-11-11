@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"github.com/satori/go.uuid"
 )
 
 const (
@@ -120,12 +120,12 @@ OFFSET $3;
 )
 
 // GetAuthorPostsForMe - возвращает посты автора для самого автора с offset по (offset + limit)
-func (cr *ContentRepository) GetAuthorPostsForMe(ctx context.Context, authorId uuid.UUID, offset, limit int) ([]*models.Post, error) {
+func (cr *ContentRepository) GetAuthorPostsForMe(ctx context.Context, authorID string, offset, limit int) ([]*models.Post, error) {
 	op := "internal.content.repository.author_feed.GetAuthorPostsForMe"
 
 	posts := make([]*models.Post, 0)
 
-	rows, err := cr.db.Query(ctx, getAuthorPostsForMe, authorId, offset, limit)
+	rows, err := cr.db.Query(ctx, getAuthorPostsForMe, authorID, offset, limit)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
@@ -136,7 +136,7 @@ func (cr *ContentRepository) GetAuthorPostsForMe(ctx context.Context, authorId u
 		postID         uuid.UUID
 		title          string
 		content        string
-		_authorId      uuid.UUID // не хочется стандартный код менять...
+		_authorId      uuid.UUID // Не хочется стандартный код менять...
 		authorUsername string
 		likes          int
 		createdDate    time.Time
@@ -148,12 +148,12 @@ func (cr *ContentRepository) GetAuthorPostsForMe(ctx context.Context, authorId u
 		}
 		logger.StandardDebugF(ctx, op,
 			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
-			postID, title, authorId, authorUsername, likes, createdDate)
+			postID, title, authorID, authorUsername, likes, createdDate)
 		posts = append(posts, &models.Post{
-			PostId:         postID.String(),
+			PostID:         postID.String(),
 			Title:          title,
 			Content:        content,
-			AuthorId:       _authorId.String(),
+			AuthorID:       _authorId.String(),
 			AuthorUsername: authorUsername,
 			Likes:          likes,
 			CreatedDate:    createdDate,
@@ -165,11 +165,11 @@ func (cr *ContentRepository) GetAuthorPostsForMe(ctx context.Context, authorId u
 }
 
 // GetAuthorPostsForLayer - подписки автора, которые может смотреть пользователь
-func (cr *ContentRepository) GetAuthorPostsForLayer(ctx context.Context, layer int, authorId uuid.UUID, offset, limit int) ([]*models.Post, error) {
+func (cr *ContentRepository) GetAuthorPostsForLayer(ctx context.Context, layer int, authorID string, offset, limit int) ([]*models.Post, error) {
 	op := "internal.content.repository.GetAuthorPostsForLayer"
 	posts := make([]*models.Post, 0)
 
-	rows, err := cr.db.Query(ctx, getAuthorPostsForLayerSQL, layer, authorId, offset, limit)
+	rows, err := cr.db.Query(ctx, getAuthorPostsForLayerSQL, layer, authorID, offset, limit)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
@@ -177,10 +177,10 @@ func (cr *ContentRepository) GetAuthorPostsForLayer(ctx context.Context, layer i
 	defer rows.Close()
 
 	var (
-		postID         uuid.UUID
+		postID         string
 		title          string
 		content        string
-		_authorId      uuid.UUID // не хочется стандартный код менять...
+		_authorId      string // не хочется стандартный код менять...
 		authorUsername string
 		likes          int
 		createdDate    time.Time
@@ -192,12 +192,12 @@ func (cr *ContentRepository) GetAuthorPostsForLayer(ctx context.Context, layer i
 		}
 		logger.StandardDebugF(ctx, op,
 			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
-			postID, title, authorId, authorUsername, likes, createdDate)
+			postID, title, authorID, authorUsername, likes, createdDate)
 		posts = append(posts, &models.Post{
-			PostId:         postID.String(),
+			PostID:         postID,
 			Title:          title,
 			Content:        content,
-			AuthorId:       _authorId.String(),
+			AuthorID:       _authorId,
 			AuthorUsername: authorUsername,
 			Likes:          likes,
 			CreatedDate:    createdDate,
@@ -208,12 +208,12 @@ func (cr *ContentRepository) GetAuthorPostsForLayer(ctx context.Context, layer i
 	return posts, nil
 }
 
-func (cr *ContentRepository) GetAuthorPostsForAnon(ctx context.Context, authorId uuid.UUID, offset, limit int) ([]*models.Post, error) {
+func (cr *ContentRepository) GetAuthorPostsForAnon(ctx context.Context, authorID string, offset, limit int) ([]*models.Post, error) {
 	op := "internal.content.repository.author_feed.GetAuthorPostsForAnon"
 
 	posts := make([]*models.Post, 0)
 
-	rows, err := cr.db.Query(ctx, getAuthorPostsForAnon, authorId, offset, limit)
+	rows, err := cr.db.Query(ctx, getAuthorPostsForAnon, authorID, offset, limit)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
@@ -236,12 +236,12 @@ func (cr *ContentRepository) GetAuthorPostsForAnon(ctx context.Context, authorId
 		}
 		logger.StandardDebugF(ctx, op,
 			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
-			postID, title, authorId, authorUsername, likes, createdDate)
+			postID, title, authorID, authorUsername, likes, createdDate)
 		posts = append(posts, &models.Post{
-			PostId:         postID.String(),
+			PostID:         postID.String(),
 			Title:          title,
 			Content:        content,
-			AuthorId:       _authorId.String(),
+			AuthorID:       _authorId.String(),
 			AuthorUsername: authorUsername,
 			Likes:          likes,
 			CreatedDate:    createdDate,

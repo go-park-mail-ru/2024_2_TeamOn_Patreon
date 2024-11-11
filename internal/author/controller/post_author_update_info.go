@@ -12,7 +12,7 @@ import (
 	valid "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 )
 
-// PostAccountUpdate - ручка обновления информации об авторе
+// PostAuthorUpdateInfo - ручка обновления информации об авторе
 func (handler *Handler) PostAuthorUpdateInfo(w http.ResponseWriter, r *http.Request) {
 	op := "internal.account.controller.PostAuthorUpdateInfo"
 

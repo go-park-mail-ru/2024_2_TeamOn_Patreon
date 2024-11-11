@@ -6,7 +6,7 @@ import "time"
 
 type Post struct {
 	// Идентификатор поста
-	PostId string
+	PostID string
 	// Заголовок поста
 	Title string
 	// Содержимое поста
@@ -14,7 +14,7 @@ type Post struct {
 	// Имя автора поста
 	AuthorUsername string
 	// Идентификатор автора поста
-	AuthorId string
+	AuthorID string
 	// Количество лайков поста
 	Likes int
 	// Уровень подписки

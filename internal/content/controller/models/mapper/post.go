@@ -12,11 +12,11 @@ func MapInterfacePostToTransportPost(post models2.Post) *models.Post {
 	authorUsername := validate.Sanitize(post.AuthorUsername)
 
 	return &models.Post{
-		PostId:         post.PostId,
+		PostId:         post.PostID,
 		Title:          title,
 		Content:        content,
 		AuthorUsername: authorUsername,
-		AuthorId:       post.AuthorId,
+		AuthorId:       post.AuthorID,
 		Likes:          post.Likes,
 		IsLiked:        post.IsLiked,
 		CreatedAt:      post.CreatedDate.String(),

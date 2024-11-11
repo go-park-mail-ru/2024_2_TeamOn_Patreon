@@ -38,7 +38,7 @@ func (h *Handler) FeedPopularGet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 

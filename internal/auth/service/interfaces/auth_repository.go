@@ -2,7 +2,7 @@ package interfaces
 
 import (
 	"context"
-	"github.com/gofrs/uuid"
+	"github.com/satori/go.uuid"
 )
 
 // AuthRepository - описывает методы для работы с пользователями.

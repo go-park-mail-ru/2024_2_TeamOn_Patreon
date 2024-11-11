@@ -35,9 +35,9 @@ func (m *MockContentBehavior) EXPECT() *MockContentBehaviorMockRecorder {
 }
 
 // CreatePost mocks base method.
-func (m *MockContentBehavior) CreatePost(ctx context.Context, userId, title, content string, layer int) (string, error) {
+func (m *MockContentBehavior) CreatePost(ctx context.Context, userID string, title string, content string, layer int) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreatePost", ctx, userId, title, content, layer)
+	ret := m.ctrl.Call(m, "CreatePost", ctx, userID, title, content, layer)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -50,9 +50,9 @@ func (mr *MockContentBehaviorMockRecorder) CreatePost(ctx, userId, title, conten
 }
 
 // DeletePost mocks base method.
-func (m *MockContentBehavior) DeletePost(ctx context.Context, userId, postId string) error {
+func (m *MockContentBehavior) DeletePost(ctx context.Context, userID, postID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeletePost", ctx, userId, postId)
+	ret := m.ctrl.Call(m, "DeletePost", ctx, userID, postID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -64,9 +64,9 @@ func (mr *MockContentBehaviorMockRecorder) DeletePost(ctx, userId, postId interf
 }
 
 // GetAuthorPosts mocks base method.
-func (m *MockContentBehavior) GetAuthorPosts(ctx context.Context, userId, authorId string, opt *serviceModels.FeedOpt) ([]*models.Post, error) {
+func (m *MockContentBehavior) GetAuthorPosts(ctx context.Context, userID string, authorID string, opt *serviceModels.FeedOpt) ([]*models.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAuthorPosts", ctx, userId, authorId, opt)
+	ret := m.ctrl.Call(m, "GetAuthorPosts", ctx, userID, authorID, opt)
 	ret0, _ := ret[0].([]*models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -79,9 +79,9 @@ func (mr *MockContentBehaviorMockRecorder) GetAuthorPosts(ctx, userId, authorId,
 }
 
 // GetFeedSubscription mocks base method.
-func (m *MockContentBehavior) GetFeedSubscription(ctx context.Context, userId string, opt *serviceModels.FeedOpt) ([]*models.Post, error) {
+func (m *MockContentBehavior) GetFeedSubscription(ctx context.Context, userID string, opt *serviceModels.FeedOpt) ([]*models.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeedSubscription", ctx, userId, opt)
+	ret := m.ctrl.Call(m, "GetFeedSubscription", ctx, userID, opt)
 	ret0, _ := ret[0].([]*models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -94,9 +94,9 @@ func (mr *MockContentBehaviorMockRecorder) GetFeedSubscription(ctx, userId, opt 
 }
 
 // GetPopularPosts mocks base method.
-func (m *MockContentBehavior) GetPopularPosts(ctx context.Context, userId string, opt *serviceModels.FeedOpt) ([]*models.Post, error) {
+func (m *MockContentBehavior) GetPopularPosts(ctx context.Context, userID string, opt *serviceModels.FeedOpt) ([]*models.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPopularPosts", ctx, userId, opt)
+	ret := m.ctrl.Call(m, "GetPopularPosts", ctx, userID, opt)
 	ret0, _ := ret[0].([]*models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -109,9 +109,9 @@ func (mr *MockContentBehaviorMockRecorder) GetPopularPosts(ctx, userId, opt inte
 }
 
 // LikePost mocks base method.
-func (m *MockContentBehavior) LikePost(ctx context.Context, userId, postId string) (int, error) {
+func (m *MockContentBehavior) LikePost(ctx context.Context, userID, postID string) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LikePost", ctx, userId, postId)
+	ret := m.ctrl.Call(m, "LikePost", ctx, userID, postID)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -124,9 +124,9 @@ func (mr *MockContentBehaviorMockRecorder) LikePost(ctx, userId, postId interfac
 }
 
 // UpdatePost mocks base method.
-func (m *MockContentBehavior) UpdatePost(ctx context.Context, userId, postId, title, about string) error {
+func (m *MockContentBehavior) UpdatePost(ctx context.Context, userID string, postID string, title string, about string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdatePost", ctx, userId, postId, title, about)
+	ret := m.ctrl.Call(m, "UpdatePost", ctx, userID, postID, title, about)
 	ret0, _ := ret[0].(error)
 	return ret0
 }

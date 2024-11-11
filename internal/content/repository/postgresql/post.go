@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -55,11 +54,11 @@ const (
 `
 )
 
-func (cr *ContentRepository) InsertPost(ctx context.Context, userId uuid.UUID, postId uuid.UUID, title string, content string, layer int) error {
+func (cr *ContentRepository) InsertPost(ctx context.Context, userID string, postID string, title string, content string, layer int) error {
 	op := "internal.content.repository.post.InsertPost"
 
 	_, err := cr.db.Exec(ctx, insertPostSQL,
-		postId, userId, title, content, layer)
+		postID, userID, title, content, layer)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -67,7 +66,7 @@ func (cr *ContentRepository) InsertPost(ctx context.Context, userId uuid.UUID, p
 	return nil
 }
 
-func (cr *ContentRepository) DeletePost(ctx context.Context, postID uuid.UUID) error {
+func (cr *ContentRepository) DeletePost(ctx context.Context, postID string) error {
 	op := "internal.content.repository.post.DeletePost"
 
 	_, err := cr.db.Exec(ctx, deletePostSQL, postID)
@@ -77,31 +76,31 @@ func (cr *ContentRepository) DeletePost(ctx context.Context, postID uuid.UUID) e
 	return nil
 }
 
-func (cr *ContentRepository) GetAuthorOfPost(ctx context.Context, postID uuid.UUID) (uuid.UUID, error) {
+func (cr *ContentRepository) GetAuthorOfPost(ctx context.Context, postID string) (string, error) {
 	op := "internal.content.repository.post.GetAuthorOfPost"
 
 	rows, err := cr.db.Query(ctx, getAuthorOfPost, postID)
 	if err != nil {
-		return uuid.UUID{}, errors.Wrap(err, op)
+		return "", errors.Wrap(err, op)
 	}
 
 	defer rows.Close()
 
 	var (
-		authorId uuid.UUID
+		authorID string
 	)
 
 	for rows.Next() {
-		if err = rows.Scan(&authorId); err != nil {
-			return uuid.UUID{}, errors.Wrap(err, op)
+		if err = rows.Scan(&authorID); err != nil {
+			return "", errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(ctx, op, "Got author='%s' of post='%v'", authorId, postID)
-		return authorId, nil
+		logger.StandardDebugF(ctx, op, "Got author='%s' of post='%v'", authorID, postID)
+		return authorID, nil
 	}
-	return uuid.UUID{}, errors.Wrap(global.ErrPostDoesntExists, op)
+	return "", errors.Wrap(global.ErrPostDoesntExists, op)
 }
 
-func (cr *ContentRepository) UpdateTitleOfPost(ctx context.Context, postID uuid.UUID, title string) error {
+func (cr *ContentRepository) UpdateTitleOfPost(ctx context.Context, postID string, title string) error {
 	op := "internal.content.repository.post.UpdateTitleOfPost"
 
 	_, err := cr.db.Exec(ctx, updateTitleOfPost, postID, title)
@@ -111,7 +110,7 @@ func (cr *ContentRepository) UpdateTitleOfPost(ctx context.Context, postID uuid.
 	return nil
 }
 
-func (cr *ContentRepository) UpdateContentOfPost(ctx context.Context, postID uuid.UUID, content string) error {
+func (cr *ContentRepository) UpdateContentOfPost(ctx context.Context, postID string, content string) error {
 	op := "internal.content.repository.post.UpdateContentOfPost"
 
 	_, err := cr.db.Exec(ctx, updateContentOfPost, postID, content)

@@ -28,5 +28,5 @@ type Post struct {
 }
 
 func (p *Post) String() string {
-	return fmt.Sprintf("Post{PostId: %s, Title: %s, Content: %s}", p.PostId, p.Title, p.Content)
+	return fmt.Sprintf("Post{PostID: %s, Title: %s, Content: %s}", p.PostId, p.Title, p.Content)
 }

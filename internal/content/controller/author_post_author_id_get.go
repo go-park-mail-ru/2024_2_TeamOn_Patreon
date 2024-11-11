@@ -29,7 +29,7 @@ func (h *Handler) AuthorPostAuthorIdGet(w http.ResponseWriter, r *http.Request) 
 	authorId := vars[authorIDParam] // Получаем значение параметра "authorId"
 	if authorId == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(global.ErrBadRequest)}, w, op, nil)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(global.ErrBadRequest)}, w, op, ctx)
 		return
 	}
 
@@ -52,7 +52,7 @@ func (h *Handler) AuthorPostAuthorIdGet(w http.ResponseWriter, r *http.Request) 
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, nil)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 	}
 
 	// мапим посты

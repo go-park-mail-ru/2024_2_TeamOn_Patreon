@@ -8,5 +8,5 @@ type PostId struct {
 }
 
 func (p PostId) String() string {
-	return fmt.Sprintf("PostId:\t %s", p.PostId)
+	return fmt.Sprintf("PostID:\t %s", p.PostId)
 }

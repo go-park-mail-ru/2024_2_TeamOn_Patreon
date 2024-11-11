@@ -7,8 +7,8 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	//"github.com/satori/go.uuid"
 )
 
 const (
@@ -107,10 +107,10 @@ OFFSET $1;
 `
 )
 
-func (cr *ContentRepository) GetPopularPostsForUser(ctx context.Context, userId uuid.UUID, offset int, limits int) ([]*models.Post, error) {
+func (cr *ContentRepository) GetPopularPostsForUser(ctx context.Context, userID string, offset int, limits int) ([]*models.Post, error) {
 	op := "internal.content.repository.postgresql.GetPopularPostsForUser"
 
-	rows, err := cr.db.Query(ctx, getPopularPostForUserSQL, userId, offset, limits)
+	rows, err := cr.db.Query(ctx, getPopularPostForUserSQL, userID, offset, limits)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
@@ -118,10 +118,10 @@ func (cr *ContentRepository) GetPopularPostsForUser(ctx context.Context, userId 
 	defer rows.Close()
 
 	var (
-		postID         uuid.UUID
+		postID         string
 		title          string
 		content        string
-		authorId       uuid.UUID
+		authorId       string
 		authorUsername string
 		likes          int
 		createdDate    time.Time
@@ -137,10 +137,10 @@ func (cr *ContentRepository) GetPopularPostsForUser(ctx context.Context, userId 
 			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
 			postID, title, authorId, authorUsername, likes, createdDate)
 		posts = append(posts, &models.Post{
-			PostId:         postID.String(),
+			PostID:         postID,
 			Title:          title,
 			Content:        content,
-			AuthorId:       authorId.String(),
+			AuthorID:       authorId,
 			AuthorUsername: authorUsername,
 			Likes:          likes,
 			CreatedDate:    createdDate,
@@ -151,13 +151,14 @@ func (cr *ContentRepository) GetPopularPostsForUser(ctx context.Context, userId 
 	return posts, nil
 }
 
-func (cr *ContentRepository) GetSubscriptionsPostsForUser() error {
-	return nil
-}
+//func (cr *ContentRepository) GetSubscriptionsPostsForUser() error {
+//	return nil
+//}
 
 // GetPopularPosts Выдает ленту популярных для анонимиа
 func (cr *ContentRepository) GetPopularPosts(ctx context.Context, offset int, limits int) ([]*models.Post, error) {
 	op := "internal.content.repository.postgresql.GetPopularPosts"
+
 	posts := make([]*models.Post, 0)
 
 	rows, err := cr.db.Query(ctx, getPopularPostsForAnonSQL, offset, limits)
@@ -168,10 +169,10 @@ func (cr *ContentRepository) GetPopularPosts(ctx context.Context, offset int, li
 	defer rows.Close()
 
 	var (
-		postID         uuid.UUID
+		postID         string
 		title          string
 		content        string
-		authorId       uuid.UUID
+		authorId       string
 		authorUsername string
 		likes          int
 		createdDate    time.Time
@@ -185,10 +186,10 @@ func (cr *ContentRepository) GetPopularPosts(ctx context.Context, offset int, li
 			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
 			postID, title, authorId, authorUsername, likes, createdDate)
 		posts = append(posts, &models.Post{
-			PostId:         postID.String(),
+			PostID:         postID,
 			Title:          title,
 			Content:        content,
-			AuthorId:       authorId.String(),
+			AuthorID:       authorId,
 			AuthorUsername: authorUsername,
 			Likes:          likes,
 			CreatedDate:    createdDate,
@@ -199,22 +200,18 @@ func (cr *ContentRepository) GetPopularPosts(ctx context.Context, offset int, li
 	return posts, nil
 }
 
-func (cr *ContentRepository) GetIsLikedForPosts(ctx context.Context, UserId uuid.UUID, posts []*models.Post) error {
+func (cr *ContentRepository) GetIsLikedForPosts(ctx context.Context, UserID string, posts []*models.Post) error {
 	op := "internal.content.repository.postgresql.GetIsLikedForPosts"
 
-	postsIds := make([]uuid.UUID, 0, len(posts))
-	postIdMap := make(map[uuid.UUID]*models.Post)
+	postIDs := make([]string, 0, len(posts))
+	postsIDMap := make(map[string]*models.Post)
 
 	for _, post := range posts {
-		postIdUuid, err := uuid.FromString(post.PostId)
-		if err != nil {
-			return errors.Wrap(err, op)
-		}
-		postsIds = append(postsIds, postIdUuid)
-		postIdMap[postIdUuid] = post
+		postIDs = append(postIDs, post.PostID)
+		postsIDMap[post.PostID] = post
 	}
 
-	rows, err := cr.db.Query(ctx, getIsLikedPostsForUser, UserId, postsIds)
+	rows, err := cr.db.Query(ctx, getIsLikedPostsForUser, UserID, postIDs)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -222,15 +219,15 @@ func (cr *ContentRepository) GetIsLikedForPosts(ctx context.Context, UserId uuid
 	defer rows.Close()
 	for rows.Next() {
 		var (
-			postId      uuid.UUID
+			postId      string
 			isLikedPost bool
 		)
 		if err = rows.Scan(&postId, &isLikedPost); err != nil {
 			return errors.Wrap(err, op)
 		}
 		logger.StandardDebugF(ctx, op, "Got  post: post_id=%v isLiked=%v for user=%v",
-			postId, isLikedPost, UserId)
-		post, ok := postIdMap[postId]
+			postId, isLikedPost, UserID)
+		post, ok := postsIDMap[postId]
 		if !ok {
 			return errors.Wrap(global.ErrServer, op)
 		}

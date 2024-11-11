@@ -65,7 +65,7 @@ var (
 
 	// uuid
 
-	ErrUuidIsInvalid = errors.New("uuid is invalid")
+	ErrIsInvalidUUID = errors.New("uuid is invalid")
 )
 
 type ErrorHttpInfo struct {
@@ -111,7 +111,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrFieldContainsSpecialChar: {msg: "поле содержит запрещенные символы", code: http.StatusBadRequest},
 
 	// uuid
-	ErrUuidIsInvalid: {msg: "невалидный uuid", code: http.StatusBadRequest},
+	ErrIsInvalidUUID: {msg: "невалидный uuid", code: http.StatusBadRequest},
 
 	// rights
 	ErrNotEnoughRights:  {msg: "недостаточно прав", code: http.StatusBadRequest},

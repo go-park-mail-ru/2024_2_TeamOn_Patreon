@@ -3,25 +3,23 @@ package service
 import (
 	"context"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
-	"github.com/gofrs/uuid"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/pkg/errors"
 )
 
-func (b *Behavior) LikePost(ctx context.Context, userId, postId string) (int, error) {
+func (b *Behavior) LikePost(ctx context.Context, userID, postID string) (int, error) {
 	op := "service.behavior.LikePost"
 
-	userIdUuid, err := uuid.FromString(userId)
-	if err != nil {
-		return 0, errors.Wrap(global.ErrServer, op)
+	if ok := utils.IsValidUUIDv4(userID); !ok {
+		return 0, errors.Wrap(global.ErrIsInvalidUUID, op)
 	}
 
-	postIdUuid, err := uuid.FromString(postId)
-	if err != nil {
-		return 0, errors.Wrap(err, op)
+	if ok := utils.IsValidUUIDv4(postID); !ok {
+		return 0, errors.Wrap(global.ErrIsInvalidUUID, op)
 	}
 
 	// Может ли пользователь видеть пост (?)
-	userCanSeePost, err := b.userCanSeePost(ctx, userIdUuid, postIdUuid)
+	userCanSeePost, err := b.userCanSeePost(ctx, userID, postID)
 	if err != nil {
 		return 0, errors.Wrap(err, op)
 	}
@@ -31,26 +29,26 @@ func (b *Behavior) LikePost(ctx context.Context, userId, postId string) (int, er
 	}
 
 	// Поставлен ли уже лайк
-	isLike, err := b.isLikePutPost(ctx, userIdUuid, postIdUuid)
+	isLike, err := b.isLikePutPost(ctx, userID, postID)
 	if err != nil {
 		return 0, errors.Wrap(err, op)
 	}
 
 	if !isLike {
 		// Ставим лайк
-		err = b.likePost(ctx, userIdUuid, postIdUuid)
+		err = b.likePost(ctx, userID, postID)
 		if err != nil {
 			return 0, errors.Wrap(err, op)
 		}
 	} else {
 		// Убираем лайк
-		err = b.unlikePost(ctx, userIdUuid, postIdUuid)
+		err = b.unlikePost(ctx, userID, postID)
 		if err != nil {
 			return 0, errors.Wrap(err, op)
 		}
 	}
 
-	countLikes, err := b.countPostLikes(ctx, postIdUuid)
+	countLikes, err := b.countPostLikes(ctx, postID)
 	if err != nil {
 		return 0, errors.Wrap(err, op)
 	}
@@ -58,67 +56,68 @@ func (b *Behavior) LikePost(ctx context.Context, userId, postId string) (int, er
 	return countLikes, nil
 }
 
-func (b *Behavior) isLikePutPost(ctx context.Context, userId, postId uuid.UUID) (bool, error) {
+func (b *Behavior) isLikePutPost(ctx context.Context, userID, postID string) (bool, error) {
 	op := "service.behavior.IsLikePut"
+
 	// Поставлен ли уже лайк
-	likeId, err := b.rep.GetPostLikeId(ctx, userId, postId)
+	likeID, err := b.rep.GetPostLikeID(ctx, userID, postID)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}
 
-	if likeId == (uuid.UUID{}) {
+	if likeID == "" {
 		return false, nil
 	}
 	return true, nil
 }
 
-func (b *Behavior) unlikePost(ctx context.Context, userId, postId uuid.UUID) error {
+func (b *Behavior) unlikePost(ctx context.Context, userID, postID string) error {
 	op := "service.behavior.unlikePost"
 
-	err := b.rep.DeleteLikePost(ctx, userId, postId)
+	err := b.rep.DeleteLikePost(ctx, userID, postID)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
 	return nil
 }
 
-func (b *Behavior) likePost(ctx context.Context, userId, postId uuid.UUID) error {
+func (b *Behavior) likePost(ctx context.Context, userID, postID string) error {
 	op := "service.behavior.likePost"
 
-	err := b.rep.InsertLikePost(ctx, userId, postId)
+	err := b.rep.InsertLikePost(ctx, userID, postID)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
 	return nil
 }
 
-func (b *Behavior) countPostLikes(ctx context.Context, postId uuid.UUID) (int, error) {
+func (b *Behavior) countPostLikes(ctx context.Context, postID string) (int, error) {
 	op := "service.behavior.countLikes"
 
-	countLikes, err := b.rep.GetPostLikes(ctx, postId)
+	countLikes, err := b.rep.GetPostLikes(ctx, postID)
 	if err != nil {
 		return 0, errors.Wrap(err, op)
 	}
 	return countLikes, nil
 }
 
-func (b *Behavior) userCanSeePost(ctx context.Context, userId, postId uuid.UUID) (bool, error) {
+func (b *Behavior) userCanSeePost(ctx context.Context, userID, postID string) (bool, error) {
 	op := "service.behavior.userCanSeePost"
 
-	authorPost, err := b.rep.GetAuthorOfPost(ctx, postId)
+	authorPost, err := b.rep.GetAuthorOfPost(ctx, postID)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}
-	if authorPost == userId {
+	if authorPost == userID {
 		return true, nil
 	}
 
-	userLayer, err := b.rep.GetUserLayerOfAuthor(ctx, userId, authorPost)
+	userLayer, err := b.rep.GetUserLayerOfAuthor(ctx, userID, authorPost)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}
 
-	postLayer, err := b.rep.GetPostLayerBuPostId(ctx, postId)
+	postLayer, err := b.rep.GetPostLayerBuPostID(ctx, postID)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}

@@ -66,7 +66,7 @@ WHERE subscription.custom_subscription_id = custom_subscription.custom_subscript
 
 func (p *Postgres) Subscribe(ctx context.Context, userID string, authorID string) (bool, error) {
 	op := "internal.author.repository.Subscribe"
-	logger.StandardDebugF(ctx, op, "Want to is author UserId %v AuthorId %v", userID, authorID)
+	logger.StandardDebugF(ctx, op, "Want to is author UserId %v AuthorID %v", userID, authorID)
 
 	isAuthor, err := p.isAuthor(ctx, authorID)
 	if err != nil {

@@ -12,9 +12,9 @@ import (
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
+	"github.com/satori/go.uuid"
 )
 
 // Поле структуры - pool соединений с БД
@@ -268,7 +268,7 @@ func (p *Postgres) UpdateAvatar(ctx context.Context, userID string, avatar multi
 }
 
 func (p *Postgres) GenerateID() string {
-	id, _ := uuid.NewV4()
+	id := uuid.NewV4()
 
 	return id.String()
 }

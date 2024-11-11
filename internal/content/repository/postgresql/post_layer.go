@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -20,7 +19,7 @@ const (
 `
 )
 
-func (cr *ContentRepository) GetPostLayerBuPostId(ctx context.Context, postID uuid.UUID) (int, error) {
+func (cr *ContentRepository) GetPostLayerBuPostID(ctx context.Context, postID string) (int, error) {
 	op := "internal.content.repository.subscription.CheckCustomLayer"
 
 	rows, err := cr.db.Query(ctx, getPostLayerBuPostIdSQL, postID)

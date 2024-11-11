@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -63,10 +62,10 @@ OFFSET $2
 
 // subscription
 
-func (cr *ContentRepository) CheckCustomLayer(ctx context.Context, authorId uuid.UUID, layer int) (bool, error) {
+func (cr *ContentRepository) CheckCustomLayer(ctx context.Context, authorID string, layer int) (bool, error) {
 	op := "internal.content.repository.subscription.CheckCustomLayer"
 
-	rows, err := cr.db.Query(ctx, getCustomSubscriptionByUserIdAndLayerSQl, authorId, layer)
+	rows, err := cr.db.Query(ctx, getCustomSubscriptionByUserIdAndLayerSQl, authorID, layer)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}
@@ -83,17 +82,17 @@ func (cr *ContentRepository) CheckCustomLayer(ctx context.Context, authorId uuid
 		}
 		layerExists := subscription != ""
 		logger.StandardDebugF(ctx, op, "Got subscription='%s' user='%s' layer='%v' is='%v'",
-			subscription, authorId, layer, layerExists)
+			subscription, authorID, layer, layerExists)
 		return layerExists, nil
 	}
 
 	return false, nil
 }
 
-func (cr ContentRepository) GetSubscriptionPostsForUser(ctx context.Context, userId uuid.UUID, offset int, limits int) ([]*models.Post, error) {
+func (cr ContentRepository) GetSubscriptionPostsForUser(ctx context.Context, userID string, offset int, limits int) ([]*models.Post, error) {
 	op := "internal.content.repository.subscription.GetSubscriptionPostsForUser"
 
-	rows, err := cr.db.Query(ctx, getSubscriptionFeedForUser, userId, offset, limits)
+	rows, err := cr.db.Query(ctx, getSubscriptionFeedForUser, userID, offset, limits)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
@@ -101,10 +100,10 @@ func (cr ContentRepository) GetSubscriptionPostsForUser(ctx context.Context, use
 	defer rows.Close()
 
 	var (
-		postID         uuid.UUID
+		postID         string
 		title          string
 		content        string
-		authorId       uuid.UUID
+		authorID       string
 		authorUsername string
 		likes          int
 		createdDate    time.Time
@@ -113,17 +112,17 @@ func (cr ContentRepository) GetSubscriptionPostsForUser(ctx context.Context, use
 	posts := make([]*models.Post, 0)
 
 	for rows.Next() {
-		if err = rows.Scan(&postID, &title, &content, &authorId, &authorUsername, &likes, &createdDate); err != nil {
+		if err = rows.Scan(&postID, &title, &content, &authorID, &authorUsername, &likes, &createdDate); err != nil {
 			return nil, errors.Wrap(err, op)
 		}
 		logger.StandardDebugF(ctx, op,
-			"Got  post: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
-			postID, title, authorId, authorUsername, likes, createdDate)
+			"Got  post: post_id=%v title=%v authorID=%v authorUsername=%v likes=%v created_date=%v",
+			postID, title, authorID, authorUsername, likes, createdDate)
 		posts = append(posts, &models.Post{
-			PostId:         postID.String(),
+			PostID:         postID,
 			Title:          title,
 			Content:        content,
-			AuthorId:       authorId.String(),
+			AuthorID:       authorID,
 			AuthorUsername: authorUsername,
 			Likes:          likes,
 			CreatedDate:    createdDate,
