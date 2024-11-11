@@ -115,7 +115,7 @@ func handleOther(router *mux.Router, behavior interfaces.ContentBehavior) {
 		Route{
 			"AuthorPostAuthorIdGet",
 			strings.ToUpper("Get"),
-			"/author/post/{authorId}",
+			"/author/post/{authorID}",
 			handler.AuthorPostAuthorIdGet,
 		},
 
