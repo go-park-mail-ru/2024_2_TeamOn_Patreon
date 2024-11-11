@@ -189,7 +189,7 @@ func (p *Postgres) DeleteAvatar(ctx context.Context, userID string) error {
 	op := "internal.account.repository.DeleteAvatar"
 
 	// Путь до старой аватарки
-	avatarPath, err := p.AvatarPathByID(ctx, userID)
+	_, err := p.AvatarPathByID(ctx, userID)
 	if err != nil {
 		logger.StandardInfo(
 			ctx,
@@ -206,12 +206,16 @@ func (p *Postgres) DeleteAvatar(ctx context.Context, userID string) error {
 	`
 
 	logger.StandardDebugF(ctx, op, "want to delete record with old avatar")
-	p.db.Exec(ctx, deleteQuery, userID)
 
-	logger.StandardDebugF(ctx, op, "want to delete old avatar file")
-	if err := os.Remove(avatarPath); err != nil {
+	if _, err := p.db.Exec(ctx, deleteQuery, userID); err != nil {
 		return errors.Wrap(err, op)
 	}
+
+	// Удаление файла из файловой системы
+	// logger.StandardDebugF(ctx, op, "want to delete old avatar file")
+	// if err := os.Remove(avatarPath); err != nil {
+	// 	return errors.Wrap(err, op)
+	// }
 
 	return nil
 }
