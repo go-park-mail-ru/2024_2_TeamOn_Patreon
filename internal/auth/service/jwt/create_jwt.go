@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var jwtKeyDefault = []byte("secret-key-456764459876")
+var jwtKeyDefault = []byte("jhsebdHihs2-secret-key")
 
 // CreateJWT
 // Функция создания JWT токена по данным

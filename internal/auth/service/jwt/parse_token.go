@@ -36,6 +36,10 @@ func ParseJWTFromJWTString(tokenString string) (*TokenClaims, error) {
 	// Объект для хранения наших данных из токена
 	claims := &TokenClaims{}
 
+	if tokenString == "" {
+		return claims, fmt.Errorf("empty token")
+	}
+
 	jwtKey := []byte(config.GetEnv(global.EnvJWTKey, string(jwtKeyDefault)))
 
 	// Парсим токен, проверяя его подпись и поля
