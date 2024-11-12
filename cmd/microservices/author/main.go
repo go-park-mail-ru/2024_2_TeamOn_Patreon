@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"net/http"
 
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/author/api"
@@ -17,6 +18,8 @@ func main() {
 
 	// logger
 	logger.New()
+
+	config.InitEnv("pkg/.env.default", "pkg/author/.env.default")
 
 	// connect to DB
 	pool := postgres.InitPostgres(context.Background())
@@ -39,6 +42,7 @@ func main() {
 	router.Use(middlewares.CsrfMiddleware)
 
 	// run server
-	logger.StandardInfo(context.Background(), "Starting server at: 8083", op)
-	http.ListenAndServe(":8083", router)
+	port := config.GetEnv("SERVICE_PORT", "8083")
+	logger.StandardInfoF(context.Background(), op, "Starting server at: %v", port)
+	http.ListenAndServe(":"+port, router)
 }
