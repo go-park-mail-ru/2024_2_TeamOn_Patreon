@@ -50,12 +50,12 @@ func createToken(tokenClaims TokenClaims) (TokenString, error) {
 	// Создаем токен с помощью NewWithClaims, передавая наш объект tokenClaims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
 
-	jwtKey := config.GetEnv(global.EnvJWTKey, string(jwtKeyDefault))
+	jwtKey := []byte(config.GetEnv(global.EnvJWTKey, string(jwtKeyDefault)))
 
 	// Подписываем токен с использованием секретного ключа
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		return "", global.ErrServer
+		return "", err
 	}
 
 	return TokenString(tokenString), nil

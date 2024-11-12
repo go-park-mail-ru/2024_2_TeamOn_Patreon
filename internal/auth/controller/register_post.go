@@ -40,6 +40,7 @@ func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request)
 	// Создание пользователя и генерация токена
 	tokenString, err := handler.b.RegisterNewUser(ctx, p.Username, p.Password) // передаем username и password
 	if err != nil {
+		logger.StandardWarnF(ctx, op, "Received behavior error {%v}", err.Error())
 		w.WriteHeader(global.GetCodeError(err))
 		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return

@@ -20,6 +20,8 @@ func (handler *Handler) LoginPost(w http.ResponseWriter, r *http.Request) {
 	// Парсинг модели вводных данных логина
 	var l tModels.Login
 	if err := utils.ParseModels(r, &l, op); err != nil {
+		logger.StandardWarnF(ctx, op, "Received parse model error {%v}", err.Error())
+
 		w.WriteHeader(global.GetCodeError(err))
 		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
@@ -27,6 +29,8 @@ func (handler *Handler) LoginPost(w http.ResponseWriter, r *http.Request) {
 
 	// Валидация полей вводных данных модели логина
 	if _, err := l.Validate(); err != nil {
+		logger.StandardWarnF(ctx, op, "Received validate error {%v}", err.Error())
+
 		w.WriteHeader(global.GetCodeError(err))
 		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
@@ -36,6 +40,8 @@ func (handler *Handler) LoginPost(w http.ResponseWriter, r *http.Request) {
 	// создаем токен пользователя
 	tokenString, err := handler.b.LoginUser(ctx, l.Username, l.Password)
 	if err != nil {
+		logger.StandardWarnF(ctx, op, "Received behavior error {%v}", err.Error())
+
 		w.WriteHeader(global.GetCodeError(err))
 		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return

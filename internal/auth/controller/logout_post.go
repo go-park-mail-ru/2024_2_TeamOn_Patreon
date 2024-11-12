@@ -24,6 +24,8 @@ func (handler *Handler) LogoutPost(w http.ResponseWriter, r *http.Request) {
 	// парсинг jwt токена
 	tokenClaims, err := jwt.ParseJWTFromCookie(r)
 	if err != nil || tokenClaims == nil {
+		logger.StandardWarnF(ctx, op, "Received parse jwt error {%v}", err.Error())
+
 		err = global.ErrUserNotAuthorized
 		w.WriteHeader(global.GetCodeError(err))
 		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
@@ -36,6 +38,8 @@ func (handler *Handler) LogoutPost(w http.ResponseWriter, r *http.Request) {
 
 	err = handler.b.LogoutUser(ctx, user.UserID)
 	if err != nil {
+		logger.StandardWarnF(ctx, op, "Received behavior error {%v}", err.Error())
+
 		w.WriteHeader(http.StatusUnauthorized)
 		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
