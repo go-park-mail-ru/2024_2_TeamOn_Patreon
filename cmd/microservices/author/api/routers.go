@@ -62,6 +62,12 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			handler.PostAuthorTip,
 		},
 		Route{
+			"Subscribe",
+			strings.ToUpper("Post"),
+			"/author/{authorId}/following",
+			handler.PostFollowing,
+		},
+		Route{
 			"GetAuthor",
 			"GET",
 			"/author/{authorID}",
@@ -72,12 +78,6 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			strings.ToUpper("Get"),
 			"/token-endpoint",
 			middlewares.GetCSRFTokenHandler,
-		},
-		Route{
-			"Subscribe",
-			strings.ToUpper("Post"),
-			"/author/{authorId}/following",
-			handler.PostFollowing,
 		},
 	}
 	// Declare a new router

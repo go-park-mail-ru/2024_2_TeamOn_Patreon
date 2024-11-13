@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/pkg/errors"
 )
@@ -16,14 +17,12 @@ func (s *Service) Subscribe(ctx context.Context, userID, authorID string) error 
 	isSub, err := s.rep.Subscribe(ctx, userID, authorID)
 	if err != nil {
 		return errors.Wrap(err, op)
-	}
-	if isSub {
+	} else if isSub {
 		logger.StandardInfo(
 			ctx,
 			fmt.Sprintf("successful subscribe info: %v from %v", authorID, userID),
 			op)
-	}
-	if !isSub {
+	} else if !isSub {
 		logger.StandardDebugF(ctx, op, "successful unscribe info: %v from %v", authorID, userID)
 	}
 

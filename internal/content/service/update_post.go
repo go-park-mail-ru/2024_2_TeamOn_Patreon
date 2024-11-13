@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/service/validate"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 
@@ -19,10 +20,6 @@ func (b *Behavior) UpdatePost(ctx context.Context, userID string, postID string,
 	}
 
 	if ok := utils.IsValidUUIDv4(userID); !ok {
-		return errors.Wrap(global.ErrIsInvalidUUID, op)
-	}
-
-	if ok := utils.IsValidUUIDv4(postID); !ok {
 		return errors.Wrap(global.ErrIsInvalidUUID, op)
 	}
 

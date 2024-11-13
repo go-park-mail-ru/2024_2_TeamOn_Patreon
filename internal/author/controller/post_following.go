@@ -1,12 +1,13 @@
 package controller
 
 import (
+	"net/http"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 // PostFollowing - ручка пожертвований автору
@@ -34,14 +35,6 @@ func (handler *Handler) PostFollowing(w http.ResponseWriter, r *http.Request) {
 	if ok := utils.IsValidUUIDv4(userID); !ok {
 		// Status 400
 		logger.StandardResponse(ctx, "invalid userID format", http.StatusBadRequest, r.Host, op)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// Валидация authorID на соответствие стандарту UUIDv4
-	if ok := utils.IsValidUUIDv4(authorID); !ok {
-		// Status 400
-		logger.StandardResponse(ctx, "invalid authorID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

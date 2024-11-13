@@ -2,7 +2,10 @@ package repositories
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+
 	"github.com/pkg/errors"
 )
 
@@ -145,7 +148,7 @@ func (p *Postgres) isAuthor(ctx context.Context, authorId string) (bool, error) 
 		if err = rows.Scan(&role); err != nil {
 			return false, errors.Wrap(err, op)
 		}
-		if role == "Author" {
+		if role == string(models.Author) {
 			return true, nil
 		}
 	}
@@ -160,13 +163,13 @@ func (p *Postgres) getCustomSubscriptionLayerOne(ctx context.Context, authorId s
 	}
 	defer rows.Close()
 	var (
-		customSubId string
+		customSubID string
 	)
 	for rows.Next() {
-		if err = rows.Scan(&customSubId); err != nil {
+		if err = rows.Scan(&customSubID); err != nil {
 			return "", errors.Wrap(err, op)
 		}
-		return customSubId, nil
+		return customSubID, nil
 
 	}
 	return "", err
@@ -183,8 +186,6 @@ func (p *Postgres) createSubscription(ctx context.Context, customSubID, userID s
 
 }
 
-//func (p *Postgres) getSubscription(ctx context.Context, userId)
-
 func (p *Postgres) getSubscription(ctx context.Context, userID, authorID string) (string, error) {
 	op := "internal.subscription.getSubscription"
 
@@ -195,13 +196,13 @@ func (p *Postgres) getSubscription(ctx context.Context, userID, authorID string)
 
 	defer rows.Close()
 	var (
-		SubId string
+		subID string
 	)
 	for rows.Next() {
-		if err = rows.Scan(&SubId); err != nil {
+		if err = rows.Scan(&subID); err != nil {
 			return "", errors.Wrap(err, op)
 		}
-		return SubId, nil
+		return subID, nil
 
 	}
 	return "", err
