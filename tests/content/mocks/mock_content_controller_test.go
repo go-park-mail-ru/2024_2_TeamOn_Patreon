@@ -111,8 +111,8 @@ func TestFeedPopularGet(t *testing.T) {
 	postId2Str := postId.String()
 
 	mockBehavior.EXPECT().GetPopularPosts(gomock.Any(), userIdStr, gomock.Any()).Return([]*models.Post{
-		{PostId: postId1Str, Title: "Popular Post 1"},
-		{PostId: postId2Str, Title: "Popular Post 2"},
+		{PostID: postId1Str, Title: "Popular Post 1"},
+		{PostID: postId2Str, Title: "Popular Post 2"},
 	}, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/feed/popular", nil)
@@ -185,8 +185,8 @@ func TestAuthorPostAuthorIdGet(t *testing.T) {
 	postId2Str := postId.String()
 
 	mockBehavior.EXPECT().GetAuthorPosts(gomock.Any(), gomock.Any(), authorIdStr, gomock.Any()).Return([]*models.Post{
-		{PostId: postId1Str, Title: "Author Post 1"},
-		{PostId: postId2Str, Title: "Author Post 2"},
+		{PostID: postId1Str, Title: "Author Post 1"},
+		{PostID: postId2Str, Title: "Author Post 2"},
 	}, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/author/post/"+authorIdStr, nil)
@@ -261,8 +261,8 @@ func TestFeedSubscriptionsGet(t *testing.T) {
 	opt := bModels.NewFeedOpt(offset, limit)
 
 	mockBehavior.EXPECT().GetFeedSubscription(gomock.Any(), userIdStr, opt).Return([]*models.Post{
-		{PostId: postId1Str, Title: "Sub Post 1"},
-		{PostId: postId2Str, Title: "Sub Post 2"},
+		{PostID: postId1Str, Title: "Sub Post 1"},
+		{PostID: postId2Str, Title: "Sub Post 2"},
 	}, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/feed/subscriptions", nil)

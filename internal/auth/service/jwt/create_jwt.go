@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"time"
 
@@ -9,8 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ПОКА ТАК, потом будем парсить из конфига
-var jwtKey = []byte("secret-key-456764459876")
+var jwtKeyDefault = []byte("jhsebdHihs2-secret-key")
 
 // CreateJWT
 // Функция создания JWT токена по данным
@@ -50,10 +50,12 @@ func createToken(tokenClaims TokenClaims) (TokenString, error) {
 	// Создаем токен с помощью NewWithClaims, передавая наш объект tokenClaims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
 
+	jwtKey := []byte(config.GetEnv(global.EnvJWTKey, string(jwtKeyDefault)))
+
 	// Подписываем токен с использованием секретного ключа
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		return "", global.ErrServer
+		return "", err
 	}
 
 	return TokenString(tokenString), nil

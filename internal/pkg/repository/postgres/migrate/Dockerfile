@@ -9,7 +9,7 @@
 # Используем официальный образ Go для сборки приложения
 FROM golang:1.23-alpine AS builder
 
-# Устанавливаем зависимости для работы с файлом env.docker
+# Устанавливаем зависимости для работы с файлом .env.docker
 RUN apk update && apk add --no-cache git
 
 # Устанавливаем рабочую директорию внутри контейнера
@@ -30,7 +30,7 @@ RUN go build -o /app/migrate-service internal/pkg/repository/postgres/migrate/mi
 # Создаём финальный образ
 FROM alpine:3.18
 
-# Устанавливаем зависимости для работы с файлами env.docker
+# Устанавливаем зависимости для работы с файлами .env.docker
 RUN apk update && apk add --no-cache bash
 
 # Устанавливаем рабочую директорию
@@ -40,10 +40,10 @@ WORKDIR /app
 COPY --from=builder /app/migrate-service /app/migrate-service
 
 COPY database/migrations /app/database/migrations
-# Копируем файл с переменными окружения из директории config
-#COPY internal/auth/config/env.docker /app/env
+# Копируем файл с переменными окружения из директории pkg
+#COPY internal/auth/pkg/.env.docker /app/env
 
-# Экспортируем переменные окружения из файла env.docker
+# Экспортируем переменные окружения из файла .env.docker
 # Используем формат key=value
 # RUN export $(grep -v '^#' /app/env | xargs)
 

@@ -27,7 +27,7 @@ func (plb *PostLikeBody) validatePostId() error {
 	op := "content.controller.model_post_like_body.validatePostId"
 
 	if !utils.IsValidUUIDv4(plb.PostId) {
-		return errors.Wrap(global.ErrUuidIsInvalid, op)
+		return errors.Wrap(global.ErrIsInvalidUUID, op)
 	}
 
 	return nil

@@ -2,11 +2,15 @@ package end_to_end
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/auth/api"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/repositories"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/postgresql"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -20,7 +24,17 @@ type TestServer struct {
 
 // SetupTestServer инициализирует сервер и роутер
 func SetupTestServer() *TestServer {
-	rep := repositories.New()
+	// logger
+	logger.New()
+
+	// pkg
+	config.InitEnv("pkg/.env.default", "pkg/auth/.env.default")
+
+	// repository
+	db := postgres.InitPostgresDB(context.Background())
+	defer db.Close()
+
+	rep := postgresql.NewAuthRepository(db)
 	beh := service.New(rep)
 	router := api.NewRouter(beh)
 	//commonHandler := middlewares.CreateMiddlewareWithCommonRepository(rep, service.New)

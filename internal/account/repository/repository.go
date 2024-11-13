@@ -12,9 +12,9 @@ import (
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
+	"github.com/satori/go.uuid"
 )
 
 // Поле структуры - pool соединений с БД
@@ -112,7 +112,13 @@ func (p *Postgres) AvatarPathByID(ctx context.Context, userID string) (string, e
 	var avatarPath string
 	err := p.db.QueryRow(ctx, query, userID).Scan(&avatarPath)
 	if err != nil {
-		return "", errors.Wrap(err, op)
+		logger.StandardInfo(
+			ctx,
+			fmt.Sprintf("avatar not found for user with userID %s", userID),
+			op,
+		)
+		// return p.getPathForDefaultAvatar(), errors.Wrap(err, op)
+		avatarPath = p.getPathForDefaultAvatar()
 	}
 
 	return avatarPath, nil
@@ -178,11 +184,12 @@ func (p *Postgres) UpdateEmail(ctx context.Context, userID string, email string)
 	return nil
 }
 
+// Сейчас не используется
 func (p *Postgres) DeleteAvatar(ctx context.Context, userID string) error {
 	op := "internal.account.repository.DeleteAvatar"
 
 	// Путь до старой аватарки
-	avatarPath, err := p.AvatarPathByID(ctx, userID)
+	_, err := p.AvatarPathByID(ctx, userID)
 	if err != nil {
 		logger.StandardInfo(
 			ctx,
@@ -199,12 +206,16 @@ func (p *Postgres) DeleteAvatar(ctx context.Context, userID string) error {
 	`
 
 	logger.StandardDebugF(ctx, op, "want to delete record with old avatar")
-	p.db.Exec(ctx, deleteQuery, userID)
 
-	logger.StandardDebugF(ctx, op, "want to delete old avatar file")
-	if err := os.Remove(avatarPath); err != nil {
+	if _, err := p.db.Exec(ctx, deleteQuery, userID); err != nil {
 		return errors.Wrap(err, op)
 	}
+
+	// Удаление файла из файловой системы
+	// logger.StandardDebugF(ctx, op, "want to delete old avatar file")
+	// if err := os.Remove(avatarPath); err != nil {
+	// 	return errors.Wrap(err, op)
+	// }
 
 	return nil
 }
@@ -257,7 +268,7 @@ func (p *Postgres) UpdateAvatar(ctx context.Context, userID string, avatar multi
 }
 
 func (p *Postgres) GenerateID() string {
-	id, _ := uuid.NewV4()
+	id := uuid.NewV4()
 
 	return id.String()
 }
@@ -291,16 +302,31 @@ func (p *Postgres) InitPage(ctx context.Context, userID string) error {
 	op := "internal.account.repository.InitPage"
 
 	pageID := p.GenerateID()
+	backgroundURL := p.getPathForDefaultBackground()
 
 	query := `
 		INSERT INTO page (page_id, user_id, info, background_picture_url)
-		VALUES ($1, $2, NULL, NULL);
+		VALUES ($1, $2, NULL, $3);
 	`
 
-	if _, err := p.db.Exec(ctx, query, pageID, userID); err != nil {
+	if _, err := p.db.Exec(ctx, query, pageID, userID, backgroundURL); err != nil {
 		errors.Wrap(err, op)
 	}
 
 	// Возвращаем nil, если создание прошло успешно
 	return nil
+}
+
+func (p *Postgres) getPathForDefaultAvatar() string {
+	defaultDir := "./static/avatar"
+	defaultName := "default.jpg"
+	defaultPath := filepath.Join(defaultDir, defaultName)
+	return defaultPath
+}
+
+func (p *Postgres) getPathForDefaultBackground() string {
+	defaultDir := "./static/background"
+	defaultName := "default.jpg"
+	defaultPath := filepath.Join(defaultDir, defaultName)
+	return defaultPath
 }

@@ -11,10 +11,10 @@ import (
 	"time"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
 
@@ -79,6 +79,25 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*repModels.
 
 	// Возвращаем данные автора
 	return &author, nil
+}
+
+func (p *Postgres) UserIsSubscribe(ctx context.Context, authorID, userID string) (bool, error) {
+	op := "internal.account.repository.UserIsSubscribe"
+	logger.StandardDebugF(ctx, op, "wants to check relations userID=%v and authorID=%v", userID, authorID)
+
+	query := `
+		SELECT 
+			EXISTS (
+				SELECT 1
+				FROM subscription s
+				JOIN custom_subscription cs ON s.custom_subscription_id = cs.custom_subscription_id
+				WHERE s.user_id = $1 AND cs.author_id = $2
+			) AS is_subscribed;
+	`
+	var subscribeStatus bool
+	p.db.QueryRow(ctx, query, userID, authorID).Scan(&subscribeStatus)
+
+	return subscribeStatus, nil
 }
 
 func (p *Postgres) SubscriptionsByID(ctx context.Context, authorID string) ([]repModels.Subscription, error) {
@@ -198,6 +217,7 @@ func (p *Postgres) BackgroundPathByID(ctx context.Context, authorID string) (str
 	return backgroundPath, nil
 }
 
+// Сейчас не используется
 func (p *Postgres) DeleteBackground(ctx context.Context, authorID string) error {
 	op := "internal.account.repository.DeleteBackground"
 
@@ -303,7 +323,5 @@ func (p *Postgres) NewTip(ctx context.Context, userID, authorID string, cost int
 }
 
 func (p *Postgres) GenerateID() string {
-	id, _ := uuid.NewV4()
-
-	return id.String()
+	return utils.GenerateUUID()
 }

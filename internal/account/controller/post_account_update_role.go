@@ -9,7 +9,7 @@ import (
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
-// PostAccountUpdate - ручка изменения данных профиля
+// PostAccountUpdateRole - ручка изменения данных профиля
 func (handler *Handler) PostAccountUpdateRole(w http.ResponseWriter, r *http.Request) {
 	op := "internal.account.controller.PostAccountUpdateRole"
 

@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
+	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	models2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
-	"github.com/gofrs/uuid"
+	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/pkg/errors"
 )
 
@@ -16,22 +16,21 @@ import (
 // userId - невалидный - ошибка
 // authorId - me - страница автора
 // authorId - невалидный ошибка
-func (b *Behavior) GetAuthorPosts(ctx context.Context, userId, authorId string, opt *models2.FeedOpt) ([]*models.Post, error) {
+func (b *Behavior) GetAuthorPosts(ctx context.Context, userID, authorID string, opt *models.FeedOpt) ([]*pkgModels.Post, error) {
 	op := "internal.content.repository.author_feed.GetAuthorPosts"
 
 	// Нельзя посмотреть свою страницу анониму
-	if userId == "" && authorId == "me" {
+	if userID == "" && authorID == "me" {
 		return nil, errors.Wrap(global.ErrUserNotAuthorized, op)
 	}
 
 	// аноним смотрит посты автора
-	if userId == "" {
-		authorIdUuid, err := uuid.FromString(authorId)
-		if err != nil {
-			return nil, errors.Wrap(err, op)
+	if userID == "" {
+		if ok := utils.IsValidUUIDv4(authorID); ok != true {
+			return nil, errors.Wrap(global.ErrIsInvalidUUID, op)
 		}
 
-		posts, err := b.getAuthorPostsForAnon(ctx, authorIdUuid, opt.Offset, opt.Limit)
+		posts, err := b.getAuthorPostsForAnon(ctx, authorID, opt.Offset, opt.Limit)
 		if err != nil {
 			return nil, errors.Wrap(err, op)
 		}
@@ -39,14 +38,13 @@ func (b *Behavior) GetAuthorPosts(ctx context.Context, userId, authorId string, 
 	}
 
 	// юзер
-	userIdUuid, err := uuid.FromString(userId)
-	if err != nil {
-		return nil, errors.Wrap(err, op)
+	if ok := utils.IsValidUUIDv4(userID); !ok {
+		return nil, errors.Wrap(global.ErrIsInvalidUUID, op)
 	}
 
 	// автор смотрит свои посты
-	if authorId == "me" || userId == authorId {
-		isAuthor, err := b.isUserAuthor(ctx, userIdUuid)
+	if authorID == "me" || userID == authorID {
+		isAuthor, err := b.isUserAuthor(ctx, userID)
 		if err != nil {
 			return nil, errors.Wrap(err, op)
 		}
@@ -57,39 +55,37 @@ func (b *Behavior) GetAuthorPosts(ctx context.Context, userId, authorId string, 
 			return nil, errors.Wrap(global.ErrNotEnoughRights, op)
 		}
 
-		posts, err := b.getAuthorMyPosts(ctx, userIdUuid, opt.Offset, opt.Limit)
+		posts, err := b.getAuthorMyPosts(ctx, userID, opt.Offset, opt.Limit)
 		if err != nil {
 			return nil, errors.Wrap(err, op)
 		}
 		return posts, nil
 	}
 
-	// достаем автора
-	authorIdUuid, err := uuid.FromString(authorId)
-	if err != nil {
-		return nil, errors.Wrap(err, op)
+	if ok := utils.IsValidUUIDv4(authorID); !ok {
+		return nil, errors.Wrap(global.ErrIsInvalidUUID, op)
 	}
 
 	// юзер смотрит посты автора
 	//  может быть как подписчиком, так и неи
-	posts, err := b.getAuthorPostsForUser(ctx, userIdUuid, authorIdUuid, opt.Offset, opt.Limit)
+	posts, err := b.getAuthorPostsForUser(ctx, userID, authorID, opt.Offset, opt.Limit)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
 	return posts, nil
 }
 
-func (b *Behavior) getAuthorMyPosts(ctx context.Context, userId uuid.UUID, offset, limit int) ([]*models.Post, error) {
+func (b *Behavior) getAuthorMyPosts(ctx context.Context, userID string, offset, limit int) ([]*pkgModels.Post, error) {
 	op := "internal.content.repository.author_post.GetAuthorMyPosts"
 
-	logger.StandardDebugF(ctx, op, "Getting my posts for authorId='%v'", userId)
+	logger.StandardDebugF(ctx, op, "Getting my posts for authorId='%v'", userID)
 
-	posts, err := b.rep.GetAuthorPostsForMe(ctx, userId, offset, limit)
+	posts, err := b.rep.GetAuthorPostsForMe(ctx, userID, offset, limit)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
 
-	err = b.getLikePostsForUser(ctx, userId, posts)
+	err = b.getLikePostsForUser(ctx, userID, posts)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
@@ -97,31 +93,31 @@ func (b *Behavior) getAuthorMyPosts(ctx context.Context, userId uuid.UUID, offse
 	return posts, nil
 }
 
-func (b *Behavior) getAuthorPostsForAnon(ctx context.Context, authorId uuid.UUID, offset, limit int) ([]*models.Post, error) {
+func (b *Behavior) getAuthorPostsForAnon(ctx context.Context, authorID string, offset, limit int) ([]*pkgModels.Post, error) {
 	op := "internal.content.repository.author_feed.GetAuthorPostsForAnon"
 
-	logger.StandardDebugF(ctx, op, "Getting posts by authorId='%v' for anon", authorId)
+	logger.StandardDebugF(ctx, op, "Getting posts by authorID='%v' for anon", authorID)
 
-	posts, err := b.rep.GetAuthorPostsForAnon(ctx, authorId, offset, limit)
+	posts, err := b.rep.GetAuthorPostsForAnon(ctx, authorID, offset, limit)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
 	return posts, nil
 }
 
-func (b *Behavior) getAuthorPostsForUser(ctx context.Context, userId, authorId uuid.UUID, offset, limit int) ([]*models.Post, error) {
+func (b *Behavior) getAuthorPostsForUser(ctx context.Context, userID, authorID string, offset, limit int) ([]*pkgModels.Post, error) {
 	op := "internal.content.repository.author_post.GetAuthorPostsForUser"
 
-	logger.StandardDebugF(ctx, op, "Getting posts by authorId='%v' for userId='%v'", authorId, userId)
+	logger.StandardDebugF(ctx, op, "Getting posts by authorID='%v' for userID='%v'", authorID, userID)
 
-	layer, err := b.rep.GetUserLayerOfAuthor(ctx, userId, authorId)
+	layer, err := b.rep.GetUserLayerOfAuthor(ctx, userID, authorID)
 
-	posts, err := b.rep.GetAuthorPostsForLayer(ctx, layer, authorId, offset, limit)
+	posts, err := b.rep.GetAuthorPostsForLayer(ctx, layer, authorID, offset, limit)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
 
-	err = b.getLikePostsForUser(ctx, userId, posts)
+	err = b.getLikePostsForUser(ctx, userID, posts)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}

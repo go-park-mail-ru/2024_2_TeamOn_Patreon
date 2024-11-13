@@ -62,6 +62,12 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			handler.PostAuthorTip,
 		},
 		Route{
+			"Subscribe",
+			strings.ToUpper("Post"),
+			"/author/{authorId}/following",
+			handler.PostFollowing,
+		},
+		Route{
 			"GetAuthor",
 			"GET",
 			"/author/{authorID}",

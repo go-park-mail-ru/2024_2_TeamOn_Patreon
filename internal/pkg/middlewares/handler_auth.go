@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
@@ -13,6 +12,7 @@ import (
 
 // HandlerAuth - middleware, обрабатывает JWT токен из cookie
 // передает модельку юзера в контекст
+// Возвращает ошибку, если пользователь не авторизован!
 func HandlerAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		op := "internal.pkg.middlewares.HandlerAuth"
@@ -20,7 +20,7 @@ func HandlerAuth(next http.Handler) http.Handler {
 		// парсинг jwt токена
 		tokenClaims, err := jwt.ParseJWTFromCookie(r)
 		if err != nil || tokenClaims == nil {
-			logger.StandardDebugF(r.Context(), op, "Auth failed: fail get user from ctx")
+			logger.StandardDebugF(r.Context(), op, "Auth failed: fail get user from token err=%v claims=%v", err, tokenClaims)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -31,11 +31,8 @@ func HandlerAuth(next http.Handler) http.Handler {
 
 		// передаем в контекст
 		ctx := context.WithValue(r.Context(), global.UserKey, user)
-		logger.StandardDebug(
-			ctx,
-			fmt.Sprintf("Transferred user (id={%v}, name={%v}) in ctx", user.UserID, user.Username),
-			op,
-		)
+		logger.StandardDebugF(r.Context(), op, "Transferred user (id={%v}, name={%v}) in ctx",
+			user.UserID, user.Username)
 
 		// добавляем контекст в контекст r
 		r = r.WithContext(ctx)

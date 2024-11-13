@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
 	_ "github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
@@ -51,10 +50,10 @@ where People.user_id = $1
 `
 )
 
-func (cr *ContentRepository) GetUserLayerForAuthor(ctx context.Context, userId uuid.UUID, authorId uuid.UUID) (int, error) {
+func (cr *ContentRepository) GetUserLayerForAuthor(ctx context.Context, userID string, authorID string) (int, error) {
 	op := "internal.content.repository.user.GetUserLayerForAuthor"
 
-	rows, err := cr.db.Query(ctx, getUserLayerSql, userId, authorId)
+	rows, err := cr.db.Query(ctx, getUserLayerSql, userID, authorID)
 	if err != nil {
 		return 0, errors.Wrap(err, op)
 	}
@@ -68,24 +67,24 @@ func (cr *ContentRepository) GetUserLayerForAuthor(ctx context.Context, userId u
 		if err = rows.Scan(&layer); err != nil {
 			return 0, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(ctx, op, "Got layer= %s user= %s author %s", layer, userId, authorId)
+		logger.StandardDebugF(ctx, op, "Got layer= %s user= %s author %s", layer, userID, authorID)
 	}
 
 	// Rows.Err will report the last error encountered by Rows.Scan.
 	if err := rows.Err(); err != nil {
 		return 0, errors.Wrap(global.ErrServer, op)
 	}
-	logger.StandardDebugF(ctx, op, "Got layer= %s user= %s author %s", layer, userId, authorId)
+	logger.StandardDebugF(ctx, op, "Got layer= %s user= %s author %s", layer, userID, authorID)
 
 	return 0, nil
 }
 
-func (cr *ContentRepository) GetUserRole(ctx context.Context, userId uuid.UUID) (string, error) {
+func (cr *ContentRepository) GetUserRole(ctx context.Context, userID string) (string, error) {
 	op := "internal.content.repository.user.GetUserRole"
 
-	logger.StandardDebugF(ctx, op, "Want to get user role userID=%v, db = %v", userId, cr.db)
+	logger.StandardDebugF(ctx, op, "Want to get user role userID=%v, db = %v", userID, cr.db)
 
-	rows, err := cr.db.Query(ctx, getUserRoleSQL, userId.String())
+	rows, err := cr.db.Query(ctx, getUserRoleSQL, userID)
 	if err != nil {
 		return "", errors.Wrap(err, op)
 	}
@@ -99,19 +98,19 @@ func (cr *ContentRepository) GetUserRole(ctx context.Context, userId uuid.UUID) 
 		if err = rows.Scan(&role); err != nil {
 			return "", errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(ctx, op, "Got layer= %s user= %s", role, userId)
+		logger.StandardDebugF(ctx, op, "Got layer= %s user= %s", role, userID)
 		return role, nil
 	}
 
 	return "", nil
 }
 
-func (cr *ContentRepository) GetUserLayerOfAuthor(ctx context.Context, userId, authorId uuid.UUID) (int, error) {
+func (cr *ContentRepository) GetUserLayerOfAuthor(ctx context.Context, userID, authorID string) (int, error) {
 	op := "internal.content.repository.post.GetUserLayerOfAuthor"
 
-	logger.StandardDebugF(ctx, op, "Want to get user layer userID=%v, author = %v", userId, authorId)
+	logger.StandardDebugF(ctx, op, "Want to get user layer userID=%v, author = %v", userID, authorID)
 
-	rows, err := cr.db.Query(ctx, getUserLayerOfAuthor, userId, authorId)
+	rows, err := cr.db.Query(ctx, getUserLayerOfAuthor, userID, authorID)
 	if err != nil {
 		return 0, errors.Wrap(err, op)
 	}
@@ -125,7 +124,7 @@ func (cr *ContentRepository) GetUserLayerOfAuthor(ctx context.Context, userId, a
 		if err = rows.Scan(&layer); err != nil {
 			return 0, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(ctx, op, "Got layer= %s user= %s", layer, userId)
+		logger.StandardDebugF(ctx, op, "Got layer= %s user= %s", layer, userID)
 		return layer, nil
 	}
 

@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"fmt"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
@@ -34,6 +35,12 @@ func ParseJWTFromCookie(r *http.Request) (*TokenClaims, error) {
 func ParseJWTFromJWTString(tokenString string) (*TokenClaims, error) {
 	// Объект для хранения наших данных из токена
 	claims := &TokenClaims{}
+
+	if tokenString == "" {
+		return claims, fmt.Errorf("empty token")
+	}
+
+	jwtKey := []byte(config.GetEnv(global.EnvJWTKey, string(jwtKeyDefault)))
 
 	// Парсим токен, проверяя его подпись и поля
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {

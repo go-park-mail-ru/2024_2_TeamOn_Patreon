@@ -32,6 +32,12 @@ func NewRouter(behavior interfaces.ContentBehavior) *mux.Router {
 
 	authRouter.Use(middlewares.HandlerAuth)
 	router.Use(middlewares.AuthMiddleware)
+
+	// регистрируем middlewares
+	mainRouter.Use(middlewares.CsrfMiddleware)
+	mainRouter.Use(middlewares.Logging)
+	mainRouter.Use(middlewares.AddRequestID)
+
 	return mainRouter
 }
 
@@ -115,7 +121,7 @@ func handleOther(router *mux.Router, behavior interfaces.ContentBehavior) {
 		Route{
 			"AuthorPostAuthorIdGet",
 			strings.ToUpper("Get"),
-			"/author/post/{authorId}",
+			"/author/post/{authorID}",
 			handler.AuthorPostAuthorIdGet,
 		},
 

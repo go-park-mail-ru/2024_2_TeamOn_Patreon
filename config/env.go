@@ -26,11 +26,11 @@ func InitEnv(pathToCommonEnv string, pathToServiceEnv string) {
 }
 
 func InitEnvErr(pathToCommonEnv string, pathToServiceEnv string) error {
-	op := "pkg.global.env.InitEnv"
+	op := "pkg.global.env.InitEnvErr"
 
 	wd, _ := os.Getwd()
 	ctx := context.Background()
-	logger.StandardDebugF(ctx, op, "Current working directory:", wd)
+	logger.StandardDebugF(ctx, op, "Current working directory: %v", wd)
 
 	// Достаем из окружения информацию в докере ли мы
 	key := "IN_DOCKER"

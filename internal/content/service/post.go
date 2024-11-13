@@ -2,31 +2,33 @@ package service
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/service/validate"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
-func (b *Behavior) CreatePost(ctx context.Context, authorId string, title string, content string, layer int) (string, error) {
+func (b *Behavior) CreatePost(ctx context.Context, authorID string, title string, content string, layer int) (string, error) {
 	op := "service.behavior.CreatePost"
 
-	logger.StandardDebugF(ctx, op, "Got authorId:=%v title:=%v content:=%v layer:=%v", authorId, title, content, layer)
+	logger.StandardDebugF(ctx, op, "Got authorID:=%v title:=%v content:=%v layer:=%v", authorID, title, content, layer)
 
-	newPostId, err := uuid.NewV4()
-	if err != nil {
-		return "", errors.Wrap(global.ErrServer, op)
-	}
-
-	uuidUserId, err := uuid.FromString(authorId)
+	title, content, layer, err := validate.Post(ctx, title, content, layer)
 	if err != nil {
 		return "", errors.Wrap(err, op)
 	}
 
+	newPostID := utils.GenerateUUID()
+
+	if ok := utils.IsValidUUIDv4(authorID); !ok {
+		return "", errors.Wrap(global.ErrIsInvalidUUID, op)
+	}
+
 	// Проверяем является ли человек автором
-	isAuthor, err := b.isUserAuthor(ctx, uuidUserId)
+	isAuthor, err := b.isUserAuthor(ctx, authorID)
 	if err != nil {
 		return "", errors.Wrap(err, op)
 	}
@@ -36,7 +38,7 @@ func (b *Behavior) CreatePost(ctx context.Context, authorId string, title string
 	}
 
 	// Проверяем есть ли кастомные подписки у этого пользователя на этом уровне
-	layerExist, err := b.checkLayerExist(ctx, uuidUserId, layer)
+	layerExist, err := b.checkLayerExist(ctx, authorID, layer)
 	if err != nil {
 		return "", errors.Wrap(err, op)
 	}
@@ -45,17 +47,17 @@ func (b *Behavior) CreatePost(ctx context.Context, authorId string, title string
 	}
 
 	// Вставляем пост
-	err = b.insertPost(ctx, uuidUserId, newPostId, title, content, layer)
+	err = b.insertPost(ctx, authorID, newPostID, title, content, layer)
 	if err != nil {
 		return "", errors.Wrap(err, op)
 	}
-	return newPostId.String(), nil
+	return newPostID, nil
 }
 
-func (b *Behavior) checkCustomLayer(ctx context.Context, authorId uuid.UUID, layer int) (bool, error) {
+func (b *Behavior) checkCustomLayer(ctx context.Context, authorID string, layer int) (bool, error) {
 	op := "content.service.checkCustomLayer"
 
-	layerExists, err := b.rep.CheckCustomLayer(ctx, authorId, layer)
+	layerExists, err := b.rep.CheckCustomLayer(ctx, authorID, layer)
 	if err != nil {
 		logger.StandardDebugF(ctx, op, "checkCustomLayer err=%v", err)
 		return false, errors.Wrap(err, op)
@@ -63,32 +65,32 @@ func (b *Behavior) checkCustomLayer(ctx context.Context, authorId uuid.UUID, lay
 	return layerExists, nil
 }
 
-func (b *Behavior) insertPost(ctx context.Context, userId uuid.UUID, postId uuid.UUID, title string, content string, layer int) error {
+func (b *Behavior) insertPost(ctx context.Context, userID string, postID string, title string, content string, layer int) error {
 	op := "content.service.insertPost"
 
 	logger.StandardDebugF(ctx, op, "Want to insert user:=%v post=%v title=%v content=%v layer=%v",
-		userId, postId, title, content, layer)
+		userID, postID, title, content, layer)
 
-	err := b.rep.InsertPost(ctx, userId, postId, title, content, layer)
-	logger.StandardDebugF(ctx, op, "InsertPost=%v err=%v", postId, err)
+	err := b.rep.InsertPost(ctx, userID, postID, title, content, layer)
+	logger.StandardDebugF(ctx, op, "InsertPost=%v err=%v", postID, err)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
 	return nil
 }
 
-func (b *Behavior) isUserAuthor(ctx context.Context, userId uuid.UUID) (bool, error) {
+func (b *Behavior) isUserAuthor(ctx context.Context, userID string) (bool, error) {
 	op := "content.service.isUserAuthor"
 
-	logger.StandardDebugF(ctx, op, "Want to check if user %v author", userId)
+	logger.StandardDebugF(ctx, op, "Want to check if user %v author", userID)
 
-	role, err := b.rep.GetUserRole(ctx, userId)
+	role, err := b.rep.GetUserRole(ctx, userID)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}
 
 	isAuthor := models.StringToRole(role) == models.Author
-	logger.StandardDebugF(ctx, op, "Role = %v userID = %v isAuthor=%v", role, userId, isAuthor)
+	logger.StandardDebugF(ctx, op, "Role = %v userID = %v isAuthor=%v", role, userID, isAuthor)
 
 	if isAuthor {
 		return true, nil
@@ -96,7 +98,7 @@ func (b *Behavior) isUserAuthor(ctx context.Context, userId uuid.UUID) (bool, er
 	return false, nil
 }
 
-func (b *Behavior) checkLayerExist(ctx context.Context, authorId uuid.UUID, layer int) (bool, error) {
+func (b *Behavior) checkLayerExist(ctx context.Context, authorID string, layer int) (bool, error) {
 	op := "content.service.checkLayerExist"
 
 	if layer == 0 {
@@ -105,7 +107,7 @@ func (b *Behavior) checkLayerExist(ctx context.Context, authorId uuid.UUID, laye
 	}
 
 	// Проверяем есть ли кастомные подписки у этого пользователя на этом уровне
-	layerExist, err := b.rep.CheckCustomLayer(ctx, authorId, layer)
+	layerExist, err := b.rep.CheckCustomLayer(ctx, authorID, layer)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}

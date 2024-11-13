@@ -13,20 +13,22 @@ import (
 )
 
 // LogoutPost - ручка разлогина
+// Достает пользователя из токена, ставит протухшую куку
+// Method: POST
 func (handler *Handler) LogoutPost(w http.ResponseWriter, r *http.Request) {
 	op := "auth.controller.LogoutPost"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	ctx := r.Context()
 
 	// парсинг jwt токена
 	tokenClaims, err := jwt.ParseJWTFromCookie(r)
 	if err != nil || tokenClaims == nil {
+		logger.StandardWarnF(ctx, op, "Received parse jwt error {%v}", err.Error())
+
 		err = global.ErrUserNotAuthorized
 		w.WriteHeader(global.GetCodeError(err))
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
-		err = global.ErrUserNotAuthorized
-		w.WriteHeader(global.GetCodeError(err))
-		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
@@ -36,11 +38,14 @@ func (handler *Handler) LogoutPost(w http.ResponseWriter, r *http.Request) {
 
 	err = handler.b.LogoutUser(ctx, user.UserID)
 	if err != nil {
+		logger.StandardWarnF(ctx, op, "Received behavior error {%v}", err.Error())
+
 		w.WriteHeader(http.StatusUnauthorized)
-		utils.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
-	// Сохранение токена в куки
+
+	// Сохранение пустой куки
 	cookie := utils.CreateEmptyCookieJWT()
 
 	// Устанавливаем токен в куку

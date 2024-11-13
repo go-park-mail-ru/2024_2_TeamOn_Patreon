@@ -3,26 +3,27 @@ package service
 import (
 	"context"
 
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/service/validate"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
-func (b *Behavior) UpdatePost(ctx context.Context, userID string, postId string, title string, about string) error {
+func (b *Behavior) UpdatePost(ctx context.Context, userID string, postID string, title string, about string) error {
 	op := "content.service.behavior.UpdatePost"
 
-	authorId, err := uuid.FromString(userID)
+	title, about, _, err := validate.Post(ctx, title, about, 0)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
 
-	postIdUuid, err := uuid.FromString(postId)
-	if err != nil {
-		return errors.Wrap(err, op)
+	if ok := utils.IsValidUUIDv4(userID); !ok {
+		return errors.Wrap(global.ErrIsInvalidUUID, op)
 	}
 
-	isAuthor, err := b.isUserAuthorOfPost(ctx, postIdUuid, authorId)
+	isAuthor, err := b.isUserAuthorOfPost(ctx, postID, userID)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -31,12 +32,12 @@ func (b *Behavior) UpdatePost(ctx context.Context, userID string, postId string,
 		return errors.Wrap(global.ErrNotEnoughRights, op)
 	}
 
-	err = b.updateTitleInPost(ctx, postIdUuid, title)
+	err = b.updateTitleInPost(ctx, postID, title)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
 
-	err = b.updateContentInPost(ctx, postIdUuid, about)
+	err = b.updateContentInPost(ctx, postID, about)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -44,34 +45,34 @@ func (b *Behavior) UpdatePost(ctx context.Context, userID string, postId string,
 	return nil
 }
 
-func (b *Behavior) updateTitleInPost(ctx context.Context, postId uuid.UUID, title string) error {
+func (b *Behavior) updateTitleInPost(ctx context.Context, postID string, title string) error {
 	op := "content.service.behavior.updateTitleInPost"
 
 	if title == "" {
 		return nil
 	}
 
-	logger.StandardDebugF(ctx, op, "Want to update title=%v of post with id: %s", postId, title)
-	err := b.rep.UpdateTitleOfPost(ctx, postId, title)
+	logger.StandardDebugF(ctx, op, "Want to update title=%v of post with id: %s", postID, title)
+	err := b.rep.UpdateTitleOfPost(ctx, postID, title)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
-	logger.StandardDebugF(ctx, op, "Update title of post with id: %s", postId)
+	logger.StandardDebugF(ctx, op, "Update title of post with id: %s", postID)
 	return nil
 }
 
-func (b *Behavior) updateContentInPost(ctx context.Context, postId uuid.UUID, content string) error {
+func (b *Behavior) updateContentInPost(ctx context.Context, postID string, content string) error {
 	op := "content.service.behavior.updateContentInPost"
 
 	if content == "" {
 		return nil
 	}
 
-	logger.StandardDebugF(ctx, op, "Want to update content=%v of post with id: %s", postId, content)
-	err := b.rep.UpdateContentOfPost(ctx, postId, content)
+	logger.StandardDebugF(ctx, op, "Want to update content=%v of post with id: %s", postID, content)
+	err := b.rep.UpdateContentOfPost(ctx, postID, content)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
-	logger.StandardDebugF(ctx, op, "Update content in post with id: %v", postId)
+	logger.StandardDebugF(ctx, op, "Update content in post with id: %v", postID)
 	return nil
 }

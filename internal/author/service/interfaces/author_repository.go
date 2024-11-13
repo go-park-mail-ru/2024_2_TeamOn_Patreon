@@ -12,6 +12,9 @@ type AuthorRepository interface {
 	// AuthorByID получает данные автора по указанному ID
 	AuthorByID(ctx context.Context, authorID string) (*repModels.Author, error)
 
+	// UserIsSubscribe - получение статуса подписки на автора
+	UserIsSubscribe(ctx context.Context, authorID, userID string) (bool, error)
+
 	// Subscriptions получает подписки автора по указанному ID
 	SubscriptionsByID(ctx context.Context, authorID string) ([]repModels.Subscription, error)
 
@@ -35,4 +38,6 @@ type AuthorRepository interface {
 
 	// GenerateID генерирует ID в формате UUIDv4
 	GenerateID() string
+
+	Subscribe(ctx context.Context, userID, authorID string) (bool, error)
 }

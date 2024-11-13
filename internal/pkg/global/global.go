@@ -40,4 +40,6 @@ const (
 	EnvServiceName = "SERVICE_NAME"
 	EnvJWTKey      = "JWT_KEY"
 	EnvPort        = "SERVICE_PORT"
+
+	EnvJWT = "JWT_KEY"
 )

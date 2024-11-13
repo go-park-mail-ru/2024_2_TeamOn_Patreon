@@ -32,7 +32,7 @@ services:
       - "8081:8081"
     env_file:
       - ../../config/auth/.env.default
-      - ../../config/env.docker
+      - ../../config/.env.docker
     depends_on:
       - postgres
 
@@ -42,8 +42,11 @@ services:
       dockerfile: cmd/microservices/account/Dockerfile
     ports:
       - "8082:8082"
+    env_file:
+      - ../../config/account/.env.default
+      - ../../config/.env.docker
     volumes:
-      - ./static/avatar:/app/static/avatar  # Указываем путь к локальной папке
+      - ../../static/avatar:/app/static/avatar  # Указываем путь к локальной папке
     depends_on:
       - postgres
 
@@ -53,8 +56,11 @@ services:
       dockerfile: cmd/microservices/author/Dockerfile
     ports:
       - "8083:8083"
+    env_file:
+      - ../../config/author/.env.default
+      - ../../config/.env.docker
     volumes:
-      - ./static/background:/app/static/background  # Указываем путь к локальной папке
+      - ../../static/background:/app/static/background  # Указываем путь к локальной папке
     depends_on:
       - postgres
 
@@ -68,7 +74,7 @@ services:
       - postgres
     env_file:
       - ../../config/content/.env.default
-      - ../../config/env.docker
+      - ../../config/.env.docker
 
   migrate-service:
     build:

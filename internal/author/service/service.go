@@ -44,6 +44,27 @@ func (s *Service) GetAuthorDataByID(ctx context.Context, authorID string) (sMode
 	return authorData, nil
 }
 
+func (s *Service) GetUserIsSubscribe(ctx context.Context, authorID, userID string) (bool, error) {
+	op := "internal.account.service.GetUserIsSubscribe"
+
+	if authorID == userID {
+		return false, nil
+	}
+	// получаем статус из rep
+	logger.StandardDebugF(ctx, op, "want to get isSubscribe status for authorID=%v by userID=%v", authorID, userID)
+	status, err := s.rep.UserIsSubscribe(ctx, authorID, userID)
+	if err != nil {
+		return false, errors.Wrap(err, op)
+	}
+
+	logger.StandardInfo(
+		ctx,
+		fmt.Sprintf("successful get subscribe status: %v", status),
+		op)
+
+	return status, nil
+}
+
 func (s *Service) GetAuthorSubscriptions(ctx context.Context, authorID string) ([]sModels.Subscription, error) {
 	op := "internal.account.service.GetAuthorSubscriptions"
 
@@ -132,16 +153,16 @@ func (s *Service) PostUpdateBackground(ctx context.Context, authorID string, bac
 	op := "internal.author.service.PostAccountUpdateBackground"
 
 	// Удаляем старый фон, если он есть
-	logger.StandardDebugF(ctx, op, "want to delete old background file")
-	if err := s.rep.DeleteBackground(ctx, authorID); err != nil {
-		return errors.Wrap(err, op)
-	}
+	// logger.StandardDebugF(ctx, op, "want to delete old background file")
+	// if err := s.rep.DeleteBackground(ctx, authorID); err != nil {
+	// 	return errors.Wrap(err, op)
+	// }
 
-	logger.StandardInfo(
-		ctx,
-		fmt.Sprintf("successful delete old background for authorID %s", authorID),
-		op,
-	)
+	// logger.StandardInfo(
+	// 	ctx,
+	// 	fmt.Sprintf("successful delete old background for authorID %s", authorID),
+	// 	op,
+	// )
 
 	// Сохраняем новый
 	logger.StandardDebugF(ctx, op, "want to save new background file")

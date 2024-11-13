@@ -7,7 +7,7 @@ import (
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	utils2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
+	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
 // AuthRegisterPost - ручка регистрации
@@ -19,12 +19,11 @@ func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request)
 
 	// Парсинг фронтовой модели данных регистрации
 	var p tModels.Reg
-	if err := utils2.ParseModels(r, &p, op); err != nil {
-		// проставляем http.StatusBadRequest
-		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+	if err := utils.ParseModels(r, &p, op); err != nil {
+		// проставляем http код ошибки
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
@@ -32,27 +31,23 @@ func (handler *Handler) AuthRegisterPost(w http.ResponseWriter, r *http.Request)
 	if _, err := p.Validate(); err != nil {
 		logger.StandardWarnF(ctx, op, "Received validation error {%v}", err.Error())
 		// проставляем http.StatusBadRequest
-		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
-		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
 	// Создание пользователя и генерация токена
 	tokenString, err := handler.b.RegisterNewUser(ctx, p.Username, p.Password) // передаем username и password
 	if err != nil {
-		logger.StandardDebugF(ctx, op, "Received register error {%v}", err)
-		// проставляем http.StatusBadRequest
-		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+		logger.StandardWarnF(ctx, op, "Received behavior error {%v}", err.Error())
 		w.WriteHeader(global.GetCodeError(err))
-		// отправляем структуру ошибки
-		utils2.SendStringModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
 	// Сохранение токена в куки
-	cookie := utils2.CreateCookie(tokenString)
+	cookie := utils.CreateCookie(tokenString)
 
 	// Устанавливаем токен в куку
 	http.SetCookie(w, &cookie)
