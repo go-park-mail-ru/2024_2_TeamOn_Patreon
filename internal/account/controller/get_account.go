@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
+	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
@@ -21,19 +22,24 @@ func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 
 	// Извлекаем userData из контекста
 	userData, ok := ctx.Value(global.UserKey).(sModels.User)
-
 	if !ok {
-		logger.StandardResponse(ctx, "userData not found in context", http.StatusUnauthorized, r.Host, op)
+		err := global.ErrUserNotAuthorized
+		logger.StandardResponse(ctx, "Auth failed: fail get user from ctx", global.GetCodeError(err), r.Host, op)
 		// Status 401
-		w.WriteHeader(http.StatusUnauthorized)
+		w.WriteHeader(global.GetCodeError(err))
+		// Отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 
 	// Валидация userID на соответствие стандарту UUIDv4
 	if ok := utils.IsValidUUIDv4(string(userData.UserID)); !ok {
+		err := global.ErrUuidIsInvalid
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		// Status 400
-		logger.StandardResponse(ctx, "invalid userID format", http.StatusBadRequest, r.Host, op)
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(global.GetCodeError(err))
+		// Отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 
@@ -41,8 +47,9 @@ func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 	user, err := handler.serv.GetAccDataByID(r.Context(), string(userData.UserID))
 	if err != nil {
 		logger.StandardDebugF(ctx, op, "Received account error {%v}", err)
-		// Status 500
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(global.GetCodeError(err))
+		// Отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 
@@ -50,8 +57,9 @@ func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 	subscriptions, err := handler.serv.GetAccSubscriptions(r.Context(), string(userData.UserID))
 	if err != nil {
 		logger.StandardDebugF(ctx, op, "Received account subscriptions error {%v}", err)
-		// Status 500
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(global.GetCodeError(err))
+		// Отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
 		return
 	}
 

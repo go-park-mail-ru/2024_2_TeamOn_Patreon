@@ -10,6 +10,7 @@ import (
 
 	interfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/interfaces"
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
@@ -137,6 +138,16 @@ func (s *Service) PostUpdateAvatar(ctx context.Context, userID string, avatarFil
 func (s *Service) PostUpdateRole(ctx context.Context, userID string) error {
 	op := "internal.account.service.PostUpdateRole"
 
+	// Проверяем, что пользователь еще не является "author"
+	logger.StandardDebugF(ctx, op, "want to check user role")
+	ok, err := s.rep.IsReader(ctx, userID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	} else if !ok {
+		logger.StandardDebugF(ctx, op, "user with userID=%v already is 'Author'", userID)
+		return global.ErrRoleAlreadyChanged
+	}
+
 	// Обновляем поле роль с "reader" на "author"
 	if err := s.updateRole(ctx, userID); err != nil {
 		return errors.Wrap(err, op)
@@ -204,7 +215,7 @@ func (s *Service) UpdateEmail(ctx context.Context, userID string, email string) 
 func (s *Service) updateRole(ctx context.Context, userID string) error {
 	op := "internal.account.service.updateRole"
 
-	if err := s.rep.UpdateRole(ctx, userID); err != nil {
+	if err := s.rep.UpdateRoleToAuthor(ctx, userID); err != nil {
 		return errors.Wrap(err, op)
 	}
 	logger.StandardInfo(ctx, "successful change role", op)

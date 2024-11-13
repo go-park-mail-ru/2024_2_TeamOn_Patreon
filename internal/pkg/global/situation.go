@@ -1,8 +1,9 @@
 package global
 
 import (
-	"github.com/pkg/errors"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 // ВРЕМЕННО В ЭТОМ ФАЙЛЕ ПОТОМ РАЗНЕСЕМ
@@ -63,6 +64,10 @@ var (
 
 	ErrPostDoesntExists = errors.New("post doesn't")
 
+	// ----- ACCOUNT -----
+
+	ErrRoleAlreadyChanged = errors.New("пользователь уже является автором")
+
 	// uuid
 
 	ErrUuidIsInvalid = errors.New("uuid is invalid")
@@ -105,13 +110,17 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrServer:            {msg: "end-to-end error", code: http.StatusInternalServerError},
 	ErrUserNotAuthorized: {msg: "пользователь не авторизован", code: http.StatusUnauthorized},
 
+	// ----- ACCOUNT -----
+
+	ErrRoleAlreadyChanged: {msg: "Вы уже являетесь автором", code: http.StatusBadRequest},
+
 	// content
 	ErrFieldTooLong:             {msg: "field too long", code: http.StatusBadRequest},
 	ErrFieldTooShort:            {msg: "field too short", code: http.StatusBadRequest},
 	ErrFieldContainsSpecialChar: {msg: "field contains special char", code: http.StatusBadRequest},
 
 	// uuid
-	ErrUuidIsInvalid: {msg: "uuiod is invalid", code: http.StatusBadRequest},
+	ErrUuidIsInvalid: {msg: "uuid is invalid", code: http.StatusBadRequest},
 
 	// rights
 	ErrNotEnoughRights:  {msg: "not enough rights", code: http.StatusBadRequest},
