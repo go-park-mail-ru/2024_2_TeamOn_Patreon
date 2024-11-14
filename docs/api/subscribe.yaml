@@ -1,0 +1,329 @@
+openapi: 3.0.3
+info:
+  title: PushART - Subscription | API
+  description: >-
+    API для управления подписками
+  version: 1.0.0
+paths:
+  /subscription/{authorID}/custom:
+    get:
+      tags:
+        - CustomSubscription
+      summary: Список созданных платных подписок
+      description: Возвращает список платных подписок, которые созданы этим автором.  В случае UUID authorID - возвращает список постов. Если authorID = me, достает из куки
+      parameters:
+        - in: path
+          name: authorID
+          description: authorID - UUID либо me
+          required: true
+          schema:
+            type: string
+          example:
+            me
+      responses:
+        '200':
+          description: Список платных подписок, существующих у автора
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomSubscription'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /subscription/layers:
+    get:
+      tags:
+        - CustomSubscription
+      summary: Уровни, на которых автор может создать новую кастомную подписку
+      description: >-
+        Возвращает список уровней с дефолтными их именами, на которых автор из авторизации может создавать новые платные подписки.  Достает автора из куки
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Список доступных уровней с дефолтными именами
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubscriptionLayer'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /subscription/custom:
+    post:
+      tags:
+        - CustomSubscription
+      summary: Добавление новой кастомной подписки автору
+      description: Позволяет создать новую платную подписку у автора. Автор берется из кук. Параеметры платной подписки - уровень платной подписки, название, описание, стоимость в месяц в рублях
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCustomSubscription'
+      responses:
+        '201':
+          description: Успешное создание платной подписки
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /subscription/request:
+    post:
+      tags:
+        - Subscription
+      summary: Создает запрос на подписку на автора от юзера возвращает ID запроса
+      description: >-
+        Этот эндпоит создает запрос на подписку и возвращает ID запроса на подписку.
+        
+        
+        Подписка на автора происходить в два этапа.
+        
+        1. Сначала создается запрос на подписку на автора.
+          Пользователь перекидывает на страничку оплаты.
+          (Для начала заглушка просто любая типа там VKPay например)
+        
+        2. После того, как пользователь реально оплатил
+          вызывается вторая ручка, которая сохраняет
+            инфу об успешном подписании в сервисе.
+            После этого пользователь считается подписанным.
+        
+        Этот эндпоит реализует первый этап.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddSubscriptionRequest'
+      responses:
+        '200':
+          description: Успешное изменение поста
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionRequest'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /subscription/realize:
+    post:
+      tags:
+        - Subscription
+      summary: Подписывает (реализует запрос) пользователя на подписку на автора
+      description: >
+        Это эндпоинт для выполнения запроса на подписку.
+        
+        
+        Подписка на автора происходить в два этапа.
+        
+        1. Сначала создается запрос на подписку на автора.
+          Пользователь перекидывает на страничку оплаты.
+          (Для начала заглушка просто любая типа там VKPay например)
+        
+        2. После того, как пользователь реально оплатил
+          вызывается вторая ручка, которая сохраняет
+            инфу об успешном подписании в сервисе.
+            После этого пользователь считается подписанным.
+        
+        Этот эндпоит реализует второй этап.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionRequest'
+      responses:
+        '200':
+          description: Подписка прошла успешно
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Ошибка валидации или неверный формат данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JWT
+  schemas:
+    CustomSubscription:
+      type: object
+      description: Данные о кастономной подписки, которые возвращает бэк
+      properties:
+        customSubscriptionID:
+          type: string
+          description: Идентификатор кастомной (платной) подписки
+        title:
+          type: string
+          description: Заголовок кастномной (платной) подписки
+        description:
+          type: string
+          description: Описание кастомной (платной) подписки
+        cost:
+          type: integer
+          description: Стоимость  кастомной (платной) подписки в рублях в месяц
+        layer:
+          type: integer
+          description: Уровень кастомной (платной) подписки
+    SubscriptionLayer:
+      type: object
+      description: Данные об уровне подписки, которые возвращает бэк
+      properties:
+        layer:
+          type: integer
+          description: Уровень подписки. Уровень [0:3]
+          example: 2
+        layerName:
+          type: string
+          description: Название этого уровня по умолчанию
+          example: Премиум подписка
+    AddCustomSubscription:
+      type: object
+      description: Данные для добавления кастомной подписки, которые отправляет фронт
+      properties:
+        title:
+          type: string
+          description: Заголовок кастномной (платной) подписки
+          example: 'Гофер'
+        description:
+          type: string
+          description: Описание кастомной (платной) подписки
+          example: 'Для настоящих ценителей Go'
+        cost:
+          type: integer
+          description: Стоимость  кастомной (платной) подписки в рублях
+          example: 100
+        layer:
+          type: integer
+          description: Уровень кастомной (платной) подписки. Уровень [0:3]
+          example: 2
+      required:
+        - title
+        - cost
+        - layer
+    AddSubscriptionRequest:
+      type: object
+      description: Данные для создание запроса на подписку. Отправляет фронт. Т.е. пользователь  подписывается на автора на какое-то время. Указывается автор, количество месяцев, на которые подписка оформляется и уровень этой подписки
+      properties:
+        authorID:
+          type: string
+          description: ID автора, на которого осуществляется подпискка
+          example: 'some-UUID'
+        monthCount:
+          type: integer
+          description: Количество месяцев, на которые оформляется подписка
+          example: 1
+        layer:
+          type: integer
+          description: Уровень подписки, на которую подписывается юзер
+          example: 1
+      required:
+        - authorID
+        - monthCount
+        - layer
+
+    SubscriptionRequest:
+      type: object
+      description: ID запроса на создание подписки на автора и время жизни этого запроса. Возвращает бэк при создании реквеста. Отдает фронт при исполнении.
+      properties:
+        subscriptionRequestID:
+          type: string
+          description: ID запроса на подписки пользователя на автора (на конкретное время, на определенном уровне)
+          example: 'some-UUID'
+      required:
+        - subscriptionRequestID
+    Error:
+      type: object
+      description: Сообщение об ошибке. Возвыращает бэк
+      properties:
+        message:
+          type: string
+          description: Описание ошибки
