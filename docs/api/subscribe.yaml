@@ -226,6 +226,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /unsubscription:
+    post:
+      tags:
+        - Subscription
+      summary: Отписывает пользователя от автора
+      description: >
+        Это эндпоинт для отписки.
+        На одного автора от одного юзера может быть только одна подписка, поэтому нужнен только ид автора
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnSubscription'
+      responses:
+        '200':
+          description: Отписка прошла успешно
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Ошибка валидации или неверный формат данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+
 
 components:
   securitySchemes:
@@ -309,7 +349,6 @@ components:
         - authorID
         - monthCount
         - layer
-
     SubscriptionRequest:
       type: object
       description: ID запроса на создание подписки на автора и время жизни этого запроса. Возвращает бэк при создании реквеста. Отдает фронт при исполнении.
@@ -320,6 +359,17 @@ components:
           example: 'some-UUID'
       required:
         - subscriptionRequestID
+    UnSubscription:
+      type: object
+      description: Данные для отписки от автора
+      properties:
+        authorID:
+          type: string
+          description: ID автора, от которого отписываемся
+          example: 'some-UUID'
+      required:
+        - authorID
+
     Error:
       type: object
       description: Сообщение об ошибке. Возвыращает бэк
