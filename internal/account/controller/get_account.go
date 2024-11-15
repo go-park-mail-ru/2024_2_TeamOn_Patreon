@@ -28,18 +28,18 @@ func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 		// Status 401
 		w.WriteHeader(global.GetCodeError(err))
 		// Отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
 	// Валидация userID на соответствие стандарту UUIDv4
 	if ok := utils.IsValidUUIDv4(string(userData.UserID)); !ok {
-		err := global.ErrUuidIsInvalid
+		err := global.ErrIsInvalidUUID
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		// Status 400
 		w.WriteHeader(global.GetCodeError(err))
 		// Отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
@@ -49,7 +49,7 @@ func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 		logger.StandardDebugF(ctx, op, "Received account error {%v}", err)
 		w.WriteHeader(global.GetCodeError(err))
 		// Отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
@@ -59,7 +59,7 @@ func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 		logger.StandardDebugF(ctx, op, "Received account subscriptions error {%v}", err)
 		w.WriteHeader(global.GetCodeError(err))
 		// Отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op)
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 

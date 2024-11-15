@@ -19,20 +19,6 @@ func (handler *Handler) PostAccountUpdateAvatar(w http.ResponseWriter, r *http.R
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Парсинг данных из multipart/form-data
-	if err := r.ParseMultipartForm(5 << 20); err != nil { // 5 MB limit
-		logger.StandardWarnF(ctx, op, "error parsing multipart form {%v}", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// Проверяем, есть ли данные в форме
-	if r.MultipartForm == nil || len(r.MultipartForm.File) == 0 {
-		logger.StandardWarnF(ctx, op, "no files uploaded")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	// Извлекаем userData из контекста
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
 	if !ok {
@@ -47,6 +33,8 @@ func (handler *Handler) PostAccountUpdateAvatar(w http.ResponseWriter, r *http.R
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	// TODO: ограничение по весу
 
 	// Получаем файл из формы
 	fileAvatar, fileHeader, err := r.FormFile("file")

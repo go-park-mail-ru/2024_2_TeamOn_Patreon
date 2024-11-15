@@ -40,6 +40,10 @@ var (
 	ErrNotValidUserAndPassword = errors.New("not valid user and password")
 	ErrNotEnoughRights         = errors.New("not enough rights")
 
+	// account
+
+	ErrRoleAlreadyChanged = errors.New("user already changed role")
+
 	// logout
 
 	ErrUserNotAuthorized = errors.New("user not authorized")
@@ -63,6 +67,10 @@ var (
 	// post
 
 	ErrPostDoesntExists = errors.New("post doesn't")
+
+	// static
+
+	ErrInvalidFileFormat = errors.New("invalid file format")
 
 	// uuid
 
@@ -106,10 +114,17 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrServer:            {msg: "end-to-end error", code: http.StatusInternalServerError},
 	ErrUserNotAuthorized: {msg: "пользователь не авторизован", code: http.StatusUnauthorized},
 
+	// ACCOUNT
+
+	ErrRoleAlreadyChanged: {msg: "Вы уже являетесь автором", code: http.StatusBadRequest},
+
 	// content
 	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},
 	ErrFieldTooShort:            {msg: "поле слишком короткое", code: http.StatusBadRequest},
 	ErrFieldContainsSpecialChar: {msg: "поле содержит запрещенные символы", code: http.StatusBadRequest},
+
+	// static
+	ErrInvalidFileFormat: {msg: "Недопустимый формат файла", code: http.StatusUnsupportedMediaType},
 
 	// uuid
 	ErrIsInvalidUUID: {msg: "невалидный uuid", code: http.StatusBadRequest},
