@@ -27,10 +27,13 @@ type AccountRepository interface {
 	// UpdateEmail обновляет почту пользователя
 	UpdateEmail(ctx context.Context, userID string, email string) error
 
-	// UpdateRole меняет роль пользователя на "author"
-	UpdateRole(ctx context.Context, userID string) error
+	// IsReader возвращает true, если пользователь является "reader"
+	IsReader(ctx context.Context, userID string) (bool, error)
 
-	// InitPage создаёт новую страницу автора
+	// UpdateRoleToAuthor меняет роль пользователя на "author"
+	UpdateRoleToAuthor(ctx context.Context, userID string) error
+
+	// InitPage создаёт новую страницу автора после смены роли с "Reader" на "Author"
 	InitPage(ctx context.Context, userID string) error
 
 	// DeleteAvatar удаляет старый аватар пользователя при его обновлении

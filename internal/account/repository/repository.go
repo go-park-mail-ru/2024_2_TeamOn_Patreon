@@ -11,6 +11,7 @@ import (
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
 
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
@@ -51,7 +52,7 @@ func (p *Postgres) UserByID(ctx context.Context, userID string) (*repModels.User
 				ctx,
 				"user with userID='%v' not found", userID,
 				op)
-			return nil, nil
+			return nil, errors.Wrap(global.ErrUserNotFound, op)
 		}
 		return nil, errors.Wrap(err, op)
 	}
@@ -85,6 +86,14 @@ func (p *Postgres) SubscriptionsByID(ctx context.Context, userID string) ([]repM
 
 	logger.StandardDebugF(ctx, op, "wants to form an map of subscriptions for user with userID %v", userID)
 	var subscriptions []repModels.Subscription
+
+	// Проверяем, есть ли строки в выборке
+	if !rows.Next() {
+		// Если строк нет, возвращаем пустой срез без ошибки
+		return subscriptions, nil
+	}
+
+	// Если строки есть, обрабатываем их
 	for rows.Next() {
 		var subscription repModels.Subscription
 		if err := rows.Scan(&subscription.AuthorID, &subscription.AuthorName); err != nil {
@@ -110,15 +119,20 @@ func (p *Postgres) AvatarPathByID(ctx context.Context, userID string) (string, e
 		WHERE user_id = $1
 	`
 	var avatarPath string
+
 	err := p.db.QueryRow(ctx, query, userID).Scan(&avatarPath)
 	if err != nil {
-		logger.StandardInfo(
-			ctx,
-			fmt.Sprintf("avatar not found for user with userID %s", userID),
-			op,
-		)
-		// return p.getPathForDefaultAvatar(), errors.Wrap(err, op)
-		avatarPath = p.getPathForDefaultAvatar()
+		if err == sql.ErrNoRows {
+			// Если пользователь не загрузил аватарку, возвращаем путь к дефолтной аватарке
+			logger.StandardInfo(
+				ctx,
+				fmt.Sprintf("user %v has not uploaded an avatar yet", userID),
+				op,
+			)
+			return p.getPathForDefaultAvatar(), nil
+		}
+		logger.StandardDebugF(ctx, op, "error querying avatar {%v}", err)
+		return p.getPathForDefaultAvatar(), errors.Wrap(err, op)
 	}
 
 	return avatarPath, nil
@@ -184,22 +198,27 @@ func (p *Postgres) UpdateEmail(ctx context.Context, userID string, email string)
 	return nil
 }
 
-// Сейчас не используется
+// Сейчас удаляется только запись в БД. Файл не удаляется (на РК2 разрешили пока не удалять)
 func (p *Postgres) DeleteAvatar(ctx context.Context, userID string) error {
 	op := "internal.account.repository.DeleteAvatar"
 
 	// Путь до старой аватарки
-	_, err := p.AvatarPathByID(ctx, userID)
-	if err != nil {
+	oldAvatarPath, err := p.AvatarPathByID(ctx, userID)
+
+	// Если старой аватарки не было (пользователь еще не загрузил)
+	if oldAvatarPath == p.getPathForDefaultAvatar() {
 		logger.StandardInfo(
 			ctx,
-			fmt.Sprintf("old avatar doesn`t exist for user with userID %s", userID),
+			fmt.Sprintf("nothing to delete: user %v has not uploaded an avatar yet", userID),
 			op,
 		)
 		return nil
 	}
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
 
-	// Удаление записи о старой аватарке
+	// Запрос на удаление записи о старой аватарке
 	deleteQuery := `
 		DELETE FROM avatar
 		WHERE user_id = $1
@@ -273,8 +292,27 @@ func (p *Postgres) GenerateID() string {
 	return id.String()
 }
 
-// UpdateRole меняет роль пользователя на "author"
-func (p *Postgres) UpdateRole(ctx context.Context, userID string) error {
+func (p *Postgres) IsReader(ctx context.Context, userID string) (bool, error) {
+	op := "internal.account.repository.IsReader"
+
+	query := `
+		SELECT r.role_default_name
+		FROM people p
+		JOIN role r ON p.role_id = r.role_id
+		WHERE p.user_id = $1;
+	`
+
+	var roleName string
+	err := p.db.QueryRow(ctx, query, userID).Scan(&roleName)
+	if err != nil {
+		return false, errors.Wrap(err, op)
+	}
+
+	return roleName == "Reader", nil
+
+}
+
+func (p *Postgres) UpdateRoleToAuthor(ctx context.Context, userID string) error {
 	op := "internal.account.repository.UpdateRole"
 
 	query := `

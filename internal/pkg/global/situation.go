@@ -1,8 +1,9 @@
 package global
 
 import (
-	"github.com/pkg/errors"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 // ВРЕМЕННО В ЭТОМ ФАЙЛЕ ПОТОМ РАЗНЕСЕМ
