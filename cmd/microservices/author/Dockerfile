@@ -42,8 +42,8 @@ COPY --from=builder /app/author-service /app/author-service
 # Копируем папку static из builder-контейнера
 COPY --from=builder /app/static /app/static
 
-# Копируем файл с переменными окружения из директории config
-#COPY internal/auth/config/env.docker /app/env
+# Копируем файл с переменными окружения из директории pkg
+#COPY internal/auth/pkg/env.docker /app/env
 
 # Экспортируем переменные окружения из файла env.docker
 # Используем формат key=value

@@ -1,10 +1,26 @@
 package utils
 
-import "regexp"
+import (
+	satori "github.com/satori/go.uuid"
+)
 
-// Функция isValidUUIDv4 проверяет соответствие ID стандарту UUIDv4
+// isValidUUIDv4 проверяет соответствие ID стандарту UUIDv4
 func IsValidUUIDv4(uuid string) bool {
-	// Регулярное выражение для проверки формата UUID v4
-	re := regexp.MustCompile(`^([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$`)
-	return re.MatchString(uuid)
+
+	u, err := satori.FromString(uuid)
+	if err != nil {
+		return false
+	}
+
+	// 1: UUID версии 1 (на основе времени).
+	// 2: UUID версии 2 (DCE Security).
+	// 3: UUID версии 3 (на основе хэша MD5).
+	// 4: UUID версии 4 (случайные значения).
+	// 5: UUID версии 5 (на основе хэша SHA-1).
+
+	if u.Version() != 4 {
+		return false
+	}
+
+	return true
 }

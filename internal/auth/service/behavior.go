@@ -22,8 +22,8 @@ func New(repository rInterfaces.AuthRepository) *Behavior {
 }
 
 // AuthoriseUser - авторизация | проверяет существует ли пользователь, верный ли пароль, генерирует jwt для него
-func (b *Behavior) AuthoriseUser(ctx context.Context, username string, password string) (bJWT.TokenString, error) {
-	op := "internal.auth.behavior.AuthoriseUser"
+func (b *Behavior) LoginUser(ctx context.Context, username string, password string) (bJWT.TokenString, error) {
+	op := "internal.auth.behavior.LoginUser"
 
 	// проверяем существует ли пользователь
 	exists, err := b.isUserExists(ctx, username)

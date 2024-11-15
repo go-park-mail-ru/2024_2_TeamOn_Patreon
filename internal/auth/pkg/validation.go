@@ -1,4 +1,4 @@
-package config
+package pkg
 
 const (
 	MinUsernameLen = 4

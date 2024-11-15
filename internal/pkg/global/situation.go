@@ -64,10 +64,6 @@ var (
 
 	ErrPostDoesntExists = errors.New("post doesn't")
 
-	// ----- ACCOUNT -----
-
-	ErrRoleAlreadyChanged = errors.New("пользователь уже является автором")
-
 	// uuid
 
 	ErrUuidIsInvalid = errors.New("uuid is invalid")
@@ -110,21 +106,17 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrServer:            {msg: "end-to-end error", code: http.StatusInternalServerError},
 	ErrUserNotAuthorized: {msg: "пользователь не авторизован", code: http.StatusUnauthorized},
 
-	// ----- ACCOUNT -----
-
-	ErrRoleAlreadyChanged: {msg: "Вы уже являетесь автором", code: http.StatusBadRequest},
-
 	// content
-	ErrFieldTooLong:             {msg: "field too long", code: http.StatusBadRequest},
-	ErrFieldTooShort:            {msg: "field too short", code: http.StatusBadRequest},
-	ErrFieldContainsSpecialChar: {msg: "field contains special char", code: http.StatusBadRequest},
+	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},
+	ErrFieldTooShort:            {msg: "поле слишком короткое", code: http.StatusBadRequest},
+	ErrFieldContainsSpecialChar: {msg: "поле содержит запрещенные символы", code: http.StatusBadRequest},
 
 	// uuid
-	ErrUuidIsInvalid: {msg: "uuid is invalid", code: http.StatusBadRequest},
+	ErrUuidIsInvalid: {msg: "невалидный uuid", code: http.StatusBadRequest},
 
 	// rights
-	ErrNotEnoughRights:  {msg: "not enough rights", code: http.StatusBadRequest},
-	ErrPostDoesntExists: {msg: "post doesn't exists", code: http.StatusNoContent},
+	ErrNotEnoughRights:  {msg: "недостаточно прав", code: http.StatusBadRequest},
+	ErrPostDoesntExists: {msg: "пост не найден", code: http.StatusNoContent},
 }
 
 func GetMsgError(err error) string {
