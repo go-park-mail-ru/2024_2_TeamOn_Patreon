@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"context"
-	"mime/multipart"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
 )
@@ -27,17 +26,20 @@ type AccountRepository interface {
 	// UpdateEmail обновляет почту пользователя
 	UpdateEmail(ctx context.Context, userID string, email string) error
 
-	// UpdateRole меняет роль пользователя на "author"
-	UpdateRole(ctx context.Context, userID string) error
+	// IsReader возвращает true, если пользователь является "reader"
+	IsReader(ctx context.Context, userID string) (bool, error)
 
-	// InitPage создаёт новую страницу автора
+	// UpdateRoleToAuthor меняет роль пользователя на "author"
+	UpdateRoleToAuthor(ctx context.Context, userID string) error
+
+	// InitPage создаёт новую страницу автора после смены роли с "Reader" на "Author"
 	InitPage(ctx context.Context, userID string) error
 
 	// DeleteAvatar удаляет старый аватар пользователя при его обновлении
 	DeleteAvatar(ctx context.Context, userID string) error
 
 	// UpdateAvatar обновляет путь к аватару пользователя
-	UpdateAvatar(ctx context.Context, userID string, avatar multipart.File, fileName string) error
+	UpdateAvatar(ctx context.Context, userID string, file []byte, fileExtension string) error
 
 	// GenerateID генерирует ID в формате UUIDv4
 	GenerateID() string
