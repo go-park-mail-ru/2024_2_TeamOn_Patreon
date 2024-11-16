@@ -177,6 +177,35 @@ func (p *Postgres) UpdatePassword(ctx context.Context, userID string, hashPasswo
 	return nil
 }
 
+func (p *Postgres) GetPasswordHashByID(ctx context.Context, userID string) (string, error) {
+	op := "internal.account.repository.GetPasswordHashByID"
+
+	query := `
+		SELECT hash_password
+		FROM people
+		WHERE user_id = $1
+	`
+	rows, err := p.db.Query(ctx, query, userID)
+	if err != nil {
+		return "", errors.Wrap(err, op)
+	}
+
+	defer rows.Close()
+
+	var (
+		hash string
+	)
+
+	for rows.Next() {
+		if err = rows.Scan(&hash); err != nil {
+			return "", errors.Wrap(err, op)
+		}
+		logger.StandardDebugF(ctx, op, "GetPasswordHashByID found hash: %s", hash)
+		return hash, nil
+	}
+	return "", errors.Wrap(global.ErrUserNotFound, op)
+}
+
 func (p *Postgres) UpdateEmail(ctx context.Context, userID string, email string) error {
 	op := "internal.account.repository.UpdateEmail"
 

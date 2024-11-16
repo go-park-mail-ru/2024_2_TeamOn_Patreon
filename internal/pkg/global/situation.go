@@ -42,7 +42,8 @@ var (
 
 	// account
 
-	ErrRoleAlreadyChanged = errors.New("user already changed role")
+	ErrRoleAlreadyChanged  = errors.New("user already changed role")
+	ErrNotValidOldPassword = errors.New("not valid old password")
 
 	// logout
 
@@ -116,7 +117,8 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	// ACCOUNT
 
-	ErrRoleAlreadyChanged: {msg: "Вы уже являетесь автором", code: http.StatusBadRequest},
+	ErrRoleAlreadyChanged:  {msg: "Вы уже являетесь автором", code: http.StatusBadRequest},
+	ErrNotValidOldPassword: {msg: "Неверный старый пароль. Пожалуйста, попробуйте снова", code: http.StatusBadRequest},
 
 	// content
 	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},

@@ -6,9 +6,10 @@ import (
 	"context"
 	"fmt"
 
+	hasher "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/hasher"
 	interfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/interfaces"
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/static"
 	"github.com/pkg/errors"
@@ -178,8 +179,20 @@ func (s *Service) UpdateUsername(ctx context.Context, userID string, username st
 	return nil
 }
 
-func (s *Service) UpdatePassword(ctx context.Context, userID string, password string) error {
+func (s *Service) UpdatePassword(ctx context.Context, userID, oldPassword, password string) error {
 	op := "internal.account.service.updatePassword"
+
+	// Проверка, верно ли введён старый пароль
+	logger.StandardDebugF(ctx, op, "want to check old password")
+	ok, err := s.compareOldPassword(ctx, userID, oldPassword)
+	if err != nil {
+		logger.StandardDebugF(ctx, op, "Check password failed: password does not match")
+		return errors.Wrap(err, op)
+	}
+	if !ok {
+		logger.StandardDebugF(ctx, op, "Check password failed: password does not match")
+		return errors.Wrap(global.ErrNotValidOldPassword, op)
+	}
 
 	// Хеширование пароля с заданным уровнем сложности
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -229,4 +242,25 @@ func (s *Service) initPage(ctx context.Context, userID string) error {
 	}
 	logger.StandardInfo(ctx, "successful create page for user with userID: %v", userID)
 	return nil
+}
+
+func (s *Service) compareOldPassword(ctx context.Context, userID, oldPassword string) (bool, error) {
+	op := "auth.service.ComparePassword"
+
+	logger.StandardDebugF(ctx, op, "want to get hash old password")
+	// Получаем хэш старого пароля
+	userHash, err := s.rep.GetPasswordHashByID(ctx, userID)
+	if err != nil {
+		return false, errors.Wrap(err, op)
+	}
+
+	logger.StandardDebugF(ctx, op, "want to check hash old password and entered password")
+
+	// Сравниваем введённый старый пароль с сохранённым хэшем
+	err = hasher.CheckPasswordHash(oldPassword, userHash)
+	if err != nil {
+		return false, errors.Wrap(global.ErrNotValidOldPassword, op)
+	} else {
+		return true, nil
+	}
 }
