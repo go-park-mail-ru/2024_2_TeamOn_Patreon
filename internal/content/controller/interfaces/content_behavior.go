@@ -21,4 +21,7 @@ type ContentBehavior interface {
 	GetPopularPosts(ctx context.Context, userID string, opt *pkgModels.FeedOpt) ([]*models.Post, error)
 	GetFeedSubscription(ctx context.Context, userID string, opt *pkgModels.FeedOpt) ([]*models.Post, error)
 	GetAuthorPosts(ctx context.Context, userID string, authorID string, opt *pkgModels.FeedOpt) ([]*models.Post, error)
+
+	// media
+	GetFile(ctx context.Context, userID string, postID string) ([]*models.Media, error)
 }
