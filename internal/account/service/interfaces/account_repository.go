@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"context"
-	"mime/multipart"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
 )
@@ -40,7 +39,7 @@ type AccountRepository interface {
 	DeleteAvatar(ctx context.Context, userID string) error
 
 	// UpdateAvatar обновляет путь к аватару пользователя
-	UpdateAvatar(ctx context.Context, userID string, avatar multipart.File, fileName string) error
+	UpdateAvatar(ctx context.Context, userID string, file []byte, fileExtension string) error
 
 	// GenerateID генерирует ID в формате UUIDv4
 	GenerateID() string

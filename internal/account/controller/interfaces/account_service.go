@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"context"
-	"mime/multipart"
 
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
 )
@@ -28,7 +27,7 @@ type AccountService interface {
 	UpdateEmail(ctx context.Context, userID string, email string) error
 
 	// PostAccountUpdateAvatar - изменение аватарки аккаунта по userID
-	PostUpdateAvatar(ctx context.Context, userID string, avatar multipart.File, fileName string) error
+	PostUpdateAvatar(ctx context.Context, userID string, file []byte, fileExtension string) error
 
 	// PostUpdateRole - изменение аватарки аккаунта по userID
 	PostUpdateRole(ctx context.Context, userID string) error

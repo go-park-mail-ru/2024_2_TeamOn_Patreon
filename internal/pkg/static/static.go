@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/pkg/errors"
 )
 
@@ -43,8 +42,8 @@ func GetFileExtension(contentType string) (string, error) {
 	}
 
 	// Возвращаем расширение, если MIME-тип найден в карте
-	if ext, exists := mimeToExt[contentType]; exists {
-		return ext, nil
+	if extension, exists := mimeToExt[contentType]; exists {
+		return extension, nil
 	}
 	return "", global.ErrInvalidFileFormat // Возвращаем пустую строку и 415, если MIME-тип не найден
 }
@@ -67,12 +66,9 @@ func ConvertMultipartToBytes(file multipart.File) ([]byte, error) {
 // CreateFilePath возвращает созданный путь к файлу для дальнейшего сохранения в БД
 // В качестве аргументов принимает путь к папке сохранения и формат файла contentType
 // Пример аргументов: ("./static/avatar", ".jpg")
-func CreateFilePath(folderPath, contentType string) string {
-	// Формирование ID
-	fileID := utils.GenerateUUID()
-
+func CreateFilePath(folderPath, fileID, extension string) string {
 	// Название файла
-	fileName := fileID + contentType
+	fileName := fileID + extension
 
 	// Путь к файлу
 	return filepath.Join(folderPath, fileName)
@@ -80,18 +76,18 @@ func CreateFilePath(folderPath, contentType string) string {
 
 // SaveFile сохраняет файл в файловой системе
 // В качестве аргументов принимает байты и путь сохранения
-func SaveFile(data []byte, filePath string) error {
+func SaveFile(file []byte, filePath string) error {
 	op := "internal.pkg.static.SaveFile"
 
 	// Создание файла
-	file, err := os.Create(filePath)
+	out, err := os.Create(filePath)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
-	defer file.Close() // Закрываем файл после завершения работы
+	defer out.Close() // Закрываем файл после завершения работы
 
 	// Запись данных в файл
-	_, err = file.Write(data)
+	_, err = out.Write(file)
 	if err != nil {
 		return err
 	}
