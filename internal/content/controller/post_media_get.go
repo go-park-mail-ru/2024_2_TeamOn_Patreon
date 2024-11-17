@@ -46,7 +46,7 @@ func (h *Handler) PostMediaGet(w http.ResponseWriter, r *http.Request) {
 	tMedias := mapper.MapCommonMediaSToControllerMedias(medias)
 
 	response := models.MediaResponse{
-		PostId:       postID,
+		PostID:       postID,
 		MediaContent: tMedias,
 	}
 

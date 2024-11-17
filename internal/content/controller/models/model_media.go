@@ -10,6 +10,6 @@ type Media struct {
 }
 
 type MediaResponse struct {
-	PostId       string   `json:"postId"`
+	PostID       string   `json:"postId"`
 	MediaContent []*Media `json:"mediaContent"`
 }

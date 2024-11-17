@@ -2,10 +2,12 @@ package mock_interfaces
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/content/api"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller"
+	models2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models/mapper"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -139,10 +141,14 @@ func TestPostsPostIdDelete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockBehavior := mock_interfaces.NewMockContentBehavior(ctrl)
+	//mockBehavior := mock_interfaces.NewMockContentBehavior(ctrl)
+	//
+	////handler := controller.New(mockBehavior)
+	//router := api.NewRouter(mockBehavior)
 
-	//handler := controller.New(mockBehavior)
-	router := api.NewRouter(mockBehavior)
+	mockBehavior := mock_interfaces.NewMockContentBehavior(ctrl)
+	//router := api.NewRouter(mockBehavior)
+	handler := controller.New(mockBehavior)
 
 	userId, _ := uuid.NewV4()
 	userIdStr := userId.String()
@@ -156,10 +162,18 @@ func TestPostsPostIdDelete(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
-	SetCookie(userIdStr, req)
+	SetUserCookie(userIdStr, req)
 
 	//handler.PostsPostIdDelete(w, req)
-	router.ServeHTTP(w, req)
+	req = AddValueToPath(req, controller.PathPostID, postIdStr)
+
+	// Новый контекст с добавленным значением
+	ctx := context.WithValue(req.Context(), global.UserKey, bModels.User{UserID: bModels.UserID(userIdStr)})
+
+	// Новый запрос с обновленным контекстом
+	req = req.WithContext(ctx)
+
+	handler.PostsPostIdDelete(w, req)
 
 	fmt.Println(w.Body)
 	fmt.Println(w.Code)
@@ -206,11 +220,10 @@ func TestPostUpdatePost(t *testing.T) {
 
 	mockBehavior := mock_interfaces.NewMockContentBehavior(ctrl)
 
-	//handler := controller.New(mockBehavior)
-	router := api.NewRouter(mockBehavior)
+	handler := controller.New(mockBehavior)
+	//router := api.NewRouter(mockBehavior)
 
-	userId, _ := uuid.NewV4()
-	userIdStr := userId.String()
+	userID := GenerateUUID()
 
 	postId, _ := uuid.NewV4()
 	postIdStr := postId.String()
@@ -218,17 +231,20 @@ func TestPostUpdatePost(t *testing.T) {
 	title := "New Title"
 	content := "New Content"
 
-	mockBehavior.EXPECT().UpdatePost(gomock.Any(), userIdStr, postIdStr, title, content).Return(nil)
+	mockBehavior.EXPECT().UpdatePost(gomock.Any(), userID, postIdStr, title, content).Return(nil)
 
 	req := httptest.NewRequest(http.MethodPost, "/post/update", strings.NewReader(
 		`{"postId": "`+postIdStr+`", "title": "`+title+`", "content": "`+content+`"}`))
+
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
-	SetCookie(userIdStr, req)
+	req = AddUserIDInReq(req, userID)
 
-	//handler.PostsPostIdDelete(w, req)
-	router.ServeHTTP(w, req)
+	//SetUserCookie(userID, req)
+
+	handler.PostUpdatePost(w, req)
+	//router.ServeHTTP(w, req)
 
 	fmt.Println(w.Body)
 	fmt.Println(w.Code)
@@ -279,7 +295,7 @@ func TestFeedSubscriptionsGet(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	SetCookie(userIdStr, req)
+	SetUserCookie(userIdStr, req)
 
 	//handler.PostsPostIdDelete(w, req)
 	router.ServeHTTP(w, req)
@@ -292,9 +308,49 @@ func TestFeedSubscriptionsGet(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "Sub Post 2")
 }
 
-func SetCookie(userIdStr string, req *http.Request) {
-	user := bModels.User{UserID: bModels.UserID(userIdStr)}
-	token, _ := jwt.CreateJWT(user, 10)
+func TestPostMediaGet_Success(t *testing.T) {
+	logger.New()
 
-	req.AddCookie(&http.Cookie{Name: global.CookieJWT, Value: string(token)})
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockContentBehavior := mock_interfaces.NewMockContentBehavior(ctrl)
+
+	handler := controller.New(mockContentBehavior)
+
+	// Настраиваем мок для возврата тестовых данных
+	expectedPostID := GenerateUUID()
+	expectedUserID := GenerateUUID()
+	expectedMedia := []*models.Media{{MediaID: GenerateUUID(), MediaURL: "path/to/media", MediaType: "img"}}
+	mockContentBehavior.EXPECT().GetFile(gomock.Any(), expectedUserID, expectedPostID).Return(expectedMedia, nil)
+
+	// Создаем поддельный запрос с параметрами
+	req, err := http.NewRequest("GET", "/some-path?postID="+expectedPostID, nil)
+	assert.NoError(t, err)
+
+	// Добавляем пользователя в контекст
+	req = AddUserIDInReq(req, expectedUserID)
+
+	// Создаем ResponseRecorder для захвата ответа
+	rr := httptest.NewRecorder()
+
+	// Вызываем обработчик
+	handler.PostMediaGet(rr, req)
+
+	// Проверяем результаты
+	assert.Equal(t, http.StatusOK, rr.Code)
+
+	exceptedTransportMedias := mapper.MapCommonMediaSToControllerMedias(expectedMedia)
+
+	ExceptedResponse := models2.MediaResponse{
+		PostID:       expectedPostID,
+		MediaContent: exceptedTransportMedias,
+	}
+
+	// Проверяем тело ответа
+	var response models2.MediaResponse
+	err = json.NewDecoder(rr.Body).Decode(&response)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedPostID, response.PostID)
+	assert.Equal(t, ExceptedResponse, response)
 }

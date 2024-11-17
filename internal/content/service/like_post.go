@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/pkg/errors"
 )
@@ -113,6 +114,7 @@ func (b *Behavior) userCanSeePost(ctx context.Context, userID, postID string) (b
 	}
 
 	userLayer, err := b.rep.GetUserLayerOfAuthor(ctx, userID, authorPost)
+	logger.StandardDebugF(ctx, op, "Get userLayer %v for Author %v for User %v", userLayer, authorPost, userID)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}
@@ -121,6 +123,7 @@ func (b *Behavior) userCanSeePost(ctx context.Context, userID, postID string) (b
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}
+	logger.StandardDebugF(ctx, op, "Get postLayer %v for Author %v for User %v", postLayer, authorPost, userID)
 
 	if userLayer >= postLayer {
 		return true, nil
