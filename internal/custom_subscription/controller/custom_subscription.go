@@ -31,6 +31,7 @@ func (h *Handler) SubscriptionAuthorIDCustomGet(w http.ResponseWriter, r *http.R
 	if !ok && authorID != "me" {
 		err := errors.Wrap(global.ErrBadRequest, "authorID's invalid")
 		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
 	}
 
 	user, ok := r.Context().Value(global.UserKey).(bModels.User)
@@ -38,6 +39,7 @@ func (h *Handler) SubscriptionAuthorIDCustomGet(w http.ResponseWriter, r *http.R
 		err := errors.Wrap(global.ErrUserNotAuthorized, "user isn't in ctx")
 		err = errors.Wrap(err, op)
 		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
 	}
 
 	userID := string(user.UserID)
@@ -55,8 +57,36 @@ func (h *Handler) SubscriptionAuthorIDCustomGet(w http.ResponseWriter, r *http.R
 }
 
 func (h *Handler) SubscriptionCustomPost(w http.ResponseWriter, r *http.Request) {
+	op := "custom_subscription.controller.SubscriptionCustomPost"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+
+	ctx := r.Context()
+
+	user, ok := r.Context().Value(global.UserKey).(bModels.User)
+	if !ok {
+		err := errors.Wrap(global.ErrUserNotAuthorized, "user isn't in ctx")
+		err = errors.Wrap(err, op)
+		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	userID := string(user.UserID)
+	_ = userID
+
+	var acp models.AddCustomSubscription
+	if err := utils.ParseModels(r, &acp, op); err != nil {
+		err = errors.Wrap(err, "parse model")
+		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	// Валидация полей вводных данных модели логина
+	if err := acp.Validate(); err != nil {
+		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (h *Handler) SubscriptionLayersGet(w http.ResponseWriter, r *http.Request) {
@@ -70,6 +100,7 @@ func (h *Handler) SubscriptionLayersGet(w http.ResponseWriter, r *http.Request) 
 		err := errors.Wrap(global.ErrUserNotAuthorized, "user isn't in ctx")
 		err = errors.Wrap(err, op)
 		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
 	}
 
 	userID := string(user.UserID)
