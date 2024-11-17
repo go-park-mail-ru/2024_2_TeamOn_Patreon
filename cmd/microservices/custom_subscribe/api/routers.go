@@ -54,6 +54,13 @@ func handleAuth(router *mux.Router, behavior interfaces.CustomSubscriptionServic
 			"/subscription/custom",
 			handler.SubscriptionCustomPost,
 		},
+		Route{
+			// возвращает уровни подписок автора, на которых у автора нет кастомных подписок
+			"SubscriptionLayersGet",
+			http.MethodGet,
+			"/subscription/layers",
+			handler.SubscriptionLayersGet,
+		},
 	}
 	for _, route := range routes {
 		var handler http.Handler
@@ -83,13 +90,6 @@ func handleOther(router *mux.Router, behavior interfaces.CustomSubscriptionServi
 			http.MethodGet,
 			"/subscription/{" + api.PathAuthorID + "}/custom",
 			handler.SubscriptionAuthorIDCustomGet,
-		},
-		Route{
-			// возвращает уровни подписок автора, на которых у автора нет кастомных подписок
-			"SubscriptionLayersGet",
-			http.MethodGet,
-			"/subscription/layers",
-			handler.SubscriptionLayersGet,
 		},
 	}
 	for _, route := range routes {
