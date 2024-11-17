@@ -30,6 +30,7 @@ func (h *Handler) SubscriptionAuthorIDCustomGet(w http.ResponseWriter, r *http.R
 	ok := utils.IsValidUUIDv4(authorID)
 	if !ok && authorID != "me" {
 		err := errors.Wrap(global.ErrBadRequest, "authorID's invalid")
+		logger.StandardDebugF(ctx, op, "get err=%v", err.Error())
 		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
@@ -38,6 +39,7 @@ func (h *Handler) SubscriptionAuthorIDCustomGet(w http.ResponseWriter, r *http.R
 	if !ok && authorID == "me" {
 		err := errors.Wrap(global.ErrUserNotAuthorized, "user isn't in ctx")
 		err = errors.Wrap(err, op)
+		logger.StandardDebugF(ctx, op, "get err=%v", err.Error())
 		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
@@ -66,22 +68,31 @@ func (h *Handler) SubscriptionCustomPost(w http.ResponseWriter, r *http.Request)
 	if !ok {
 		err := errors.Wrap(global.ErrUserNotAuthorized, "user isn't in ctx")
 		err = errors.Wrap(err, op)
+		logger.StandardDebugF(ctx, op, "get err=%v", err.Error())
 		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
 	userID := string(user.UserID)
-	_ = userID
 
 	var acp models.AddCustomSubscription
 	if err := utils.ParseModels(r, &acp, op); err != nil {
 		err = errors.Wrap(err, "parse model")
+		logger.StandardDebugF(ctx, op, "get err=%v", err.Error())
 		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
-	// Валидация полей вводных данных модели логина
+	// Валидация полей вводных данных модели
 	if err := acp.Validate(); err != nil {
+		logger.StandardDebugF(ctx, op, "get err=%v", err.Error())
+		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	err := h.b.CreateCustomSub(ctx, userID, acp.Title, acp.Description, acp.Layer, acp.Cost)
+	if err != nil {
+		logger.StandardDebugF(ctx, op, "get err=%v", err.Error())
 		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
@@ -99,6 +110,7 @@ func (h *Handler) SubscriptionLayersGet(w http.ResponseWriter, r *http.Request) 
 	if !ok {
 		err := errors.Wrap(global.ErrUserNotAuthorized, "user isn't in ctx")
 		err = errors.Wrap(err, op)
+		logger.StandardDebugF(ctx, op, "get err=%v", err.Error())
 		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}

@@ -75,6 +75,10 @@ var (
 	// uuid
 
 	ErrIsInvalidUUID = errors.New("uuid is invalid")
+
+	// custom_subscription
+
+	ErrLayerExists = errors.New("layer exists")
 )
 
 type ErrorHttpInfo struct {
@@ -132,6 +136,9 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	// rights
 	ErrNotEnoughRights:  {msg: "недостаточно прав", code: http.StatusBadRequest},
 	ErrPostDoesntExists: {msg: "пост не найден", code: http.StatusNoContent},
+
+	// custom_subscriptions
+	ErrLayerExists: {msg: "На этом уровне уже существует подписка", code: http.StatusBadRequest},
 }
 
 func GetMsgError(err error) string {

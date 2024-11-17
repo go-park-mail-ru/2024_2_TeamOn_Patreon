@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/custom_subscribe/api"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/repository/postgresql"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/custom_subscription/repository/postgresql"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/custom_subscription/service"
 	//"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/custom_subscription/repository/postgresql"
@@ -26,7 +26,7 @@ func main() {
 	db := postgres.InitPostgresDB(context.Background())
 	defer db.Close()
 
-	rep := postgresql.NewContentRepository(db)
+	rep := postgresql.NewCustomSubscriptionRepository(db)
 
 	// service
 	beh := service.New(rep)

@@ -51,6 +51,9 @@ func (acp *AddCustomSubscription) validateTitle() bool {
 }
 
 func (acp *AddCustomSubscription) validateDescription() bool {
+	if acp.Description == "" {
+		return true
+	}
 	description, ok := validate.Description(acp.Description)
 	if !ok {
 		return false
@@ -60,7 +63,7 @@ func (acp *AddCustomSubscription) validateDescription() bool {
 }
 
 func (acp *AddCustomSubscription) validateCost() bool {
-	if ok := validate.Layer(acp.Cost); !ok {
+	if ok := validate.Cost(acp.Cost); !ok {
 		return false
 	}
 	return true

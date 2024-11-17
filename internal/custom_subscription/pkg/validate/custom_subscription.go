@@ -37,7 +37,7 @@ func Cost(cost int) bool {
 }
 
 func Layer(layer int) bool {
-	if layer < validate.MinLayer || layer > validate.MaxLayer {
+	if layer < validate.MinSubLayer || layer > validate.MaxLayer {
 		return false
 	}
 	return true

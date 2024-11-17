@@ -7,8 +7,9 @@ const (
 
 	MaxLenContent int = 1000
 
-	MinLayer = 0
-	MaxLayer = 3
+	MinLayer        = 0
+	MinSubLayer int = 1
+	MaxLayer        = 3
 
 	MinLenSubTitle int = 3
 	MaxLenSubTitle int = 50
