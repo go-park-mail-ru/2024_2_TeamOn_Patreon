@@ -10,7 +10,8 @@ paths:
       tags:
         - CustomSubscription
       summary: Список созданных платных подписок
-      description: Возвращает список платных подписок, которые созданы этим автором.  В случае UUID authorID - возвращает список постов. Если authorID = me, достает из куки
+      description: Возвращает список платных подписок, которые созданы этим автором. 
+        В случае UUID authorID - возвращает список постов. Если authorID = me, достает из куки
       parameters:
         - in: path
           name: authorID
