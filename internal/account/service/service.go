@@ -5,12 +5,12 @@ package service
 import (
 	"context"
 	"fmt"
-	"mime/multipart"
-	"os"
 
 	interfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/interfaces"
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/static"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -82,29 +82,29 @@ func (s *Service) GetAvatarByID(ctx context.Context, userID string) ([]byte, err
 	// ОБращаемся в репозиторий для получения пути до аватара
 	logger.StandardDebugF(ctx, op, "want to find avatarPATH for userID = %v", userID)
 
-	avatarPath, err := s.rep.AvatarPathByID(ctx, userID)
+	filePath, err := s.rep.AvatarPathByID(ctx, userID)
 	if err != nil {
 		// Если не получилось найти путь аватара -> 404
 		return nil, errors.Wrap(err, op)
 	}
 
 	// По найденному пути открываем файл аватара
-	logger.StandardDebugF(ctx, op, "want to read file with path: %v", avatarPath)
-	avatar, err := os.ReadFile(avatarPath)
+	logger.StandardDebugF(ctx, op, "want to read file with path: %v", filePath)
+	fileBytes, err := static.ReadFile(filePath)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
 
 	logger.StandardInfo(
 		ctx,
-		fmt.Sprintf("successful get avatar file with path %v for user with userID %v", avatarPath, userID),
+		fmt.Sprintf("successful get avatar file with path %v for userID %v", filePath, userID),
 		op)
 
-	return avatar, nil
+	return fileBytes, nil
 }
 
 // PostUpdateAvatar - изменение аватарки аккаунта по userID
-func (s *Service) PostUpdateAvatar(ctx context.Context, userID string, avatarFile multipart.File, fileName string) error {
+func (s *Service) PostUpdateAvatar(ctx context.Context, userID string, file []byte, fileExtension string) error {
 	op := "internal.account.service.PostAccountUpdateAvatar"
 
 	// Удаляем старый аватар, если он есть
@@ -121,7 +121,7 @@ func (s *Service) PostUpdateAvatar(ctx context.Context, userID string, avatarFil
 
 	// Сохраняем новый
 	logger.StandardDebugF(ctx, op, "want to save new avatar file")
-	if err := s.rep.UpdateAvatar(ctx, userID, avatarFile, fileName); err != nil {
+	if err := s.rep.UpdateAvatar(ctx, userID, file, fileExtension); err != nil {
 		return errors.Wrap(err, op)
 	}
 
@@ -136,6 +136,16 @@ func (s *Service) PostUpdateAvatar(ctx context.Context, userID string, avatarFil
 // PostUpdateRole - изменение роли пользователя на "автор"
 func (s *Service) PostUpdateRole(ctx context.Context, userID string) error {
 	op := "internal.account.service.PostUpdateRole"
+
+	// Проверяем, что пользователь еще не является "author"
+	logger.StandardDebugF(ctx, op, "want to check user role")
+	ok, err := s.rep.IsReader(ctx, userID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	} else if !ok {
+		logger.StandardDebugF(ctx, op, "user with userID=%v already is 'Author'", userID)
+		return global.ErrRoleAlreadyChanged
+	}
 
 	// Обновляем поле роль с "reader" на "author"
 	if err := s.updateRole(ctx, userID); err != nil {
@@ -204,7 +214,7 @@ func (s *Service) UpdateEmail(ctx context.Context, userID string, email string) 
 func (s *Service) updateRole(ctx context.Context, userID string) error {
 	op := "internal.account.service.updateRole"
 
-	if err := s.rep.UpdateRole(ctx, userID); err != nil {
+	if err := s.rep.UpdateRoleToAuthor(ctx, userID); err != nil {
 		return errors.Wrap(err, op)
 	}
 	logger.StandardInfo(ctx, "successful change role", op)
