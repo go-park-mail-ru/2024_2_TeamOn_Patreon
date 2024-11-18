@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const PathPostID = "postId"
+const PathPostID = "postID"
 
 func (h *Handler) PostsPostIdDelete(w http.ResponseWriter, r *http.Request) {
 	op := "content.controller.post_post_id_delete.PostsPostIdDelete"

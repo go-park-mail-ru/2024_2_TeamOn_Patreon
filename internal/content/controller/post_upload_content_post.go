@@ -46,7 +46,8 @@ func (h *Handler) PostUploadContentPost(w http.ResponseWriter, r *http.Request) 
 	// Устанавливаем лимит на размер загружаемых данных
 	err := r.ParseMultipartForm(32 << 20) // 32MB limit
 	if err != nil {
-		logger.StandardResponse(ctx, "failed to parse multipart message", http.StatusBadRequest, r.Host, op)
+		logger.StandardWarnF(ctx, op, "failed to parse multipart message {%v}", err)
+
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -70,7 +71,7 @@ func (h *Handler) PostUploadContentPost(w http.ResponseWriter, r *http.Request) 
 		// Получаем файл в формате multipart и его MIME-тип из запроса
 		file, contentType, err := static.ExtractFileFromMultipart(r, key)
 		if err != nil {
-			logger.StandardResponse(ctx, "error retrieving file. key name must be 'file{N}'", http.StatusBadRequest, r.Host, op)
+			logger.StandardWarnF(ctx, op, "error retrieving file {%v}", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
