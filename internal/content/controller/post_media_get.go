@@ -2,6 +2,8 @@ package controller
 
 import (
 	"encoding/json"
+	"net/http"
+
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models/mapper"
@@ -9,7 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	utils2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
-	"net/http"
+	"github.com/gorilla/mux"
 )
 
 const APIPostID = "postID"
@@ -20,7 +22,8 @@ func (h *Handler) PostMediaGet(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	postID := r.URL.Query().Get(APIPostID)
+	vars := mux.Vars(r)         // Извлекаем параметры из запроса
+	postID := vars[postIDParam] // Получаем значение параметра "postID"
 	if postID == "" {
 		err := global.ErrBadRequest
 

@@ -16,8 +16,6 @@ func (handler *Handler) PostAccountUpdateAvatar(w http.ResponseWriter, r *http.R
 	op := "internal.account.controller.PostAccountUpdateAvatar"
 
 	ctx := r.Context()
-	contentType := r.Header.Get("Content-Type")
-	logger.StandardWarnF(ctx, op, "Content-Type: %s", contentType)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 

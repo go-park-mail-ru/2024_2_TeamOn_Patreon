@@ -71,7 +71,7 @@ func handleAuth(router *mux.Router, behavior interfaces.ContentBehavior) *mux.Ro
 		Route{
 			"PostUploadContentPost",
 			strings.ToUpper("Post"),
-			"/post/upload/content/{postId}",
+			"/post/upload/media/{postId}",
 			handler.PostUploadContentPost,
 		},
 
@@ -128,7 +128,7 @@ func handleOther(router *mux.Router, behavior interfaces.ContentBehavior) {
 		Route{
 			"PostMediaGet",
 			strings.ToUpper("Get"),
-			"/post/media",
+			"/post/media/{postID}",
 			handler.PostMediaGet,
 		},
 		Route{

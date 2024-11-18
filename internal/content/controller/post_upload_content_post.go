@@ -16,6 +16,7 @@ func (h *Handler) PostUploadContentPost(w http.ResponseWriter, r *http.Request) 
 	op := "content.controller.post_upload_content_post"
 
 	ctx := r.Context()
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Достаем юзера
@@ -28,8 +29,8 @@ func (h *Handler) PostUploadContentPost(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Достаем postId
-	vr := mux.Vars(r)
-	postId, ok := vr["postId"]
+	vars := mux.Vars(r)
+	postId, ok := vars[postIDParam]
 	logger.StandardDebugF(ctx, op, "postId=%v", postId)
 	if !ok {
 		err := global.ErrBadRequest
@@ -42,11 +43,30 @@ func (h *Handler) PostUploadContentPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// Устанавливаем лимит на размер загружаемых данных
+	err := r.ParseMultipartForm(32 << 20) // 32MB limit
+	if err != nil {
+		logger.StandardResponse(ctx, "failed to parse multipart message", http.StatusBadRequest, r.Host, op)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	logger.StandardDebugF(ctx, op, "want to get file keys from request body")
+
+	// Получаем файлы с индексами
+	files := r.MultipartForm.File
+	if len(files) == 0 {
+		logger.StandardResponse(ctx, "no files uploaded", http.StatusBadRequest, r.Host, op)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	logger.StandardDebugF(ctx, op, "got files: %v", files)
 	// Извлекаем файлы из запроса
 	// Здесь key == "file1", "file2", ..., "file[n]"
-	files := r.MultipartForm.File
 	for key, _ := range files {
 
+		logger.StandardDebugF(ctx, op, "key %v in range files", key)
 		// Получаем файл в формате multipart и его MIME-тип из запроса
 		file, contentType, err := static.ExtractFileFromMultipart(r, key)
 		if err != nil {
