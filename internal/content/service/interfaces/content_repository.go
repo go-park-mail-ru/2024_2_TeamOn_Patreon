@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 )
 
@@ -36,6 +37,8 @@ type PostInterface interface {
 	UpdateTitleOfPost(ctx context.Context, postID string, title string) error
 	// UpdateContentOfPost - обновляет описание одного поста
 	UpdateContentOfPost(ctx context.Context, postID string, content string) error
+	// SaveFile - сохраняет файл к посту
+	SaveFile(ctx context.Context, postID string, file []byte, fileExtension string) error
 }
 
 type FeedInterface interface {

@@ -36,9 +36,10 @@ func GetFileExtension(contentType string) (string, error) {
 		"image/jpeg": ".jpeg",
 		"image/jpg":  ".jpg",
 		"image/png":  ".png",
-		"image/gif":  ".gif",
-		"audio/mpeg": ".mp3",
-		"video/mp4":  ".mp4",
+		// "image/gif":  ".gif",  // может быть, когда-нибудь
+		"audio/mpeg":      ".mp3",
+		"video/mp4":       ".mp4",
+		"application/pdf": ".pdg",
 	}
 
 	// Возвращаем расширение, если MIME-тип найден в карте

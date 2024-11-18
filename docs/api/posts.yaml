@@ -113,6 +113,14 @@ paths:
       responses:
         '201':
           description: Успешное создание поста
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  postId:
+                    type: string
+                    description: Идентификатор поста
         '400':
           description: Ошибка валидации данных
           content:
@@ -477,20 +485,16 @@ components:
     MediaUploadRequest:
       type: object
       properties:
-        postId:
+        postID:
           type: string
           description: Айди поста, в котором нужно редактировать медиа
-        file:
-          type: string
-          format: binary
-          description: Загружаемый файл (PDF, JPG, JPEG, MP3, MP4)
-        format:
-          type: string
-          enum: [PDF, JPG, JPEG, MP3, MP4, jpg, jpeg]
-          description: Формат загружаемого файла
-        description:
-          type: string
-          description: Описание медиа-контента
+        files:
+          type: array
+          items:
+            type: string
+            format: binary
+            example: "file1"
+            description: Массив загружаемых файлов (PDF, JPG, JPEG, MP3, MP4)
       required:
         - file
         - format
@@ -516,10 +520,5 @@ components:
                 type: string
                 enum: [PDF, JPG, JPEG, MP3, MP4, jpg, jpeg]
                 description: Формат файла
-              description:
+              mediaURL:
                 type: string
-                example: "Описание медиа-контента"
-              file:
-                type: string
-                format: binary
-                description: Загрузка медиа-файла

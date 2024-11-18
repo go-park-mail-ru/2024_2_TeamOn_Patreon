@@ -68,6 +68,7 @@ var (
 	// post
 
 	ErrPostDoesntExists = errors.New("post doesn't")
+	ErrReqPostID        = errors.New("postID is required in the request")
 
 	// static
 
@@ -124,6 +125,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},
 	ErrFieldTooShort:            {msg: "поле слишком короткое", code: http.StatusBadRequest},
 	ErrFieldContainsSpecialChar: {msg: "поле содержит запрещенные символы", code: http.StatusBadRequest},
+	ErrReqPostID:                {msg: "Требуется ввести postID", code: http.StatusBadRequest},
 
 	// static
 	ErrInvalidFileFormat: {msg: "Недопустимый формат файла", code: http.StatusUnsupportedMediaType},

@@ -69,10 +69,10 @@ func (handler *Handler) PostAccountUpdateAvatar(w http.ResponseWriter, r *http.R
 	}
 
 	// Обращение к service
-	if err := handler.serv.PostUpdateAvatar(r.Context(), string(userData.UserID), fileBytes, fileExtension); err != nil {
+	if err := handler.serv.PostUpdateAvatar(ctx, string(userData.UserID), fileBytes, fileExtension); err != nil {
 		logger.StandardWarnF(ctx, op, "update data error {%v}", err)
-		// Status 500
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 	}
 
 	// Status 200
