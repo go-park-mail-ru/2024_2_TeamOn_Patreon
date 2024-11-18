@@ -20,7 +20,7 @@ func main() {
 	logger.New()
 
 	// pkg
-	config.InitEnv("pkg/.env.default", "pkg/content/.env.default")
+	config.InitEnv("config/.env.default", "config/content/.env.default")
 
 	// repository
 	db := postgres.InitPostgresDB(context.Background())
