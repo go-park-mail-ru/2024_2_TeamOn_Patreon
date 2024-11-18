@@ -29,7 +29,7 @@ FROM
     post
 JOIN 
 	    People AS author ON author.user_id = post.user_id 
-	RIGHT OUTER JOIN 
+	LEFT JOIN  
 	    Subscription_Layer ON Subscription_Layer.subscription_layer_id = post.subscription_layer_id
 	LEFT OUTER JOIN 
 	    Like_Post USING (post_id)

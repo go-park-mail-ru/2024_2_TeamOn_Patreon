@@ -13,6 +13,8 @@ type ContentRepository interface {
 
 	LikePostInterface
 
+	MediaInterface
+
 	// utils
 
 	// GetIsLikedForPosts проставляет лайки в моделях поста
@@ -61,4 +63,8 @@ type LikePostInterface interface {
 	InsertLikePost(ctx context.Context, userID string, postID string) error
 	DeleteLikePost(ctx context.Context, userID string, postID string) error
 	GetPostLikes(ctx context.Context, postID string) (int, error)
+}
+
+type MediaInterface interface {
+	GetContentsByPost(ctx context.Context, postID string) ([]*models.Media, error)
 }
