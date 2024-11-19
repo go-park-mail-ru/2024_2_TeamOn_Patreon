@@ -76,6 +76,18 @@ services:
       - ../../config/content/.env.default
       - ../../config/.env.docker
 
+  custom-subscribe-service:
+    build:
+      context: ../../
+      dockerfile: cmd/microservices/custom_subscribe/Dockerfile
+    ports:
+      - "8085:8085"
+    depends_on:
+      - postgres
+    env_file:
+      - ../../config/custom_subscription/.env.default
+      - ../../config/.env.docker
+
   migrate-service:
     build:
       context: ../../
