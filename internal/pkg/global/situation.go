@@ -42,7 +42,8 @@ var (
 
 	// account
 
-	ErrRoleAlreadyChanged = errors.New("user already changed role")
+	ErrRoleAlreadyChanged  = errors.New("user already changed role")
+	ErrNotValidOldPassword = errors.New("not valid old password")
 
 	// logout
 
@@ -66,7 +67,8 @@ var (
 
 	// post
 
-	ErrPostDoesntExists = errors.New("post doesn't")
+	ErrPostDoesntExists = errors.New("post doesn't exist")
+	ErrNoFilesUploaded  = errors.New("no files uploaded")
 
 	// static
 
@@ -120,7 +122,8 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	// ACCOUNT
 
-	ErrRoleAlreadyChanged: {msg: "Вы уже являетесь автором", code: http.StatusBadRequest},
+	ErrRoleAlreadyChanged:  {msg: "Вы уже являетесь автором", code: http.StatusBadRequest},
+	ErrNotValidOldPassword: {msg: "Неверный старый пароль. Пожалуйста, попробуйте снова", code: http.StatusBadRequest},
 
 	// content
 	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},
@@ -129,6 +132,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	// static
 	ErrInvalidFileFormat: {msg: "Недопустимый формат файла", code: http.StatusUnsupportedMediaType},
+	ErrNoFilesUploaded:   {msg: "Файлы для добавления к посту не выбраны", code: http.StatusNoContent},
 
 	// uuid
 	ErrIsInvalidUUID: {msg: "невалидный uuid", code: http.StatusBadRequest},

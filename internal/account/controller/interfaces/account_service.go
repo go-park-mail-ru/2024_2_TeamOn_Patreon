@@ -21,7 +21,7 @@ type AccountService interface {
 	UpdateUsername(ctx context.Context, userID string, username string) error
 
 	// UpdatePassword - изменение пароля аккаунта по userID
-	UpdatePassword(ctx context.Context, userID string, password string) error
+	UpdatePassword(ctx context.Context, userID, oldPassword, password string) error
 
 	// UpdateEmail - изменение почты аккаунта по userID
 	UpdateEmail(ctx context.Context, userID string, email string) error

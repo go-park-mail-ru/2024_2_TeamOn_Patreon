@@ -16,8 +16,6 @@ func (handler *Handler) PostAccountUpdateAvatar(w http.ResponseWriter, r *http.R
 	op := "internal.account.controller.PostAccountUpdateAvatar"
 
 	ctx := r.Context()
-	contentType := r.Header.Get("Content-Type")
-	logger.StandardWarnF(ctx, op, "Content-Type: %s", contentType)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -69,10 +67,10 @@ func (handler *Handler) PostAccountUpdateAvatar(w http.ResponseWriter, r *http.R
 	}
 
 	// Обращение к service
-	if err := handler.serv.PostUpdateAvatar(r.Context(), string(userData.UserID), fileBytes, fileExtension); err != nil {
+	if err := handler.serv.PostUpdateAvatar(ctx, string(userData.UserID), fileBytes, fileExtension); err != nil {
 		logger.StandardWarnF(ctx, op, "update data error {%v}", err)
-		// Status 500
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 	}
 
 	// Status 200

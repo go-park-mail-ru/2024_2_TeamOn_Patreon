@@ -75,6 +75,8 @@ services:
     env_file:
       - ../../config/content/.env.default
       - ../../config/.env.docker
+    volumes:
+      - ../../static/post:/app/static/post  # Указываем путь к локальной папке
 
   custom-subscribe-service:
     build:

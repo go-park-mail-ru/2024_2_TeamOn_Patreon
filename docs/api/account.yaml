@@ -487,6 +487,10 @@ components:
           type: string
           description: Новый пароль пользователя
           nullable: true
+        oldPassword:
+          type: string
+          description: Старый пароль пользователя
+          nullable: true
     Payment:
       type: object
       required:

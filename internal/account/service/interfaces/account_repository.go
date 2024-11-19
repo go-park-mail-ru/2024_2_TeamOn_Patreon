@@ -23,6 +23,9 @@ type AccountRepository interface {
 	// UpdatePassword обновляет пароль пользователя
 	UpdatePassword(ctx context.Context, userID string, hashPassword string) error
 
+	// GetPasswordHashByID получает хэш пароля пользователя по его ID
+	GetPasswordHashByID(ctx context.Context, userID string) (string, error)
+
 	// UpdateEmail обновляет почту пользователя
 	UpdateEmail(ctx context.Context, userID string, email string) error
 

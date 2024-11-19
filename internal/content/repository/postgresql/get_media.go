@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/pkg/errors"
@@ -43,9 +44,9 @@ func (cr *ContentRepository) GetContentsByPost(ctx context.Context, postID strin
 			"Got  media: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
 			contentID, contentType, contentURL)
 		medias = append(medias, &models.Media{
-			MediaID:   contentType,
+			MediaID:   contentID,
 			MediaType: contentType,
-			MediaURL:  contentType,
+			MediaURL:  contentURL,
 		})
 
 	}

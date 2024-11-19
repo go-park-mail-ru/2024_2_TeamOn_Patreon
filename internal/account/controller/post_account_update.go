@@ -66,28 +66,30 @@ func (handler *Handler) PostAccountUpdate(w http.ResponseWriter, r *http.Request
 		string(userData.UserID), newInfo.Username, newInfo.Password, newInfo.Email,
 	)
 
-	// Обращение к service для записи данных
-	if newInfo.Username != "" {
-		if err := handler.serv.UpdateUsername(r.Context(), string(userData.UserID), newInfo.Username); err != nil {
-			logger.StandardWarnF(ctx, op, "update Username error {%v}", err)
-			// Status 500
-			w.WriteHeader(http.StatusInternalServerError)
+	if newInfo.Password != "" {
+		if err := handler.serv.UpdatePassword(r.Context(), string(userData.UserID), newInfo.OldPassword, newInfo.Password); err != nil {
+			logger.StandardWarnF(ctx, op, "update Password error {%v}", err)
+			w.WriteHeader(global.GetCodeError(err))
+			utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+			return
 		}
 	}
 
-	if newInfo.Password != "" {
-		if err := handler.serv.UpdatePassword(r.Context(), string(userData.UserID), newInfo.Password); err != nil {
-			logger.StandardWarnF(ctx, op, "update Password error {%v}", err)
-			// Status 500
-			w.WriteHeader(http.StatusInternalServerError)
+	if newInfo.Username != "" {
+		if err := handler.serv.UpdateUsername(r.Context(), string(userData.UserID), newInfo.Username); err != nil {
+			logger.StandardWarnF(ctx, op, "update Username error {%v}", err)
+			w.WriteHeader(global.GetCodeError(err))
+			utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+			return
 		}
 	}
 
 	if newInfo.Email != "" {
 		if err := handler.serv.UpdateEmail(r.Context(), string(userData.UserID), newInfo.Email); err != nil {
 			logger.StandardWarnF(ctx, op, "update Email error {%v}", err)
-			// Status 500
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(global.GetCodeError(err))
+			utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+			return
 		}
 	}
 	// Status 200

@@ -14,6 +14,8 @@ type UpdateAccount struct {
 	Username string `json:"username,omitempty"`
 	// Пароль пользователя
 	Password string `json:"password,omitempty"`
+	// Старый пароль пользователя
+	OldPassword string `json:"oldPassword,omitempty"`
 	// Почта пользователя (если есть)
 	Email string `json:"email,omitempty"`
 	// Роль: читатель или автор

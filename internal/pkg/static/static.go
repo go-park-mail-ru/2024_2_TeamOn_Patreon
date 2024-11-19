@@ -33,12 +33,13 @@ func ExtractFileFromMultipart(r *http.Request, fieldName string) (multipart.File
 func GetFileExtension(contentType string) (string, error) {
 	// Создаем соответствие между MIME-типами и расширениями файлов
 	mimeToExt := map[string]string{
-		"image/jpeg": ".jpeg",
-		"image/jpg":  ".jpg",
-		"image/png":  ".png",
-		"image/gif":  ".gif",
-		"audio/mpeg": ".mp3",
-		"video/mp4":  ".mp4",
+		"image/jpeg": "jpeg",
+		"image/jpg":  "jpg",
+		"image/png":  "png",
+		// "image/gif":  "gif",  // может быть, когда-нибудь
+		"audio/mpeg":      "mp3",
+		"video/mp4":       "mp4",
+		"application/pdf": "pdf",
 	}
 
 	// Возвращаем расширение, если MIME-тип найден в карте
@@ -68,7 +69,7 @@ func ConvertMultipartToBytes(file multipart.File) ([]byte, error) {
 // Пример аргументов: ("./static/avatar", ".jpg")
 func CreateFilePath(folderPath, fileID, extension string) string {
 	// Название файла
-	fileName := fileID + extension
+	fileName := fileID + "." + extension
 
 	// Путь к файлу
 	return filepath.Join(folderPath, fileName)
