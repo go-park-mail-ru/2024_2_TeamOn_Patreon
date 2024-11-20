@@ -19,4 +19,6 @@ const (
 
 	MinLenSubDescription int = 0
 	MaxLenSubDescription int = 1000
+
+	MaxLenAuthorNameForSearch int = 50
 )

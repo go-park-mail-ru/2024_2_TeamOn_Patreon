@@ -82,6 +82,9 @@ var (
 	// custom_subscription
 
 	ErrLayerExists = errors.New("layer exists")
+
+	// search authors
+	ErrAuthorNameTooLong = errors.New("author name too long")
 )
 
 type ErrorHttpInfo struct {
@@ -145,6 +148,9 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	// custom_subscriptions
 	ErrLayerExists: {msg: "На этом уровне уже существует подписка", code: http.StatusBadRequest},
+
+	// search author
+	ErrAuthorNameTooLong: {msg: "Имя автора слишком длинное", code: http.StatusBadRequest},
 }
 
 func GetMsgError(err error) string {

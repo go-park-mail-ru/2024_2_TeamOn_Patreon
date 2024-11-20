@@ -11,5 +11,6 @@ func New(behavior interfaces.CustomSubscriptionService) *Handler {
 }
 
 const (
-	PathAuthorID = "authorID"
+	PathAuthorID   = "authorID"
+	PathAuthorName = "authorName"
 )

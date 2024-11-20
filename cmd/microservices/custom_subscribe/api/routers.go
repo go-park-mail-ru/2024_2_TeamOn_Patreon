@@ -91,6 +91,13 @@ func handleOther(router *mux.Router, behavior interfaces.CustomSubscriptionServi
 			"/subscription/{" + api.PathAuthorID + "}/custom",
 			handler.SubscriptionAuthorIDCustomGet,
 		},
+		Route{
+			// возвращает список авторов по запросу поиска
+			"SearchAUITHOR",
+			http.MethodGet,
+			"/search/{" + api.PathAuthorName + "}",
+			handler.SearchAuthorNameGet,
+		},
 	}
 	for _, route := range routes {
 		var handler http.Handler
