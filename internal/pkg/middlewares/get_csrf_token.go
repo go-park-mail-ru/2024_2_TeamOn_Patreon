@@ -14,6 +14,7 @@ func GetCSRFTokenHandler(w http.ResponseWriter, r *http.Request) {
 		Name:     csrfTokenCookieName,
 		Value:    token,
 		HttpOnly: true,
+		Path:     "/",
 	})
 	// Отправляем CSRF токен в теле ответа (опционально)
 	w.Header().Set("Content-Type", "application/json")
