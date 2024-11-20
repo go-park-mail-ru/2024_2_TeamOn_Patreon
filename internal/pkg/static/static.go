@@ -49,6 +49,21 @@ func GetFileExtension(contentType string) (string, error) {
 	return "", global.ErrInvalidFileFormat // Возвращаем пустую строку и 415, если MIME-тип не найден
 }
 
+func GetFileExtensionForPicture(contentType string) (string, error) {
+	// Создаем соответствие между MIME-типами и расширениями файлов
+	mimeToExt := map[string]string{
+		"image/jpeg": "jpeg",
+		"image/jpg":  "jpg",
+		"image/png":  "png",
+	}
+
+	// Возвращаем расширение, если MIME-тип найден в карте
+	if extension, exists := mimeToExt[contentType]; exists {
+		return extension, nil
+	}
+	return "", global.ErrInvalidFileFormat // Возвращаем пустую строку и 415, если MIME-тип не найден
+}
+
 // ConvertMultipartToBytes конвертирует multipart.File в []byte
 func ConvertMultipartToBytes(file multipart.File) ([]byte, error) {
 	op := "internal.pkg.static.ConvertMultipartToBytes"

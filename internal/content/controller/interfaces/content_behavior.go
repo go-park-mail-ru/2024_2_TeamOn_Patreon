@@ -16,7 +16,6 @@ type ContentBehavior interface {
 	UpdatePost(ctx context.Context, userID string, postID string, title string, about string) error
 	LikePost(ctx context.Context, userID, postID string) (int, error)
 	DeletePost(ctx context.Context, userID, postID string) error
-	UploadMedia(ctx context.Context, userID, postID string, file []byte, fileExtension, key string) error
 
 	// feed
 
@@ -25,5 +24,8 @@ type ContentBehavior interface {
 	GetAuthorPosts(ctx context.Context, userID string, authorID string, opt *pkgModels.FeedOpt) ([]*models.Post, error)
 
 	// media
+
 	GetFile(ctx context.Context, userID string, postID string) ([]*models.Media, error)
+	UploadMedia(ctx context.Context, userID, postID string, file []byte, fileExtension, key string) error
+	DeleteMedia(ctx context.Context, userID, postID string, mediaIDs []string) error
 }

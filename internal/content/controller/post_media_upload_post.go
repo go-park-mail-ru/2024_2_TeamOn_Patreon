@@ -12,11 +12,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (h *Handler) PostUploadContentPost(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) PostUploadMediaPost(w http.ResponseWriter, r *http.Request) {
 	op := "content.controller.post_upload_content_post"
 
 	ctx := r.Context()
-
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Достаем юзера
@@ -43,7 +42,7 @@ func (h *Handler) PostUploadContentPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Устанавливаем лимит на размер загружаемых данных
+	// Парсинг multipart/form
 	err := r.ParseMultipartForm(32 << 20) // 32MB limit
 	if err != nil {
 		logger.StandardWarnF(ctx, op, "failed to parse multipart message {%v}", err)

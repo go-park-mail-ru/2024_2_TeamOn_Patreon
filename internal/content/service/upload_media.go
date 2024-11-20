@@ -18,6 +18,11 @@ func (b *Behavior) UploadMedia(ctx context.Context, userID, postID string, file 
 		return errors.Wrap(global.ErrIsInvalidUUID, op)
 	}
 
+	// Валидация postID
+	if ok := utils.IsValidUUIDv4(postID); !ok {
+		return errors.Wrap(global.ErrIsInvalidUUID, op)
+	}
+
 	// Проверяем, что пользователь является автором поста
 	isAuthor, err := b.isUserAuthorOfPost(ctx, postID, userID)
 	if err != nil {
