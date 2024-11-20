@@ -93,7 +93,7 @@ func handleOther(router *mux.Router, behavior interfaces.CustomSubscriptionServi
 		},
 		Route{
 			// возвращает список авторов по запросу поиска
-			"SearchAUITHOR",
+			"SearchAuthor",
 			http.MethodGet,
 			"/search/{" + api.PathAuthorName + "}",
 			handler.SearchAuthorNameGet,

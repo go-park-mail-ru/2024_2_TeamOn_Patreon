@@ -13,4 +13,8 @@ func New(behavior interfaces.CustomSubscriptionService) *Handler {
 const (
 	PathAuthorID   = "authorID"
 	PathAuthorName = "authorName"
+
+	// Query param
+	offsetParam string = "offset"
+	limitParam  string = "limit"
 )
