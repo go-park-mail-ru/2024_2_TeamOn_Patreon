@@ -72,7 +72,14 @@ func handleAuth(router *mux.Router, behavior interfaces.ContentBehavior) *mux.Ro
 			"PostUploadContentPost",
 			strings.ToUpper("Post"),
 			"/post/upload/media/{postID}",
-			handler.PostUploadContentPost,
+			handler.PostUploadMediaPost,
+		},
+
+		Route{
+			"PostUploadContentPost",
+			strings.ToUpper("Delete"),
+			"/post/delete/media/{postID}",
+			handler.PostDeleteMedia,
 		},
 
 		Route{

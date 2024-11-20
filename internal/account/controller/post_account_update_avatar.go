@@ -46,7 +46,7 @@ func (handler *Handler) PostAccountUpdateAvatar(w http.ResponseWriter, r *http.R
 	defer file.Close()
 
 	// Получаем расширение файла на основе MIME-типа
-	fileExtension, err := static.GetFileExtension(contentType)
+	fileExtension, err := static.GetFileExtensionForPicture(contentType)
 	if err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		// Status 415 - пользователь отправляет файл с недопустимым расширением

@@ -69,6 +69,7 @@ var (
 
 	ErrPostDoesntExists = errors.New("post doesn't exist")
 	ErrNoFilesUploaded  = errors.New("no files uploaded")
+	ErrNoFilesToDelete  = errors.New("no media IDs provided")
 
 	// static
 
@@ -129,6 +130,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	// static
 	ErrInvalidFileFormat: {msg: "Недопустимый формат файла", code: http.StatusUnsupportedMediaType},
 	ErrNoFilesUploaded:   {msg: "Файлы для добавления к посту не выбраны", code: http.StatusNoContent},
+	ErrNoFilesToDelete:   {msg: "Файлы для удаления не выбраны", code: http.StatusBadRequest},
 
 	// uuid
 	ErrIsInvalidUUID: {msg: "невалидный uuid", code: http.StatusBadRequest},

@@ -39,8 +39,6 @@ type PostInterface interface {
 	UpdateTitleOfPost(ctx context.Context, postID string, title string) error
 	// UpdateContentOfPost - обновляет описание одного поста
 	UpdateContentOfPost(ctx context.Context, postID string, content string) error
-	// SaveFile - сохраняет файл к посту
-	SaveFile(ctx context.Context, postID string, file []byte, fileExtension string) error
 }
 
 type FeedInterface interface {
@@ -67,4 +65,8 @@ type LikePostInterface interface {
 
 type MediaInterface interface {
 	GetContentsByPost(ctx context.Context, postID string) ([]*models.Media, error)
+	// SaveFile - сохраняет файл к посту
+	SaveFile(ctx context.Context, postID string, file []byte, fileExtension string) error
+	// DeleteFile - удаляем файл, прикреплённый к посту
+	DeleteFile(ctx context.Context, postID, fileID string) error
 }
