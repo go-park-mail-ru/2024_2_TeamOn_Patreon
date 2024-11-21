@@ -62,16 +62,22 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			handler.PostAuthorTip,
 		},
 		Route{
-			"Subscribe",
-			strings.ToUpper("Post"),
-			"/author/{authorId}/following",
-			handler.PostFollowing,
-		},
-		Route{
 			"GetAuthor",
 			"GET",
 			"/author/{authorID}",
 			handler.GetAuthor,
+		},
+		Route{
+			"SubscriptionRequest",
+			"POST",
+			"/subscription/request",
+			handler.PostSubscriptionRequest,
+		},
+		Route{
+			"SubscriptionRealize",
+			"POST",
+			"/subscription/realize",
+			handler.PostSubscriptionRealize,
 		},
 		Route{
 			"GetCSRFToken",
