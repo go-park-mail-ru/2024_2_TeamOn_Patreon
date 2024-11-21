@@ -45,6 +45,15 @@ var (
 	ErrRoleAlreadyChanged  = errors.New("user already changed role")
 	ErrNotValidOldPassword = errors.New("not valid old password")
 
+	// author
+
+	ErrInvalidMonthCount     = errors.New("month count must be positive integer and and no more than 12")
+	ErrInvalidLayer          = errors.New("layer must be from 1 to 3")
+	ErrInvalidAuthorID       = errors.New("the author cannot subscribe to himself")
+	ErrUserIsNotAuthor       = errors.New("user is not author")
+	ErrSubReqDoesNotExist    = errors.New("subscription request does not exit")
+	ErrCustomSubDoesNotExist = errors.New("custom subscription does not exist")
+
 	// logout
 
 	ErrUserNotAuthorized = errors.New("user not authorized")
@@ -128,6 +137,15 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	ErrRoleAlreadyChanged:  {msg: "Вы уже являетесь автором", code: http.StatusBadRequest},
 	ErrNotValidOldPassword: {msg: "Неверный старый пароль. Пожалуйста, попробуйте снова", code: http.StatusBadRequest},
+
+	// AUTHOR
+
+	ErrInvalidMonthCount:     {msg: "Подписка может быть оформлена на срок от 1 мес. до 1 года", code: http.StatusBadRequest},
+	ErrInvalidLayer:          {msg: "Уровень подписки должен быть числом от 1 до 3", code: http.StatusBadRequest},
+	ErrInvalidAuthorID:       {msg: "Вы не можете оформить подписки на себя", code: http.StatusBadRequest},
+	ErrUserIsNotAuthor:       {msg: "Пользователь не является автором", code: http.StatusBadRequest},
+	ErrSubReqDoesNotExist:    {msg: "Запрос на оформление подписки не найден", code: http.StatusBadRequest},
+	ErrCustomSubDoesNotExist: {msg: "Выбранный уровень подписки не существует", code: http.StatusBadRequest},
 
 	// content
 	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},

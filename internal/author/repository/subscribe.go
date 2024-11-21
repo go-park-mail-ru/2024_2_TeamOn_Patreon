@@ -2,138 +2,122 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
+	"sync"
 
+	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 
 	"github.com/pkg/errors"
 )
 
-const (
-	// создает подписку
-	createSubscription = `
-INSERT INTO public.subscription(
-	subscription_id, user_id, custom_subscription_id, started_date, finished_date)
-	VALUES ($3, $1, $2, NOW(), NOW() + INTERVAL '30 days');
-`
+var subscriptionRequests = make(map[string]repModels.SubscriptionRequest)
+var mu sync.Mutex
 
-	// создает кастомную подписку
-	createCustomSubscription = `
-INSERT INTO public.custom_subscription(
-	custom_subscription_id, author_id, custom_name, cost, subscription_layer_id)
-	VALUES ($2, $1, 'default', 10, (select  subscription_layer_id from subscription_layer where layer = 1));
-`
+func (p *Postgres) CreateSubscribeRequest(ctx context.Context, subReq repModels.SubscriptionRequest) (string, error) {
+	op := "internal.author.repository.CreateSubscribeRequest"
 
-	// проверяет есть ли кастомная подписка у автора
-	getCustomSub = `
-select 
-	custom_subscription_id
-from 
-	Custom_Subscription
-where author_id = $1
-	and subscription_layer_id = (select subscription_layer_id from subscription_layer where layer = 1)
-	`
-
-	// getSubscription
-	getSubscription = `
-select 
-custom_subscription_id
-from
-    Subscription
-    JOIN Custom_Subscription USING (custom_subscription_id)
-where Custom_Subscription.author_id = $1 and Subscription.user_id = $2
-LIMIT 1;
-`
-
-	// автор ли юзер
-	// getUserRoleSQL - возвращает текстовое имя роли пользователя
-	// Input: userId
-	// Output: role_name ('Reader' or 'Author' or '')
-	getUserRoleSQL = `
-select 
-	role_default_name
-from 
-	Role
-	join People USING (role_id)
-where People.user_id = $1
-	`
-
-	deleteSubscription = `
-DELETE FROM subscription
-USING custom_subscription
-WHERE subscription.custom_subscription_id = custom_subscription.custom_subscription_id
-  AND subscription.user_id = $1
-  AND custom_subscription.author_id = $2;
-`
-)
-
-func (p *Postgres) Subscribe(ctx context.Context, userID string, authorID string) (bool, error) {
-	op := "internal.author.repository.Subscribe"
-	logger.StandardDebugF(ctx, op, "Want to is author UserId %v AuthorID %v", userID, authorID)
-
-	isAuthor, err := p.isAuthor(ctx, authorID)
+	// Пользователь, на которого подписываемся, является автором
+	isAuthor, err := p.isAuthor(ctx, subReq.AuthorID)
 	if err != nil {
-		return false, errors.Wrap(err, op)
+		return "", errors.Wrap(err, op)
 	}
 	if !isAuthor {
-		return false, errors.New("not author")
+		return "", global.ErrUserIsNotAuthor
 	}
-	logger.StandardDebugF(ctx, op, "isAuthor %v", isAuthor)
 
-	customSubID, err := p.getCustomSubscriptionLayerOne(ctx, authorID)
+	// Выбранный уровень подписки существует
+	customSubID, err := p.getCustomSubscriptionID(ctx, subReq.AuthorID, subReq.Layer)
 	if err != nil {
-		return false, errors.Wrap(err, op)
+		return "", errors.Wrap(err, op)
 	}
 	if customSubID == "" {
-		err = p.createCustomSubscription(ctx, authorID)
-		if err != nil {
-			return false, errors.Wrap(err, op)
-		}
+		return "", global.ErrCustomSubDoesNotExist
 	}
 
-	logger.StandardDebugF(ctx, op, "CustomSubId %v", customSubID)
+	subReqID := utils.GenerateUUID()
 
-	customSubID, err = p.getCustomSubscriptionLayerOne(ctx, authorID)
-	if err != nil {
-		return false, errors.Wrap(err, op)
-	}
+	// Сохраняем в map до момента оплаты
+	mu.Lock()
+	defer mu.Unlock()
+	subscriptionRequests[subReqID] = subReq
 
-	subId, err := p.getSubscription(ctx, userID, authorID)
-	if err != nil {
-		return false, errors.Wrap(err, op)
-	}
-	logger.StandardDebugF(ctx, op, "SubId %v", subId)
-	if subId == "" {
-		err = p.createSubscription(ctx, customSubID, userID)
-		if err != nil {
-			return false, errors.Wrap(err, op)
-		}
-		logger.StandardDebugF(ctx, op, "create sub custoSsub %v user %v", customSubID, userID)
-		return true, nil
-	}
-	logger.StandardDebugF(ctx, op, "SubId %v", subId)
-
-	err = p.deleteSubscription(ctx, authorID, userID)
-	logger.StandardDebugF(ctx, op, "successful deleted subId %v", subId)
-
-	return false, nil
-
+	return subReqID, nil
 }
 
-func (p *Postgres) createCustomSubscription(ctx context.Context, authorId string) error {
-	op := "internal.author.repository.CreateCustomSubscription"
-	customSubID := p.GenerateID()
-	_, err := p.db.Exec(ctx, createCustomSubscription, authorId, customSubID)
-	if err != nil {
+func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string) error {
+	op := "internal.author.repository.RealizeSubscribeRequest"
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	// Получаем данные запроса на подписку
+	logger.StandardDebugF(ctx, op, "want to get subscription request by reqID=%v", subReqID)
+	subReq, exists := subscriptionRequests[subReqID]
+	if !exists {
+		return global.ErrSubReqDoesNotExist
+	}
+
+	customSubID, _ := p.getCustomSubscriptionID(ctx, subReq.AuthorID, subReq.Layer)
+	subID := utils.GenerateUUID()
+
+	// Сохраняем запись о подписке
+	logger.StandardDebugF(ctx, op, "want to save new record subID=%v, userID=%v, customSubID=%v", subID, subReq.UserID, customSubID)
+
+	query := `
+    	INSERT INTO public.subscription(
+        subscription_id, user_id, custom_subscription_id, started_date, finished_date)
+    	VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL $4 MONTH)
+	`
+	if _, err := p.db.Exec(ctx, query, subID, subReq.UserID, customSubID, subReq.MonthCount); err != nil {
 		return errors.Wrap(err, op)
 	}
+	// Удаляем запрос из map после реализации
+	delete(subscriptionRequests, subReqID)
+
 	return nil
 }
 
-func (p *Postgres) isAuthor(ctx context.Context, authorId string) (bool, error) {
+func (p *Postgres) getCustomSubscriptionID(ctx context.Context, authorID string, layer int) (string, error) {
+	op := "internal.author.repository.checkSubscriptionExists"
+
+	var customSubscriptionID string
+	query := `
+        SELECT cs.custom_subscription_id
+        FROM custom_subscription cs
+        JOIN subscription_layer sl ON cs.subscription_layer_id = sl.subscription_layer_id
+        WHERE cs.author_id = $1
+          AND sl.layer = $2;`
+
+	err := p.db.QueryRow(ctx, query, authorID, layer).Scan(&customSubscriptionID)
+
+	if err == sql.ErrNoRows {
+		return "", nil
+	} else if err != nil {
+		return "", errors.Wrap(err, op)
+	}
+
+	return customSubscriptionID, nil
+}
+
+func (p *Postgres) isAuthor(ctx context.Context, authorID string) (bool, error) {
 	op := "internal.author.repository.isAuthor"
 
-	rows, err := p.db.Query(ctx, getUserRoleSQL, authorId)
+	query := `
+		SELECT 
+			r.role_default_name
+		FROM 
+			Role r
+		JOIN 
+			People p ON r.role_id = p.role_id
+		WHERE 
+			p.user_id = $1
+	`
+
+	rows, err := p.db.Query(ctx, query, authorID)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}
@@ -153,66 +137,4 @@ func (p *Postgres) isAuthor(ctx context.Context, authorId string) (bool, error) 
 		}
 	}
 	return false, nil
-}
-
-func (p *Postgres) getCustomSubscriptionLayerOne(ctx context.Context, authorId string) (string, error) {
-	op := "internal.custom_subscription.getCustomSubscriptionLayerOne"
-	rows, err := p.db.Query(ctx, getCustomSub, authorId)
-	if err != nil {
-		return "", errors.Wrap(err, op)
-	}
-	defer rows.Close()
-	var (
-		customSubID string
-	)
-	for rows.Next() {
-		if err = rows.Scan(&customSubID); err != nil {
-			return "", errors.Wrap(err, op)
-		}
-		return customSubID, nil
-
-	}
-	return "", err
-}
-
-func (p *Postgres) createSubscription(ctx context.Context, customSubID, userID string) error {
-	op := "internal.author.repository.CreateSubscription"
-	subscriptionID := p.GenerateID()
-	_, err := p.db.Exec(ctx, createSubscription, userID, customSubID, subscriptionID)
-	if err != nil {
-		return errors.Wrap(err, op)
-	}
-	return nil
-
-}
-
-func (p *Postgres) getSubscription(ctx context.Context, userID, authorID string) (string, error) {
-	op := "internal.subscription.getSubscription"
-
-	rows, err := p.db.Query(ctx, getSubscription, authorID, userID)
-	if err != nil {
-		return "", errors.Wrap(err, op)
-	}
-
-	defer rows.Close()
-	var (
-		subID string
-	)
-	for rows.Next() {
-		if err = rows.Scan(&subID); err != nil {
-			return "", errors.Wrap(err, op)
-		}
-		return subID, nil
-
-	}
-	return "", err
-}
-
-func (p *Postgres) deleteSubscription(ctx context.Context, authorID, userID string) error {
-	op := "internal.subscription.deleteSubscription"
-	_, err := p.db.Exec(ctx, deleteSubscription, userID, authorID)
-	if err != nil {
-		return errors.Wrap(err, op)
-	}
-	return nil
 }

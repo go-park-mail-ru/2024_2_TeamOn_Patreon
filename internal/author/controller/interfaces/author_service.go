@@ -33,5 +33,9 @@ type AuthorService interface {
 	// PostTip - обновление информации о себе
 	PostTip(ctx context.Context, userID, authorID string, cost int, message string) error
 
-	Subscribe(ctx context.Context, authorID string, userId string) error
+	// CreateSubscriptionRequest создаёт пользователя запрос на подписку на автора
+	CreateSubscriptionRequest(ctx context.Context, subReq sModels.SubscriptionRequest) (string, error)
+
+	// CreateSubscribeRequest реализует запрос пользователя на подписку на автора
+	RealizeSubscriptionRequest(ctx context.Context, subReqID string) error
 }
