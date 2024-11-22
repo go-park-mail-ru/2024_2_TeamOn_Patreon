@@ -91,8 +91,10 @@ var (
 	// custom_subscription
 
 	ErrLayerExists = errors.New("layer exists")
+	ErrTitleExists = errors.New("title exists")
 
 	// search authors
+
 	ErrAuthorNameTooLong = errors.New("author name too long")
 )
 
@@ -103,7 +105,7 @@ type ErrorHttpInfo struct {
 
 // ВРЕМЕННО ЗДЕСЬ
 var mapErrToHttpModel = map[error]ErrorHttpInfo{
-	ErrBadRequest: {msg: "bad request", code: http.StatusBadRequest},
+	ErrBadRequest: {msg: "Невалидный запрос", code: http.StatusBadRequest},
 
 	ErrSmallLogin: {msg: "логин должен быть не меньше 4 символов", code: http.StatusBadRequest},
 	ErrLongLogin:  {msg: "логин должен быть не более 10 символов", code: http.StatusBadRequest},
@@ -166,6 +168,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	// custom_subscriptions
 	ErrLayerExists: {msg: "На этом уровне уже существует подписка", code: http.StatusBadRequest},
+	ErrTitleExists: {msg: "Подписка с таким именем уже существует", code: http.StatusBadRequest},
 
 	// search author
 	ErrAuthorNameTooLong: {msg: "Имя автора слишком длинное", code: http.StatusBadRequest},

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/custom_subscription/pkg/validate"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/pkg/errors"
@@ -41,6 +42,19 @@ func (b *Behavior) CreateCustomSub(ctx context.Context, userID string, title, de
 	if existLayer {
 		return errors.Wrap(errors.Wrap(global.ErrLayerExists, op), "layer exists")
 	}
+
+	// Есть ли кастомная подписка на этом уровне?
+	existSub, err := b.checkCustomSubTitle(ctx, userID, title)
+	if err != nil {
+		return errors.Wrap(errors.Wrap(err, op), "title exists")
+	}
+	if existSub {
+		return errors.Wrap(errors.Wrap(global.ErrTitleExists, op), "title exists")
+	}
+
+	logger.StandardDebugF(ctx, op,
+		"User is Author, Custom Layer doesn't exist, title=%v, description=%v, layer=%v ",
+		title, description, layer)
 
 	// создание кастомной подписки
 	err = b.createCustomSub(ctx, userID, title, description, layer, cost)
@@ -109,6 +123,7 @@ func (b *Behavior) checkCustomLayerExist(ctx context.Context, userID string, lay
 		return false, errors.Wrap(errors.Wrap(err, op), "get layers")
 	}
 
+	logger.StandardDebugF(ctx, op, "Got layers=%v for author=%v", layers, userID)
 	for _, mLayer := range layers {
 		if mLayer.Layer == layer {
 			return true, nil
@@ -127,4 +142,19 @@ func (b *Behavior) createCustomSub(ctx context.Context, userID string, title, de
 	}
 
 	return nil
+}
+
+func (b *Behavior) checkCustomSubTitle(ctx context.Context, userID string, title string) (bool, error) {
+	op := "custom_subscription.service.checkCustomSubTitle"
+
+	cusSub, err := b.rep.GetCustomSubscriptionByTitle(ctx, userID, title)
+	if err != nil {
+		return false, errors.Wrap(errors.Wrap(err, op), "get custom sub")
+	}
+	logger.StandardDebugF(ctx, op, "Got custom sub %v", cusSub)
+	if cusSub == nil {
+		return false, nil
+	}
+
+	return true, nil
 }
