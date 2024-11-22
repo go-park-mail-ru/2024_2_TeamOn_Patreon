@@ -38,6 +38,22 @@ func (h *Handler) SubscriptionAuthorIDCustomGet(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	user, ok := r.Context().Value(global.UserKey).(bModels.User)
+	if !ok && authorID == "me" {
+		err := errors.Wrap(global.ErrUserNotAuthorized, "user isn't in ctx")
+		err = errors.Wrap(err, op)
+		logger.StandardDebugF(ctx, op, "get err=%v", err.Error())
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	userID := string(user.UserID)
+
+	if authorID == "me" {
+		authorID = userID
+	}
+
 	// Достаем кастомные подписки, которые есть у автора
 	customSubs, err := h.b.GetCustomSubscription(ctx, authorID)
 	if err != nil {
