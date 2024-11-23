@@ -107,7 +107,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
- 
+
+  /csat/table:
+    get:
+      tags:
+        - CSAT
+      summary: Получение таблицы
+      description: >-
+        /csat/table?time=1 || /csat/table?time=30 || /csat/table?time=infinity ||
+        
+        Если infinity, возвращается за все время
+
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: time
+          required: false
+          schema:
+            type: string
+            example: "1"
+          description: Срок сбора данных
+      responses:
+        '200':
+          description: Успешное получение поста
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Table'
+        '404':
+          description: Пост не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   securitySchemes:
     cookieAuth:
@@ -115,6 +157,15 @@ components:
       in: cookie
       name: JWT
   schemas:
+    Table:
+      type: object
+      properties:
+        theme:
+          type: string
+          description: Тема вопорса
+        rating:
+          type: string
+          description: Рейтинг средний
     Question:
       type: object
       properties:

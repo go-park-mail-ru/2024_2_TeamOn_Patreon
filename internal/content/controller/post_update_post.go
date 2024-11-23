@@ -56,6 +56,7 @@ func (h *Handler) PostUpdatePost(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(global.GetCodeError(err))
 		// отправляем структуру ошибки
 		utils2.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
 	}
 
 	// Пост обновлен

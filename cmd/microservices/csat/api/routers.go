@@ -64,6 +64,12 @@ func handleAuth(router *mux.Router, behavior interfaces.CSATService) *mux.Router
 			"/csat/result/{questionID}",
 			handler.CsatResultQuestionIDPost,
 		},
+		Route{
+			"CsatTableGet",
+			strings.ToUpper("Get"),
+			"/csat/table",
+			handler.CsatTableGet,
+		},
 	}
 
 	for _, route := range routes {

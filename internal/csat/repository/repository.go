@@ -16,7 +16,7 @@ func NewCSATRepository(db postgres.DbPool) *CSATRepository {
 	return &CSATRepository{db}
 }
 
-func (cs CSATRepository) GetQuestion(ctx context.Context, userID string) (repModels.Question, error) {
+func (cs *CSATRepository) GetQuestion(ctx context.Context, userID string) (repModels.Question, error) {
 	// op := "internal.auth.behavior.GetQuestion"
 
 	// query := '

@@ -19,6 +19,10 @@ func New(repository rInterfaces.CSATRepository) *Behavior {
 	return &Behavior{repository}
 }
 
+const (
+	Infinity = "infinity"
+)
+
 func (b *Behavior) CSATQuestion(ctx context.Context, userID string) (sModels.Question, error) {
 	op := "internal.auth.behavior.CSATQuestion"
 

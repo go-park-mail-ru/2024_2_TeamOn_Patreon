@@ -9,3 +9,7 @@ type Handler struct {
 func New(behavior interfaces.CSATService) *Handler {
 	return &Handler{b: behavior}
 }
+
+const (
+	QueryTimeName = "time"
+)

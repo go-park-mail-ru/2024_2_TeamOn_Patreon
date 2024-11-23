@@ -96,6 +96,8 @@ var (
 	// search authors
 
 	ErrAuthorNameTooLong = errors.New("author name too long")
+	ErrNotValidDays      = errors.New("not valid number of days")
+	ErrDaysIsNotDigital  = errors.New("days is not digital")
 )
 
 type ErrorHttpInfo struct {
@@ -172,6 +174,10 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	// search author
 	ErrAuthorNameTooLong: {msg: "Имя автора слишком длинное", code: http.StatusBadRequest},
+
+	// csat
+	ErrNotValidDays:     {msg: "Неправильное количество дней", code: http.StatusBadRequest},
+	ErrDaysIsNotDigital: {msg: "Количество дней выражается в числах", code: http.StatusBadRequest},
 }
 
 func GetMsgError(err error) string {
