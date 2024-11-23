@@ -2,14 +2,18 @@ package main
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/csat/api"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/repository"
 	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/service"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
 
-	//"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/repository/postgresql"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/repository"
+	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/service"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
+
 	//"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
 	"net/http"
 )
@@ -23,13 +27,13 @@ func main() {
 	// pkg
 	config.InitEnv("config/.env.default", "config/csat/.env.default")
 
-	//repository
+	// repository
 	db := postgres.InitPostgresDB(context.Background())
 	defer db.Close()
 
 	rep := repository.NewCSATRepository(db)
 
-	//service
+	// service
 	beh := behavior.New(rep)
 
 	// handlers

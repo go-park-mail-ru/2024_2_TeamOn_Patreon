@@ -6,4 +6,6 @@ type Question struct {
 	Question string
 	// ИД вопроса
 	QuestionID string
+	// ИД темы вопроса
+	QuestionThemeID string
 }
