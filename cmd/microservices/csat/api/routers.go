@@ -25,8 +25,10 @@ func NewRouter(behavior interfaces.CSATService) *mux.Router {
 	mainRouter := mux.NewRouter().StrictSlash(true)
 
 	authRouter := mainRouter.PathPrefix("/").Subrouter()
+	router := mainRouter.PathPrefix("/").Subrouter()
 
 	handleAuth(authRouter, behavior)
+	handleOther(router)
 
 	authRouter.Use(middlewares.HandlerAuth)
 
@@ -85,4 +87,29 @@ func handleAuth(router *mux.Router, behavior interfaces.CSATService) *mux.Router
 	}
 
 	return router
+}
+
+func handleOther(router *mux.Router) {
+	op := "content.api.routers.NewRouterWithAuth"
+
+	var routes = Routes{
+		Route{
+			"GetCSRFToken",
+			strings.ToUpper("Get"),
+			"/token-endpoint",
+			middlewares.GetCSRFTokenHandler,
+		},
+	}
+
+	for _, route := range routes {
+		var handler http.Handler
+		handler = route.HandlerFunc
+		logger.StandardInfoF(context.Background(), op, "Registered: %s %s", route.Method, route.Pattern)
+
+		router.
+			Methods(route.Method).
+			Path(route.Pattern).
+			Name(route.Name).
+			Handler(handler)
+	}
 }
