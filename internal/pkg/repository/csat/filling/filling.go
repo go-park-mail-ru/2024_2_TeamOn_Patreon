@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/csat/filling/consts"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"log"
 )
@@ -45,7 +46,9 @@ func main() {
 	}
 	log.Printf("Создано вопросов %v", metaQuestion)
 
-	log.Printf("dbUser: %v dbHost=%v dbPort=%v dbName=%v", dbUser, dbHost, dbPort, dbName)
+	if err = AddLoves(context.Background(), pool); err != nil {
+		log.Fatalf("Ошибка при создании оценок %v", err)
+	}
 
 }
 
@@ -119,5 +122,38 @@ func createQuestion(ctx context.Context, pool *pgxpool.Pool, meta map[string][]s
 		}
 	}
 
+	return nil
+}
+
+func AddLoves(ctx context.Context, pool *pgxpool.Pool) error {
+	op := "filling.AddLoves"
+
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+
+	query := `
+-- Вставка нескольких записей в таблицу asked_question для всех вопросов
+WITH existing_questions AS (
+    SELECT question_id
+    FROM question
+)
+INSERT INTO asked_question (asked_question_id, user_id, question_id, asked_date, result)
+SELECT 
+    gen_random_uuid(),                 -- Генерация нового UUID для каждой записи
+    'user_' || i,                       -- Пример user_id (можно заменить на реальные значения)
+    eq.question_id,
+    now(),                              -- Текущее время
+    5                                    -- Результат ответа = 5
+FROM existing_questions eq
+JOIN generate_series(4, 5) AS i ON true; 
+`
+
+	_, err = conn.Exec(ctx, query)
+
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
 	return nil
 }
