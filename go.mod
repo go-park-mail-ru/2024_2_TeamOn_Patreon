@@ -27,6 +27,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pborman/uuid v1.2.1
 	github.com/satori/go.uuid v1.2.0
+	gopkg.in/alexcesaro/statsd.v2 v2.0.0
 )
 
 require (
