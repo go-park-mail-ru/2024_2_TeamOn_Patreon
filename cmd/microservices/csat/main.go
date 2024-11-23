@@ -7,10 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/repository"
 	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/service"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
 
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/repository"
-	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/service"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
 
