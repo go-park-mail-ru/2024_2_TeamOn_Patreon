@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/csat/api"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 
-	//"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/repository/postgresql"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/repository"
+	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/service"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
+
 	//"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
 	"net/http"
 )
@@ -21,16 +25,16 @@ func main() {
 	config.InitEnv("config/.env.default", "config/csat/.env.default")
 
 	// repository
-	//db := postgres.InitPostgresDB(context.Background())
-	//defer db.Close()
+	db := postgres.InitPostgresDB(context.Background())
+	defer db.Close()
 
-	//rep := postgresql.NewContentRepository(db)
+	rep := repository.NewCSATRepository(db)
 
 	// service
-	//beh := behavior.New(rep)
+	beh := behavior.New(rep)
 
 	// handlers
-	router := api.NewRouter(nil)
+	router := api.NewRouter(beh)
 
 	// run end-to-end
 	port := config.GetEnv("SERVICE_PORT", "8086")
