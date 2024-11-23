@@ -28,7 +28,7 @@ func NewRouter(behavior interfaces.CSATService) *mux.Router {
 
 	handleAuth(authRouter, behavior)
 
-	authRouter.Use(middlewares.HandlerAuth)
+	// authRouter.Use(middlewares.HandlerAuth)
 
 	// регистрируем middlewares
 	mainRouter.Use(middlewares.CsrfMiddleware)
