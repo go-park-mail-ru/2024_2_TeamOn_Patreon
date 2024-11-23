@@ -10,11 +10,14 @@ type Question struct {
 	Question string
 	// ИД вопроса
 	QuestionID string
+	// ИД темы вопроса
+	QuestionThemeID string
 }
 
 func MapRepQuestionToServQuestion(question repModels.Question) Question {
 	return Question{
-		Question:   question.Question,
-		QuestionID: question.QuestionID,
+		Question:        question.Question,
+		QuestionID:      question.QuestionID,
+		QuestionThemeID: question.QuestionThemeID,
 	}
 }
