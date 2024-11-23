@@ -1,0 +1,1 @@
+drop table asked_question;

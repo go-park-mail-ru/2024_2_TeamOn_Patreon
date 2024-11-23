@@ -116,5 +116,53 @@ services:
     depends_on:
       - migrate-service
 
+  # CSAT
+  postgres-csat:
+    image: postgres:14
+    container_name: postgres-csat
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpass
+      POSTGRES_DB: csatdb
+    ports:
+      - "5433:5432"
+#    volumes:
+#      - postgres_csat_data:/var/lib/postgresql/data
+
+  # CSAT
+  pgadmin-csat:
+    image: dpage/pgadmin4
+    container_name: pgadmin-csat
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: adminpass
+    ports:
+      - "8090:80"
+    depends_on:
+      - postgres-csat
+
+  # CSAT
+  migrate-csat-service:
+    build:
+      context: ../../
+      dockerfile: internal/pkg/repository/csat/migrate/Dockerfile
+#    env_file:
+#      - ../../config/csat/.env.default
+#      - ../../config/.env.docker
+    depends_on:
+      - postgres-csat
+
+  # CSAT
+  filling-csat-service:
+    build:
+      context: ../../
+      dockerfile: internal/pkg/repository/csat/filling/Dockerfile
+#    env_file:
+#      - ../../config/csat/.env.default
+#      - ../../config/.env.docker
+    depends_on:
+      - migrate-csat-service
+
 volumes:
   postgres_data:
+#  postgres_csat_data:
