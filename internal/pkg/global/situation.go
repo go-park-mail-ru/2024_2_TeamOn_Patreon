@@ -96,6 +96,10 @@ var (
 	// search authors
 
 	ErrAuthorNameTooLong = errors.New("author name too long")
+
+	// csat
+
+	ErrInvalidRating = errors.New("invalid rating value")
 )
 
 type ErrorHttpInfo struct {
@@ -172,6 +176,9 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	// search author
 	ErrAuthorNameTooLong: {msg: "Имя автора слишком длинное", code: http.StatusBadRequest},
+
+	// csat
+	ErrInvalidRating: {msg: "Оценка должна быть от 0 до 5", code: http.StatusBadRequest},
 }
 
 func GetMsgError(err error) string {

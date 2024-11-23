@@ -10,4 +10,10 @@ type CSATService interface {
 
 	// CSATQuestion возвращает запрос для пользователя
 	CSATQuestion(ctx context.Context, userID string) (sModels.Question, error)
+
+	// SaveRating сохраняет оценку пользователя
+	SaveRating(ctx context.Context, userID, questionID string, rating int) error
+
+	// IsCanShow возвращает значение флага: можно ли показать юзеру вопрос
+	IsCanShow(ctx context.Context, userID string) (bool, error)
 }
