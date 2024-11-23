@@ -25,7 +25,7 @@ RUN go mod tidy
 COPY . .
 
 # Собираем бинарный файл Go
-RUN go build -o /app/content-service cmd/microservices/csat/main.go
+RUN go build -o /app/csat-service cmd/microservices/csat/main.go
 
 # Создаём финальный образ
 FROM alpine:3.18
