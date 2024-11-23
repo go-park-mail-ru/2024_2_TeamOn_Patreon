@@ -99,8 +99,9 @@ services:
     depends_on:
       - postgres
     env_file:
-      - ../../config/csat/.env.default
       - ../../config/.env.docker
+      - ../../config/csat/.env.docker
+
 
   migrate-service:
     build:

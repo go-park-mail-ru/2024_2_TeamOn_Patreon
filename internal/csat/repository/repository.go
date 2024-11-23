@@ -21,6 +21,7 @@ func NewCSATRepository(db postgres.DbPool) *CSATRepository {
 }
 
 func (cs *CSATRepository) GetQuestion(ctx context.Context, userID string) (repModels.Question, error) {
+
 	op := "internal.csat.repository.GetQuestion"
 
 	var question repModels.Question
