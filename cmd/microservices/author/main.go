@@ -19,7 +19,7 @@ func main() {
 	// logger
 	logger.New()
 
-	config.InitEnv("pkg/.env.default", "pkg/author/.env.default")
+	config.InitEnv("config/.env.default", "config/author/.env.default")
 
 	// connect to DB
 	pool := postgres.InitPostgres(context.Background())
