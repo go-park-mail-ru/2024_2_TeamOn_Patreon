@@ -90,6 +90,18 @@ services:
       - ../../config/custom_subscription/.env.default
       - ../../config/.env.docker
 
+  csat-service:
+    build:
+      context: ../../
+      dockerfile: cmd/microservices/csat/Dockerfile
+    ports:
+      - "8086:8086"
+    depends_on:
+      - postgres
+    env_file:
+      - ../../config/csat/.env.default
+      - ../../config/.env.docker
+
   migrate-service:
     build:
       context: ../../
