@@ -2,11 +2,9 @@ package interfaces
 
 import (
 	"context"
-
-	"time"
+	"database/sql"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/pkg/models"
-
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/repository/models"
 )
@@ -23,11 +21,10 @@ type CSATRepository interface {
 	SaveRating(ctx context.Context, userID, questionID string, rating int) error
 
 	// GetTimeLastQuestion возвращает время последнего заданного вопроса
-	GetTimeLastQuestion(ctx context.Context, userID string) (time.Time, error)
+	GetTimeLastQuestion(ctx context.Context, userID string) (sql.NullTime, error)
 
 	// stat
 
 	GetStatByDays(ctx context.Context, days int) ([]*models.Stat, error)
 	GetAllStat(ctx context.Context) ([]*models.Stat, error)
-
 }
