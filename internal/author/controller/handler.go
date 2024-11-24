@@ -13,4 +13,5 @@ func New(service interfaces.AuthorService) *Handler {
 const (
 	// Path param
 	authorIDParam string = "authorID"
+	anon          string = "anonim"
 )
