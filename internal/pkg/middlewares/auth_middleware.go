@@ -2,10 +2,10 @@ package middlewares
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"net/http"
 
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/jwt"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service/mapper"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 )
@@ -14,26 +14,36 @@ import (
 // передает модельку юзера в контекст
 // Не возвращает ошибку если пользователь не авторизован
 // просто кладет пользователя в контекст
-func AuthMiddleware(next http.Handler) http.Handler {
+func (m *Monster) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		op := "internal.pkg.middlewares.AuthMiddleware"
 
-		// парсинг jwt токена
-		tokenClaims, err := jwt.ParseJWTFromCookie(r)
+		token, err := jwt.JWTStringFromCookie(r)
 		if err != nil {
 			// передаем управление дальше
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		// если все ок достаем юзер ид, юзернэйм и роль
-		// мапим это все в структуру user для бизнес-логики
-		user := mapper.MapTokenToUser(tokenClaims)
+		isLogged, userID, err := m.client.VerifyToken(token)
+
+		if err != nil {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if !isLogged {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		user := models.User{
+			UserID: models.UserID(userID),
+		}
 
 		// передаем в контекст
 		ctx := context.WithValue(r.Context(), global.UserKey, user)
-		logger.StandardDebugF(r.Context(), op, "Transferred user (id={%v}, name={%v}) in ctx",
-			user.UserID, user.Username)
+		logger.StandardDebugF(r.Context(), op, "Transferred user (id={%v}) in ctx",
+			user.UserID)
 
 		// добавляем контекст в контекст r
 		r = r.WithContext(ctx)

@@ -35,10 +35,12 @@ func main() {
 	// routers
 	router := api.NewRouter(serv)
 
+	monster := middlewares.NewMonster()
+	defer monster.Close()
 	// регистрируем middlewares
 	router.Use(middlewares.AddRequestID)
-	router.Use(middlewares.Logging)     // 1
-	router.Use(middlewares.HandlerAuth) // 2 для ручек, где требуется аутентификация
+	router.Use(middlewares.Logging) // 1
+	router.Use(monster.HandlerAuth) // 2 для ручек, где требуется аутентификация
 	router.Use(middlewares.CsrfMiddleware)
 
 	// run server

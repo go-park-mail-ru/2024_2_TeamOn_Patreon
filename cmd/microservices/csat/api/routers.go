@@ -21,7 +21,7 @@ type Route struct {
 
 type Routes []Route
 
-func NewRouter(behavior interfaces.CSATService) *mux.Router {
+func NewRouter(behavior interfaces.CSATService, monster *middlewares.Monster) *mux.Router {
 	mainRouter := mux.NewRouter().StrictSlash(true)
 
 	authRouter := mainRouter.PathPrefix("/").Subrouter()
@@ -30,7 +30,7 @@ func NewRouter(behavior interfaces.CSATService) *mux.Router {
 	handleAuth(authRouter, behavior)
 	handleOther(router)
 
-	authRouter.Use(middlewares.HandlerAuth)
+	authRouter.Use(monster.HandlerAuth)
 
 	// регистрируем middlewares
 	mainRouter.Use(middlewares.CsrfMiddleware)
