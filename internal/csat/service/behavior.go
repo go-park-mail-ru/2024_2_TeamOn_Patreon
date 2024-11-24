@@ -94,6 +94,11 @@ func (b *Behavior) IsCanShow(ctx context.Context, userID string) (bool, error) {
 		return false, errors.Wrap(err, op)
 	}
 
+	// Если lastTime.Valid - false, значит пользователь новый -> можем показывать
+	if !lastTime.Valid {
+		return true, nil
+	}
+
 	logger.StandardInfo(
 		ctx,
 		fmt.Sprintf("successful get last time question=%v", lastTime),
@@ -112,7 +117,7 @@ func (b *Behavior) IsCanShow(ctx context.Context, userID string) (bool, error) {
 	currentTime := time.Now()
 
 	// Вычисление разницы во времени
-	duration := currentTime.Sub(lastTime)
+	duration := currentTime.Sub(lastTime.Time)
 
 	var isCanShow bool
 	// Проверка, прошло ли 10 минут

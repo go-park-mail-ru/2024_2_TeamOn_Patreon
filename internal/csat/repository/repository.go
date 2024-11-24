@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"time"
+	"database/sql"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/repository/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -79,7 +79,7 @@ func (cs *CSATRepository) SaveRating(ctx context.Context, userID, questionID str
 	return nil
 }
 
-func (cs *CSATRepository) GetTimeLastQuestion(ctx context.Context, userID string) (time.Time, error) {
+func (cs *CSATRepository) GetTimeLastQuestion(ctx context.Context, userID string) (sql.NullTime, error) {
 	op := "internal.csat.repository.GetTimeLastQuestion"
 
 	// Запрос на получение массива
@@ -91,17 +91,18 @@ func (cs *CSATRepository) GetTimeLastQuestion(ctx context.Context, userID string
 
 	rows, err := cs.db.Query(ctx, query, userID)
 	if err != nil {
-		return time.Time{}, errors.Wrap(err, op)
+		return sql.NullTime{}, errors.Wrap(err, op)
 	}
 
 	defer rows.Close()
 
-	var lastTime time.Time
+	var lastTime sql.NullTime
 
 	for rows.Next() {
-		if err = rows.Scan(&lastTime); err != nil {
-			return time.Time{}, errors.Wrap(err, op)
+		if err = rows.Scan(&lastTime.Time); err != nil {
+			return sql.NullTime{}, errors.Wrap(err, op)
 		}
+		lastTime.Valid = true
 		logger.StandardDebugF(ctx, op, "Got lastTime='%v' for userID='%v'", lastTime, userID)
 	}
 	return lastTime, nil
