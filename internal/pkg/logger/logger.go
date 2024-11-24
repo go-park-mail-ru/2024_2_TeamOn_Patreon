@@ -82,3 +82,7 @@ func extractReqID(ctx context.Context) string {
 	}
 	return reqID
 }
+
+func GetLevel() slog.Level {
+	return global.LoggerLevel
+}

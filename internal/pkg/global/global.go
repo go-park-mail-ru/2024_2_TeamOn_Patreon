@@ -41,5 +41,11 @@ const (
 	EnvJWTKey      = "JWT_KEY"
 	EnvPort        = "SERVICE_PORT"
 
-	EnvJWT = "JWT_KEY"
+	EnvJWT      = "JWT_KEY"
+	EnvTokenTTL = "TOKEN_TTL"
+
+	// grpc
+
+	EnvGRPCPort    = "GRPC_PORT"
+	EnvGRPCTimeout = "GRPC_TIMEOUT"
 )

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/grpc"
 	"net/http"
 
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/auth/api"
@@ -29,6 +30,11 @@ func main() {
 
 	// service
 	beh := behavior.New(rep)
+
+	// Запуск grpc сервера
+	go grpc.MustRun(beh)
+
+	// Запуск rest api сервера
 
 	// routers
 	router := api.NewRouter(beh)

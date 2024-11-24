@@ -27,12 +27,15 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pborman/uuid v1.2.1
 	github.com/satori/go.uuid v1.2.0
+	google.golang.org/grpc v1.64.1
+	google.golang.org/protobuf v1.34.2
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0
 )
 
 require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -43,5 +46,7 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/net v0.30.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240513163218-0867130af1f8 // indirect
 )
