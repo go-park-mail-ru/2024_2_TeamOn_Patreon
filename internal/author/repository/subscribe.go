@@ -31,12 +31,9 @@ func (p *Postgres) CreateSubscribeRequest(ctx context.Context, subReq repModels.
 	}
 
 	// Выбранный уровень подписки существует
-	customSubID, err := p.getCustomSubscriptionID(ctx, subReq.AuthorID, subReq.Layer)
-	if err != nil {
+
+	if _, err := p.getCustomSubscriptionID(ctx, subReq.AuthorID, subReq.Layer); err != nil {
 		return "", errors.Wrap(err, op)
-	}
-	if customSubID == "" {
-		return "", global.ErrCustomSubDoesNotExist
 	}
 
 	subReqID := utils.GenerateUUID()
@@ -86,7 +83,7 @@ func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string)
 }
 
 func (p *Postgres) getCustomSubscriptionID(ctx context.Context, authorID string, layer int) (string, error) {
-	op := "internal.author.repository.checkSubscriptionExists"
+	op := "internal.author.repository.getCustomSubscriptionID"
 
 	var customSubscriptionID string
 	query := `
@@ -99,7 +96,7 @@ func (p *Postgres) getCustomSubscriptionID(ctx context.Context, authorID string,
 	err := p.db.QueryRow(ctx, query, authorID, layer).Scan(&customSubscriptionID)
 
 	if err == sql.ErrNoRows {
-		return "", nil
+		return "", global.ErrCustomSubDoesNotExist
 	} else if err != nil {
 		return "", errors.Wrap(err, op)
 	}
