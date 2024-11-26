@@ -17,7 +17,7 @@ func (handler *Handler) GetAuthorBackground(w http.ResponseWriter, r *http.Reque
 	ctx := r.Context()
 	// Определяем authorID
 	vars := mux.Vars(r)
-	authorID := vars["authorID"]
+	authorID := vars[authorIDParam]
 
 	if authorID == "me" {
 		// Извлекаем userID из контекста

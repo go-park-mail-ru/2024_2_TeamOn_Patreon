@@ -2,15 +2,15 @@ package main
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"net/http"
+
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/account/api"
 	postgres "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/init/postgres_db"
 	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository"
 	service "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 )
 
 func main() {
@@ -34,6 +34,7 @@ func main() {
 
 	// routers
 	router := api.NewRouter(serv)
+
 
 	monster := middlewares.NewMonster()
 	defer monster.Close()

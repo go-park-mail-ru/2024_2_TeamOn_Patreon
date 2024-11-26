@@ -22,6 +22,10 @@ func New(repository interfaces.AuthorRepository) *Service {
 	return &Service{repository}
 }
 
+const (
+	anon string = "anonim"
+)
+
 func (s *Service) GetAuthorDataByID(ctx context.Context, authorID string) (sModels.Author, error) {
 	op := "internal.author.service.GetAuthorDataByID"
 
@@ -47,7 +51,7 @@ func (s *Service) GetAuthorDataByID(ctx context.Context, authorID string) (sMode
 func (s *Service) GetUserIsSubscribe(ctx context.Context, authorID, userID string) (bool, error) {
 	op := "internal.account.service.GetUserIsSubscribe"
 
-	if authorID == userID {
+	if authorID == userID || userID == anon {
 		return false, nil
 	}
 	// получаем статус из rep

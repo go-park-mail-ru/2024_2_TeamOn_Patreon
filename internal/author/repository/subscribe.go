@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"sync"
+	"time"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
@@ -67,12 +68,15 @@ func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string)
 	// Сохраняем запись о подписке
 	logger.StandardDebugF(ctx, op, "want to save new record subID=%v, userID=%v, customSubID=%v", subID, subReq.UserID, customSubID)
 
+	currentTime := time.Now()
+	finishedDate := currentTime.AddDate(0, subReq.MonthCount, 0)
+
 	query := `
     	INSERT INTO public.subscription(
         subscription_id, user_id, custom_subscription_id, started_date, finished_date)
-    	VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL $4 MONTH)
+    	VALUES ($1, $2, $3, $4, $5)
 	`
-	if _, err := p.db.Exec(ctx, query, subID, subReq.UserID, customSubID, subReq.MonthCount); err != nil {
+	if _, err := p.db.Exec(ctx, query, subID, subReq.UserID, customSubID, currentTime, finishedDate); err != nil {
 		return errors.Wrap(err, op)
 	}
 	// Удаляем запрос из map после реализации
