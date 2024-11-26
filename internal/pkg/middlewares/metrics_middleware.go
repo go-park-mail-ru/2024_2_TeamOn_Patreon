@@ -20,9 +20,9 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 		m.TotalRequests.WithLabelValues(r.URL.Path, r.Method, http.StatusText(rec.statusCode), "handler_name").Inc()
 		m.HttpDuration.WithLabelValues(r.URL.Path, r.Method, http.StatusText(rec.statusCode), "handler_name").Observe(time.Since(start).Seconds())
 
-		// Если код ответа не 2xx, увеличиваем счетчик ошибок
+		// Инкремент счетчика ошибок
 		if rec.statusCode >= 400 {
-			// TODO: добавить логику для увеличения счетчика ошибок
+			m.ErrorRequests.WithLabelValues(r.URL.Path, r.Method, http.StatusText(rec.statusCode), "handler_name").Inc()
 		}
 	})
 }

@@ -10,6 +10,7 @@ import (
 type Metrics struct {
 	TotalRequests *prometheus.CounterVec
 	HttpDuration  *prometheus.HistogramVec
+	ErrorRequests *prometheus.CounterVec
 }
 
 var (
@@ -19,7 +20,7 @@ var (
 
 func NewMetrics(reg prometheus.Registerer) *Metrics {
 	once.Do(func() {
-		const namePrefix = "pushArt_"
+		const namePrefix = "pushart_"
 		instance = &Metrics{
 			TotalRequests: prometheus.NewCounterVec(
 				prometheus.CounterOpts{
@@ -35,8 +36,15 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 				},
 				[]string{"path", "method", "code", "handler"},
 			),
+			ErrorRequests: prometheus.NewCounterVec(
+				prometheus.CounterOpts{
+					Name: namePrefix + "errors_total",
+					Help: "Number of error responses.",
+				},
+				[]string{"path", "method", "code", "handler"},
+			),
 		}
-		reg.MustRegister(instance.TotalRequests, instance.HttpDuration)
+		reg.MustRegister(instance.TotalRequests, instance.HttpDuration, instance.ErrorRequests)
 	})
 	return instance
 }
