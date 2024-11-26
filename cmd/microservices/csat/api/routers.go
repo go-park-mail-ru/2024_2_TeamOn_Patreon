@@ -9,7 +9,10 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/controller/interfaces"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares/metrics"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Route struct {
@@ -36,6 +39,10 @@ func NewRouter(behavior interfaces.CSATService) *mux.Router {
 	mainRouter.Use(middlewares.CsrfMiddleware)
 	mainRouter.Use(middlewares.Logging)
 	mainRouter.Use(middlewares.AddRequestID)
+
+	// Метрики
+	metrics.NewMetrics(prometheus.NewRegistry())
+	mainRouter.Use(middlewares.MetricsMiddleware)
 
 	return mainRouter
 }
@@ -98,6 +105,12 @@ func handleOther(router *mux.Router) {
 			strings.ToUpper("Get"),
 			"/token-endpoint",
 			middlewares.GetCSRFTokenHandler,
+		},
+		Route{
+			"Metrics",
+			"GET",
+			"/metrics",
+			promhttp.Handler().ServeHTTP,
 		},
 	}
 

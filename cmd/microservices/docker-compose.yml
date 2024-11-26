@@ -35,6 +35,8 @@ services:
       - ../../config/.env.docker
     depends_on:
       - postgres
+    networks:
+      - monitoring
 
   account-service:
     build:
@@ -49,6 +51,8 @@ services:
       - ../../static/avatar:/app/static/avatar  # Указываем путь к локальной папке
     depends_on:
       - postgres
+    networks:
+      - monitoring
 
   author-service:
     build:
@@ -63,6 +67,8 @@ services:
       - ../../static/background:/app/static/background  # Указываем путь к локальной папке
     depends_on:
       - postgres
+    networks:
+      - monitoring
 
   content-service:
     build:
@@ -77,6 +83,8 @@ services:
       - ../../config/.env.docker
     volumes:
       - ../../static/post:/app/static/post  # Указываем путь к локальной папке
+    networks:
+      - monitoring
 
   custom-subscribe-service:
     build:
@@ -89,6 +97,8 @@ services:
     env_file:
       - ../../config/custom_subscription/.env.default
       - ../../config/.env.docker
+    networks:
+      - monitoring
 
   csat-service:
     build:
@@ -101,7 +111,8 @@ services:
     env_file:
       - ../../config/.env.docker
       - ../../config/csat/.env.docker
-
+    networks:
+      - monitoring
 
   migrate-service:
     build:
@@ -163,6 +174,32 @@ services:
 #      - ../../config/.env.docker
     depends_on:
       - migrate-csat-service
+
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+    volumes:
+      - ../../internal/pkg/middlewares/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    driver: bridge
 
 volumes:
   postgres_data:

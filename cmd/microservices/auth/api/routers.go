@@ -6,10 +6,14 @@ package api
 import (
 	"context"
 	"fmt"
+
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller"
 	bInterfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/interafces"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares/metrics"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	// The "net/http" library has methods to implement HTTP clients and servers
 	"net/http"
@@ -58,6 +62,12 @@ func NewRouter(behavior bInterfaces.AuthBehavior) *mux.Router {
 			"/token-endpoint",
 			middlewares.GetCSRFTokenHandler,
 		},
+		Route{
+			"Metrics",
+			"GET",
+			"/metrics",
+			promhttp.Handler().ServeHTTP,
+		},
 	}
 
 	// Declare a new router
@@ -84,6 +94,10 @@ func NewRouter(behavior bInterfaces.AuthBehavior) *mux.Router {
 	router.Use(middlewares.Logging)
 	router.Use(middlewares.Security)
 	router.Use(middlewares.CsrfMiddleware)
+
+	// Метрики
+	metrics.NewMetrics(prometheus.NewRegistry())
+	router.Use(middlewares.MetricsMiddleware)
 
 	return router
 }
