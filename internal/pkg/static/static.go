@@ -105,7 +105,7 @@ func SaveFile(file []byte, filePath string) error {
 	// Запись данных в файл
 	_, err = out.Write(file)
 	if err != nil {
-		return err
+		return errors.Wrap(err, op)
 	}
 	return nil
 }

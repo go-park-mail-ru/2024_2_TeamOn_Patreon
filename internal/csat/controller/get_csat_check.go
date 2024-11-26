@@ -35,7 +35,7 @@ func (h *Handler) CsatCheckGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Обращение к service
-	isCan, err := h.b.IsCanShow(r.Context(), string(userData.UserID))
+	canAsk, err := h.b.CanAskUser(r.Context(), string(userData.UserID))
 	if err != nil {
 		logger.StandardWarnF(ctx, op, "get canShowSurvey error {%v}", err)
 		w.WriteHeader(global.GetCodeError(err))
@@ -44,7 +44,7 @@ func (h *Handler) CsatCheckGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response models.ModelCanShow
-	response.IsCanShow = isCan
+	response.CanAsk = canAsk
 
 	utils.SendModel(response, w, op, ctx)
 	w.WriteHeader(http.StatusOK)
