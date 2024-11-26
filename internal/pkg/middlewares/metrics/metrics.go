@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 type Metrics struct {
@@ -27,24 +26,26 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 					Name: namePrefix + "requests_total",
 					Help: "Number of get requests.",
 				},
-				[]string{"path", "method", "code", "handler"},
+				[]string{"path", "method", "code"},
 			),
-			HttpDuration: promauto.NewHistogramVec(
+			HttpDuration: prometheus.NewHistogramVec(
 				prometheus.HistogramOpts{
 					Name: namePrefix + "response_time_seconds",
 					Help: "Duration of HTTP requests.",
 				},
-				[]string{"path", "method", "code", "handler"},
+				[]string{"path", "method", "code"},
 			),
 			ErrorRequests: prometheus.NewCounterVec(
 				prometheus.CounterOpts{
 					Name: namePrefix + "errors_total",
 					Help: "Number of error responses.",
 				},
-				[]string{"path", "method", "code", "handler"},
+				[]string{"path", "method", "code"},
 			),
 		}
-		reg.MustRegister(instance.TotalRequests, instance.HttpDuration, instance.ErrorRequests)
+		reg.MustRegister(instance.TotalRequests)
+		reg.MustRegister(instance.HttpDuration)
+		reg.MustRegister(instance.ErrorRequests)
 	})
 	return instance
 }

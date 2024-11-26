@@ -45,7 +45,7 @@ func NewRouter(behavior interfaces.AuthorService) *mux.Router {
 	mainRouter.Use(middlewares.AddRequestID)
 
 	// Метрики
-	metrics.NewMetrics(prometheus.NewRegistry())
+	metrics.NewMetrics(prometheus.DefaultRegisterer)
 	mainRouter.Use(middlewares.MetricsMiddleware)
 
 	return mainRouter

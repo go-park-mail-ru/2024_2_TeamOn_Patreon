@@ -96,7 +96,7 @@ func NewRouter(behavior bInterfaces.AuthBehavior) *mux.Router {
 	router.Use(middlewares.CsrfMiddleware)
 
 	// Метрики
-	metrics.NewMetrics(prometheus.NewRegistry())
+	metrics.NewMetrics(prometheus.DefaultRegisterer)
 	router.Use(middlewares.MetricsMiddleware)
 
 	return router
