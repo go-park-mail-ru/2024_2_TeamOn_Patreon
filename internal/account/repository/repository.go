@@ -86,12 +86,6 @@ func (p *Postgres) SubscriptionsByID(ctx context.Context, userID string) ([]repM
 	logger.StandardDebugF(ctx, op, "wants to form an map of subscriptions for user with userID %v", userID)
 	var subscriptions []repModels.Subscription
 
-	// Проверяем, есть ли строки в выборке
-	if !rows.Next() {
-		// Если строк нет, возвращаем пустой срез без ошибки
-		return subscriptions, nil
-	}
-
 	// Если строки есть, обрабатываем их
 	for rows.Next() {
 		var subscription repModels.Subscription

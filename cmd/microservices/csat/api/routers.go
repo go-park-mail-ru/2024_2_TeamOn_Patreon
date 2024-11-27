@@ -3,13 +3,15 @@ package api
 import (
 	"context"
 	"net/http"
-	"strings"
 
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/controller"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/controller/interfaces"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares/metrics"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Route struct {
@@ -37,6 +39,10 @@ func NewRouter(behavior interfaces.CSATService, monster *middlewares.Monster) *m
 	mainRouter.Use(middlewares.Logging)
 	mainRouter.Use(middlewares.AddRequestID)
 
+	// Метрики
+	metrics.NewMetrics(prometheus.DefaultRegisterer)
+	mainRouter.Use(middlewares.MetricsMiddleware)
+
 	return mainRouter
 }
 
@@ -48,27 +54,27 @@ func handleAuth(router *mux.Router, behavior interfaces.CSATService) *mux.Router
 	var routes = Routes{
 		Route{
 			"CsatCheckGet",
-			strings.ToUpper("Get"),
+			"GET",
 			"/csat/check",
 			handler.CsatCheckGet,
 		},
 
 		Route{
 			"CsatQuestionGet",
-			strings.ToUpper("Get"),
+			"GET",
 			"/csat/question",
 			handler.CsatQuestionGet,
 		},
 
 		Route{
 			"CsatResultQuestionIDPost",
-			strings.ToUpper("Post"),
+			"POST",
 			"/csat/result/{questionID}",
 			handler.CsatResultQuestionIDPost,
 		},
 		Route{
 			"CsatTableGet",
-			strings.ToUpper("Get"),
+			"GET",
 			"/csat/table",
 			handler.CsatTableGet,
 		},
@@ -95,9 +101,15 @@ func handleOther(router *mux.Router) {
 	var routes = Routes{
 		Route{
 			"GetCSRFToken",
-			strings.ToUpper("Get"),
+			"GET",
 			"/token-endpoint",
 			middlewares.GetCSRFTokenHandler,
+		},
+		Route{
+			"Metrics",
+			"GET",
+			"/metrics",
+			promhttp.Handler().ServeHTTP,
 		},
 	}
 

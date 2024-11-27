@@ -80,14 +80,14 @@ func (b *Behavior) SaveRating(ctx context.Context, userID, questionID string, ra
 	return nil
 }
 
-func (b *Behavior) IsCanShow(ctx context.Context, userID string) (bool, error) {
-	op := "internal.csat.behavior.IsCanShow"
+func (b *Behavior) CanAskUser(ctx context.Context, userID string) (bool, error) {
+	op := "internal.csat.behavior.CanAskUser"
 
 	// Константа, с каким периодом задаём вопросы
 	periodAskQuestions := 5 * time.Minute
 
 	// получаем данные пользователя из rep
-	logger.StandardDebugF(ctx, op, "want to get IsCanShow question for user=%v", userID)
+	logger.StandardDebugF(ctx, op, "want to get CanAskUser question for user=%v", userID)
 
 	lastTime, err := b.rep.GetTimeLastQuestion(ctx, userID)
 	if err != nil {
@@ -129,7 +129,7 @@ func (b *Behavior) IsCanShow(ctx context.Context, userID string) (bool, error) {
 
 	logger.StandardInfo(
 		ctx,
-		fmt.Sprintf("successful get IsCanShow=%v", isCanShow),
+		fmt.Sprintf("successful get CanAskUser=%v", isCanShow),
 		op)
 
 	return isCanShow, nil

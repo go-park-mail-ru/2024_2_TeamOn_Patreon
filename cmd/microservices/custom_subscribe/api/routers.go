@@ -2,13 +2,18 @@ package api
 
 import (
 	"context"
+
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/custom_subscription/controller"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/custom_subscription/controller/interfaces"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares/metrics"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	"net/http"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 type Route struct {
@@ -36,6 +41,10 @@ func NewRouter(behavior interfaces.CustomSubscriptionService, monster *middlewar
 	mainRouter.Use(middlewares.CsrfMiddleware)
 	mainRouter.Use(middlewares.Logging)
 	mainRouter.Use(middlewares.AddRequestID)
+
+	// Метрики
+	metrics.NewMetrics(prometheus.DefaultRegisterer)
+	mainRouter.Use(middlewares.MetricsMiddleware)
 
 	return mainRouter
 }
@@ -97,6 +106,12 @@ func handleOther(router *mux.Router, behavior interfaces.CustomSubscriptionServi
 			http.MethodGet,
 			"/search/{" + api.PathAuthorName + "}",
 			handler.SearchAuthorNameGet,
+		},
+		Route{
+			"Metrics",
+			"GET",
+			"/metrics",
+			promhttp.Handler().ServeHTTP,
 		},
 	}
 	for _, route := range routes {

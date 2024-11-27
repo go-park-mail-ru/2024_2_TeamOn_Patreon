@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 
@@ -21,7 +22,6 @@ type Config struct {
 }
 
 const (
-	//HOST     = "127.0.0.1"
 	Host     = "127.0.0.1"
 	Port     = "5432"
 	User     = "admin"

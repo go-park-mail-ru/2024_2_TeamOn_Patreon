@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"net/http"
 
@@ -12,6 +14,7 @@ import (
 	interfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/interfaces"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 
+	metrics "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares/metrics"
 	"github.com/gorilla/mux"
 )
 
@@ -36,10 +39,13 @@ func NewRouter(service interfaces.AccountService) *mux.Router {
 	authRouter.Use(middlewares.HandlerAuth)
 	router.Use(middlewares.AuthMiddleware)
 
-	// регистрируем middlewares
 	mainRouter.Use(middlewares.CsrfMiddleware)
 	mainRouter.Use(middlewares.Logging)
 	mainRouter.Use(middlewares.AddRequestID)
+
+	// Метрики
+	metrics.NewMetrics(prometheus.DefaultRegisterer)
+	mainRouter.Use(middlewares.MetricsMiddleware)
 
 	return mainRouter
 }
@@ -56,7 +62,6 @@ func handleAuth(router *mux.Router, service interfaces.AccountService) *mux.Rout
 			"/account",
 			handler.GetAccount,
 		},
-
 		Route{
 			"PostAccountUpdate",
 			"POST",
@@ -109,6 +114,12 @@ func handleOther(router *mux.Router, service interfaces.AccountService) *mux.Rou
 			strings.ToUpper("Get"),
 			"/token-endpoint",
 			middlewares.GetCSRFTokenHandler,
+		},
+		Route{
+			"Metrics",
+			"GET",
+			"/metrics",
+			promhttp.Handler().ServeHTTP,
 		},
 	}
 

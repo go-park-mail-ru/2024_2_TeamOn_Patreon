@@ -21,7 +21,6 @@ import (
 
 func (h *Handler) SubscriptionAuthorIDCustomGet(w http.ResponseWriter, r *http.Request) {
 	op := "custom_subscription.controller.SubscriptionAuthorIDCustomGet"
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	ctx := r.Context()
 
@@ -60,6 +59,7 @@ func (h *Handler) SubscriptionAuthorIDCustomGet(w http.ResponseWriter, r *http.R
 		logger.StandardDebugF(ctx, op, "GetCustomSubscription err=%v", err.Error())
 		w.WriteHeader(global.GetCodeError(err))
 		utils.SendModel(models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
 	}
 
 	var tCustomSubs []*models.CustomSubscription

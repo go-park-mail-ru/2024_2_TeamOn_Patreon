@@ -152,9 +152,6 @@ func (b *Behavior) checkCustomSubTitle(ctx context.Context, userID string, title
 		return false, errors.Wrap(errors.Wrap(err, op), "get custom sub")
 	}
 	logger.StandardDebugF(ctx, op, "Got custom sub %v", cusSub)
-	if cusSub == nil {
-		return false, nil
-	}
 
-	return true, nil
+	return cusSub != nil, nil
 }
