@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres/filling/consts"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres/filling/models"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -13,7 +14,7 @@ import (
 )
 
 type CustomSub struct {
-	customName string
+	customID   string
 	authorName string
 	layer      string
 }
@@ -23,13 +24,23 @@ type Layer string
 type PostTitle string
 type User string
 
-var (
-	CustomSubToAuthor = map[string]CustomSub{}
-	Subscriptions     = map[string]CustomSub{}
+//var (
+//	CustomSubToAuthor = map[string]CustomSub{}
+//	Subscriptions     = map[string]CustomSub{}
+//
+//	Posts = make(map[Author]map[Layer][]PostTitle)
+//	Users = make(map[Author]map[Layer][]User)
+//)
 
-	Posts = make(map[Author]map[Layer][]PostTitle)
-	Users = make(map[Author]map[Layer][]User)
-)
+type Filling struct {
+	CustomSubToAuthor map[string]CustomSub
+	Subscriptions     map[string]CustomSub
+
+	Posts map[Author]map[Layer][]PostTitle
+	Users map[Author]map[Layer][]User
+
+	Authors []*models.FillingAuthor
+}
 
 func main() {
 	// Укажите, сколько пользователей нужно создать
@@ -44,7 +55,6 @@ func main() {
 
 	// Формируем строку подключения
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", dbUser, dbPassword, dbHost, dbPort, dbName)
-
 	//dbURL := "postgres://your_user:your_password@localhost:5432/your_dbname?sslmode=disable"
 	pool, err := pgxpool.New(context.Background(), dbURL)
 	if err != nil {
@@ -52,42 +62,44 @@ func main() {
 	}
 	defer pool.Close()
 
-	if err := createUsers(context.Background(), pool, n); err != nil {
+	filling := Filling{}
+
+	if err := filling.createUsers(context.Background(), pool, n); err != nil {
 		log.Fatalf("Ошибка при создании пользователей: %v", err)
 	}
 
 	fmt.Printf("Создано %d пользователей\n", n)
 
-	if err := createAuthors(context.Background(), pool, n); err != nil {
+	if err := filling.createAuthors(context.Background(), pool, n); err != nil {
 		log.Fatalf("Ошибка при создании авторов: %v", err)
 	}
 
 	fmt.Printf("Создано %d авторов \n", n)
 
-	if err := createPage(context.Background(), pool, n); err != nil {
+	if err := filling.createPage(context.Background(), pool, n); err != nil {
 		log.Fatalf("Ошибка при создании страниц: %v", err)
 	}
 
 	fmt.Printf("Создано %d страниц \n", n)
 
-	if err := createCustomSubscriptions(context.Background(), pool, n); err != nil {
+	if err := filling.createCustomSubscriptions(context.Background(), pool, n); err != nil {
 		log.Fatalf("Ошибка при создании кастомных подписок: %v", err)
 	}
 
 	fmt.Printf("Создано %d кастомных подписок \n", n)
 
-	if err := createSubscriptions(context.Background(), pool, n); err != nil {
+	if err := filling.createSubscriptions(context.Background(), pool, n); err != nil {
 		log.Fatalf("Ошибка при создании подписок: %v", err)
 	}
 
 	fmt.Printf("Создано %d подписок \n", n*n)
 
-	if err := createPosts(context.Background(), pool, n); err != nil {
+	if err := filling.createPosts(context.Background(), pool, n); err != nil {
 		log.Fatalf("Ошибка при создании постов: %v", err)
 	}
 
 	fmt.Printf("Создано %d постов \n", n*n)
-	index, err := createPostLikes(context.Background(), pool, n)
+	index, err := filling.createPostLikes(context.Background(), pool, n)
 	if err != nil {
 		log.Fatalf("Ошибка при создании лайков на посты: %v", err)
 	}
@@ -95,7 +107,7 @@ func main() {
 	fmt.Printf("Создано %d лайков \n", index)
 }
 
-func createUsers(ctx context.Context, pool *pgxpool.Pool, n int) error {
+func (f *Filling) createUsers(ctx context.Context, pool *pgxpool.Pool, n int) error {
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
 		return fmt.Errorf("не удалось получить соединение из пула: %v", err)
@@ -139,7 +151,7 @@ func createUsers(ctx context.Context, pool *pgxpool.Pool, n int) error {
 	return nil
 }
 
-func createAuthors(ctx context.Context, pool *pgxpool.Pool, n int) error {
+func (f *Filling) createAuthors(ctx context.Context, pool *pgxpool.Pool, n int) error {
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
 		return fmt.Errorf("не удалось получить соединение из пула: %v", err)
@@ -148,14 +160,25 @@ func createAuthors(ctx context.Context, pool *pgxpool.Pool, n int) error {
 
 	batch := &pgx.Batch{}
 
+	if len(f.Authors) < n {
+		n = len(f.Authors)
+	}
+
 	// Подготавливаем данные для пользователей и связанных записей
 	for i := 0; i < n; i++ {
 		userID := uuid.New()
-		username := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
-		email := fmt.Sprintf(consts.EMAIL_DOMAIN_NAME, username)
+		//username := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
+		//email := fmt.Sprintf(consts.EMAIL_DOMAIN_NAME, username)
+
+		authorName := f.Authors[i].AuthorName
+		email := fmt.Sprintf(consts.EMAIL_DOMAIN_NAME, authorName)
+		password := f.Authors[i].Password
+		if password == "" {
+			password = consts.PASSWORD
+		}
 
 		// Генерация хеша пароля
-		passwordHash, err := bcrypt.GenerateFromPassword([]byte(consts.PASSWORD), bcrypt.DefaultCost)
+		passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
 			return fmt.Errorf("ошибка хеширования пароля: %v", err)
 		}
@@ -164,7 +187,7 @@ func createAuthors(ctx context.Context, pool *pgxpool.Pool, n int) error {
 		batch.Queue(`
             INSERT INTO People (user_id, username, email, role_id, hash_password) 
             VALUES ($1, $2, $3, (SELECT role_id FROM Role WHERE role_default_name = 'Author'), $4)`,
-			userID, username, email, passwordHash)
+			userID, authorName, email, passwordHash)
 
 	}
 
@@ -183,7 +206,7 @@ func createAuthors(ctx context.Context, pool *pgxpool.Pool, n int) error {
 	return nil
 }
 
-func createPage(ctx context.Context, pool *pgxpool.Pool, n int) error {
+func (f *Filling) createPage(ctx context.Context, pool *pgxpool.Pool, n int) error {
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
 		return fmt.Errorf("не удалось получить соединение из пула: %v", err)
@@ -192,17 +215,22 @@ func createPage(ctx context.Context, pool *pgxpool.Pool, n int) error {
 
 	batch := &pgx.Batch{}
 
+	if len(f.Authors) < n {
+		n = len(f.Authors)
+	}
+
 	// Подготавливаем данные для пользователей и связанных записей
 	for i := 0; i < n; i++ {
-		username := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
-		about := fmt.Sprintf(consts.PAGE_INFO, username)
+		//username := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
+		authorName := f.Authors[i].AuthorName
+		about := fmt.Sprintf(consts.PAGE_INFO, authorName)
 
 		// Запрос на добавление пользователя
 		batch.Queue(`
 INSERT INTO Page (page_id, user_id, info) VALUES
 (gen_random_uuid(), (SELECT user_id FROM People WHERE username = $1), $2)
   `,
-			username, about)
+			authorName, about)
 	}
 
 	// Выполнение батч-запроса
@@ -220,7 +248,7 @@ INSERT INTO Page (page_id, user_id, info) VALUES
 	return nil
 }
 
-func createCustomSubscriptions(ctx context.Context, pool *pgxpool.Pool, n int) error {
+func (f *Filling) createCustomSubscriptions(ctx context.Context, pool *pgxpool.Pool, n int) error {
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
 		return fmt.Errorf("не удалось получить соединение из пула: %v", err)
@@ -229,24 +257,40 @@ func createCustomSubscriptions(ctx context.Context, pool *pgxpool.Pool, n int) e
 
 	batch := &pgx.Batch{}
 
+	if len(f.Authors) < n {
+		n = len(f.Authors)
+	}
+
 	// Подготавливаем данные для пользователей и связанных записей
 	for i := 0; i < n; i++ {
-		authorName := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
-		username := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
-		customSub := fmt.Sprintf(consts.CUSTOM_NAME, i+1, authorName)
-		layer := i % 4
+		//authorName := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
+		//username := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
+		//customSub := fmt.Sprintf(consts.CUSTOM_NAME, i+1, authorName)
 
-		cost := consts.CUSTOM_COST*layer + 10
+		authorName := f.Authors[i].AuthorName
+		for _, customSub := range f.Authors[i].CustomSubscription {
+			customSubID := uuid.New().String()
+			customSubName := customSub.Title
+			customSubDescription := customSub.Description
+			if customSubDescription == "" {
+				customSubDescription = consts.CUSTOM_SUB_INFO
+			}
+			cost := customSub.Cost
+			layer := customSub.Layer
 
-		CustomSubToAuthor[customSub] = CustomSub{layer: string(layer), authorName: username, customName: customSub}
+			if cost == 0 {
+				cost = consts.CUSTOM_COST*layer + 10
+			}
 
-		// Запрос на добавление пользователя
-		batch.Queue(`
+			f.CustomSubToAuthor[customSubID] = CustomSub{layer: string(layer), authorName: authorName, customID: customSubID}
+
+			// Запрос на добавление пользователя
+			batch.Queue(`
     INSERT INTO Custom_Subscription (custom_subscription_id, author_id, custom_name, cost, info, subscription_layer_id) VALUES
-    (gen_random_uuid(), (SELECT user_id FROM People WHERE username = $1), $2, $3, $4, (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $5) )
+    ($1, (SELECT user_id FROM People WHERE username = $2), $3, $4, $5, (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $6) )
   `,
-			username, customSub, cost, consts.CUSTOM_SUB_INFO, layer)
-
+				customSubID, authorName, customSubName, cost, customSubDescription, layer)
+		}
 	}
 
 	// Выполнение батч-запроса
@@ -264,7 +308,7 @@ func createCustomSubscriptions(ctx context.Context, pool *pgxpool.Pool, n int) e
 	return nil
 }
 
-func createSubscriptions(ctx context.Context, pool *pgxpool.Pool, n int) error {
+func (f *Filling) createSubscriptions(ctx context.Context, pool *pgxpool.Pool, n int) error {
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
 		return fmt.Errorf("не удалось получить соединение из пула: %v", err)
@@ -275,18 +319,20 @@ func createSubscriptions(ctx context.Context, pool *pgxpool.Pool, n int) error {
 
 	// Подготавливаем данные для пользователей и связанных записей
 	for i := 0; i < n; i++ {
-		authorName := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
+		//authorName := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
+		authorName := f.Authors[i%len(f.Authors)].AuthorName
+		author := f.Authors[i%len(f.Authors)]
 		customSub := fmt.Sprintf(consts.CUSTOM_NAME, i+1, authorName)
-		layer := i % 4
+		layer := author.CustomSubscription[i%len(author.CustomSubscription)].Layer
 		for j := 0; j < n; j++ {
 			username := fmt.Sprintf(consts.USERNAME, j+1)
 
-			Subscriptions[username] = CustomSubToAuthor[customSub]
+			f.Subscriptions[username] = f.CustomSubToAuthor[customSub]
 
-			if Users[Author(authorName)] == nil {
-				Users[Author(authorName)] = make(map[Layer][]User)
+			if f.Users[Author(authorName)] == nil {
+				f.Users[Author(authorName)] = make(map[Layer][]User)
 			}
-			Users[Author(authorName)][Layer(string(layer))] = append(Users[Author(authorName)][Layer(string(layer))], User(username))
+			f.Users[Author(authorName)][Layer(string(layer))] = append(f.Users[Author(authorName)][Layer(string(layer))], User(username))
 
 			// Запрос на добавление пользователя
 			batch.Queue(`
@@ -312,7 +358,7 @@ func createSubscriptions(ctx context.Context, pool *pgxpool.Pool, n int) error {
 	return nil
 }
 
-func createPosts(ctx context.Context, pool *pgxpool.Pool, n int) error {
+func (f *Filling) createPosts(ctx context.Context, pool *pgxpool.Pool, n int) error {
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
 		return fmt.Errorf("не удалось получить соединение из пула: %v", err)
@@ -330,10 +376,10 @@ func createPosts(ctx context.Context, pool *pgxpool.Pool, n int) error {
 		for j := 0; j < n; j++ {
 			title := fmt.Sprintf(consts.TITLE, i, j, authorName)
 
-			if Posts[Author(authorName)] == nil {
-				Posts[Author(authorName)] = make(map[Layer][]PostTitle)
+			if f.Posts[Author(authorName)] == nil {
+				f.Posts[Author(authorName)] = make(map[Layer][]PostTitle)
 			}
-			Posts[Author(authorName)][Layer(string(layer))] = append(Posts[Author(authorName)][Layer(string(layer))], PostTitle(title))
+			f.Posts[Author(authorName)][Layer(string(layer))] = append(f.Posts[Author(authorName)][Layer(string(layer))], PostTitle(title))
 
 			// Запрос на добавление пользователя
 			batch.Queue(`
@@ -359,7 +405,7 @@ INSERT INTO Post (post_id, user_id, title, about, subscription_layer_id) VALUES
 	return nil
 }
 
-func createPostLikes(ctx context.Context, pool *pgxpool.Pool, n int) (index int, err error) {
+func (f *Filling) createPostLikes(ctx context.Context, pool *pgxpool.Pool, n int) (index int, err error) {
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("не удалось получить соединение из пула: %v", err)
@@ -369,11 +415,11 @@ func createPostLikes(ctx context.Context, pool *pgxpool.Pool, n int) (index int,
 	batch := &pgx.Batch{}
 	index = 0
 
-	for authorName, layerPosts := range Posts {
+	for authorName, layerPosts := range f.Posts {
 		for layer, posts := range layerPosts {
 			for _, title := range posts {
 
-				userNames := Users[Author(authorName)][Layer(string(layer))]
+				userNames := f.Users[Author(authorName)][Layer(string(layer))]
 				for _, username := range userNames {
 					index = index + 1
 

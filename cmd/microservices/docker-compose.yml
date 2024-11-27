@@ -153,7 +153,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: adminpass
     ports:
-      - "8090:80"
+      - "8091:80"
     depends_on:
       - postgres-csat
 
