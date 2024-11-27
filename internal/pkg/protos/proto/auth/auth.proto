@@ -1,0 +1,25 @@
+// proto/sso/sso.proto
+
+// Версия ProtoBuf
+syntax = "proto3";
+
+// Текущий пакет - указывает пространство имен для сервиса и сообщений. Помогает избегать конфликтов имен.
+package auth;
+
+// Настройки для генерации Go кода.
+option go_package = "pushart.auth.v1;authv1";
+
+// Auth is service for managing permissions and roles.
+service Auth {
+  // Login logs in a user and returns an auth token.
+  rpc Login (LoginRequest) returns (LoginResponse);
+}
+
+message LoginRequest {
+  string token = 1; // jwt токен полученный из кук
+}
+
+message LoginResponse {
+  bool is_logged = 1; // валидный ли токен
+  string user_id = 2; // какой пользователь в логине
+}

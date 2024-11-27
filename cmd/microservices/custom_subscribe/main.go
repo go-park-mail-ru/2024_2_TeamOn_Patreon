@@ -5,6 +5,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/custom_subscribe/api"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/custom_subscription/repository/postgresql"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/custom_subscription/service"
 	//"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/custom_subscription/repository/postgresql"
@@ -31,8 +32,10 @@ func main() {
 	// service
 	beh := service.New(rep)
 
+	monster := middlewares.NewMonster()
+	defer monster.Close()
 	// handlers
-	router := api.NewRouter(beh)
+	router := api.NewRouter(beh, monster)
 
 	// run end-to-end
 	port := config.GetEnv("SERVICE_PORT", "8085")

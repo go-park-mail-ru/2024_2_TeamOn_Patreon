@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/csat/api"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
@@ -33,8 +34,10 @@ func main() {
 	// service
 	beh := behavior.New(rep)
 
+	monster := middlewares.NewMonster()
+	defer monster.Close()
 	// handlers
-	router := api.NewRouter(beh)
+	router := api.NewRouter(beh, monster)
 
 	// run end-to-end
 	port := config.GetEnv("SERVICE_PORT", "8086")

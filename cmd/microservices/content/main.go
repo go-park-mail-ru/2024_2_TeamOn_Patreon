@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/content/api"
@@ -32,7 +33,9 @@ func main() {
 	beh := behavior.New(rep)
 
 	// handlers
-	router := api.NewRouter(beh)
+	monster := middlewares.NewMonster()
+	router := api.NewRouter(beh, monster)
+	defer monster.Close()
 
 	// run end-to-end
 	port := config.GetEnv("SERVICE_PORT", "8084")

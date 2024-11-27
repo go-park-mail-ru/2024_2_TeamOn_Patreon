@@ -69,3 +69,12 @@ func ParseJWTFromJWTString(tokenString string) (*TokenClaims, error) {
 	// Токен успешно проверен, возвращаем распарсенные данные
 	return claims, nil
 }
+
+func JWTStringFromCookie(r *http.Request) (string, error) {
+	cookie, err := r.Cookie(global.CookieJWT)
+	if err != nil {
+		return "", fmt.Errorf("cookie 'token' not found: %v", err)
+	}
+	tokenString := cookie.Value
+	return tokenString, nil
+}

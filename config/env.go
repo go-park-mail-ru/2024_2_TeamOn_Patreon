@@ -3,6 +3,7 @@ package config
 import (
 	"bufio"
 	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"os"
 	"strings"
 
@@ -33,7 +34,7 @@ func InitEnvErr(pathToCommonEnv string, pathToServiceEnv string) error {
 	logger.StandardDebugF(ctx, op, "Current working directory: %v", wd)
 
 	// Достаем из окружения информацию в докере ли мы
-	key := "IN_DOCKER"
+	key := global.EnvInDocker
 
 	inDocker := os.Getenv(key)
 	if inDocker == "true" {
@@ -56,7 +57,8 @@ func InitEnvErr(pathToCommonEnv string, pathToServiceEnv string) error {
 	// Пример вывода переменных окружения
 	logger.StandardDebugF(ctx, op, "Переменные окружения установлены:")
 
-	for _, key := range []string{"STATUS", "IN_DOCKER", "DB_HOST", "SERVICE_NAME", "PORT"} {
+	for _, key := range []string{global.EnvInDocker, global.EnvLogLevel, global.EnvServiceName,
+		global.EnvPort, global.EnvDbName} {
 		logger.StandardDebugF(ctx, op, "%s=%s", key, os.Getenv(key))
 	}
 
@@ -99,8 +101,6 @@ func initEnv(pathToEnv string) error {
 
 		key := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[1])
-
-		// value = strings.TrimSuffix(value, "\n")
 
 		// Устанавливаем переменную окружения
 		err := os.Setenv(key, value)
