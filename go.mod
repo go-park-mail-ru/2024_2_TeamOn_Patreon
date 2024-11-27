@@ -23,12 +23,12 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.18.1
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pborman/uuid v1.2.1
 	github.com/prometheus/client_golang v1.20.5
 	github.com/satori/go.uuid v1.2.0
-	gopkg.in/alexcesaro/statsd.v2 v2.0.0
 	google.golang.org/grpc v1.64.1
 	google.golang.org/protobuf v1.34.2
 )
@@ -38,7 +38,6 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
