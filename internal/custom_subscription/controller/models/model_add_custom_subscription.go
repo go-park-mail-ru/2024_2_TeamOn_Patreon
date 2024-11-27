@@ -14,7 +14,7 @@ type AddCustomSubscription struct {
 	Description string `json:"description,omitempty"`
 	// Стоимость  кастомной (платной) подписки в рублях
 	Cost int `json:"cost"`
-	// Уровень кастомной (платной) подписки. Уровень [0:3]
+	// Уровень кастомной (платной) подписки. Уровень (0:3]
 	Layer int `json:"layer"`
 }
 

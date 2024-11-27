@@ -6,6 +6,10 @@ import (
 )
 
 func Title(title string) error {
+	if len(title) == 0 {
+		return nil
+	}
+
 	if len(title) < validate.MinLenTitle {
 		return global.ErrFieldTooShort
 	}
@@ -26,6 +30,9 @@ func Content(content string) error {
 }
 
 func Layer(layer int) error {
+	if layer == 0 {
+		return nil
+	}
 	if layer < validate.MinLayer || layer > validate.MaxLayer {
 		return global.ErrInvalidJSON
 	}
