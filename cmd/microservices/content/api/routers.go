@@ -9,7 +9,10 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/interfaces"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares/metrics"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Route struct {
@@ -37,6 +40,10 @@ func NewRouter(behavior interfaces.ContentBehavior) *mux.Router {
 	mainRouter.Use(middlewares.CsrfMiddleware)
 	mainRouter.Use(middlewares.Logging)
 	mainRouter.Use(middlewares.AddRequestID)
+
+	// Метрики
+	metrics.NewMetrics(prometheus.DefaultRegisterer)
+	mainRouter.Use(middlewares.MetricsMiddleware)
 
 	return mainRouter
 }
@@ -71,14 +78,21 @@ func handleAuth(router *mux.Router, behavior interfaces.ContentBehavior) *mux.Ro
 		Route{
 			"PostUploadContentPost",
 			strings.ToUpper("Post"),
-			"/post/upload/content",
-			handler.PostUploadContentPost,
+			"/post/upload/media/{postID}",
+			handler.PostUploadMediaPost,
+		},
+
+		Route{
+			"PostUploadContentPost",
+			strings.ToUpper("Delete"),
+			"/post/delete/media/{postID}",
+			handler.PostDeleteMedia,
 		},
 
 		Route{
 			"PostsPostIdDelete",
 			strings.ToUpper("Delete"),
-			"/delete/post/{postId}",
+			"/delete/post/{postID}",
 			handler.PostsPostIdDelete,
 		},
 	}
@@ -128,7 +142,7 @@ func handleOther(router *mux.Router, behavior interfaces.ContentBehavior) {
 		Route{
 			"PostMediaGet",
 			strings.ToUpper("Get"),
-			"/post/media",
+			"/post/media/{postID}",
 			handler.PostMediaGet,
 		},
 		Route{
@@ -136,6 +150,12 @@ func handleOther(router *mux.Router, behavior interfaces.ContentBehavior) {
 			strings.ToUpper("Get"),
 			"/token-endpoint",
 			middlewares.GetCSRFTokenHandler,
+		},
+		Route{
+			"Metrics",
+			"GET",
+			"/metrics",
+			promhttp.Handler().ServeHTTP,
 		},
 	}
 

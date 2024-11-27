@@ -15,6 +15,7 @@ func New(behavior interfaces.ContentBehavior) *Handler {
 const (
 	// Path param
 	authorIDParam string = "authorID"
+	postIDParam   string = "postID"
 
 	// Query param
 	offsetParam string = "offset"

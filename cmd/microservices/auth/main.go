@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"net/http"
 
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/auth/api"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/repository/postgresql"
 	behavior "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/service"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -19,7 +19,7 @@ func main() {
 	logger.New()
 
 	// pkg
-	config.InitEnv("pkg/.env.default", "pkg/auth/.env.default")
+	config.InitEnv("config/.env.default", "config/auth/.env.default")
 
 	// repository
 	db := postgres.InitPostgresDB(context.Background())

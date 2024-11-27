@@ -1,0 +1,186 @@
+
+openapi: 3.0.3
+info:
+  title: PushART - СКАТ | API
+  description: >-
+    API для управления CSAT
+  version: 1.0.0
+paths:
+  /csat/check:
+    get:
+      tags:
+        - CSAT
+      summary: Проверяет можно ли показать юзеру новый опрос
+      description: >-
+        Возвращает значение true и false; 
+        
+        
+        true - можно показать вопрос, 
+        false - еще рано
+        
+        
+        юзера берем из кук
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Можно ли показать булеан
+          content:
+            application/json:
+                schema:
+                  type: boolean
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
+    
+  /csat/question:
+    get:
+      tags:
+        - CSAT
+      summary: Возвращает запрос для пользователя
+      description: >-
+        Возвращает вопрос  для пользователя с его типом
+        Юзера берет из кук
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Вопрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /csat/result/{questionID}:
+    post:
+      tags:
+        - CSAT
+      summary: Возвращает результат опроса от 1 до 5
+      description: Возвращает вместе с типом поста
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: questionID
+          required: true
+          schema:
+            type: string
+          description: Идентификатор вопроса, на который ответ
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Result'
+      responses:
+        '200':
+          description: Принято
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /csat/table:
+    get:
+      tags:
+        - CSAT
+      summary: Получение таблицы
+      description: >-
+        /csat/table?time=1 || /csat/table?time=30 || /csat/table?time=infinity ||
+        
+        Если infinity, возвращается за все время
+
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: time
+          required: false
+          schema:
+            type: string
+            example: "1"
+          description: Срок сбора данных
+      responses:
+        '200':
+          description: Успешное получение поста
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Table'
+        '404':
+          description: Пост не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JWT
+  schemas:
+    Table:
+      type: object
+      properties:
+        theme:
+          type: string
+          description: Тема вопорса
+        rating:
+          type: string
+          description: Рейтинг средний
+    Question:
+      type: object
+      properties:
+        question:
+          type: string
+          description: Вопрос
+        questionID:
+          type: string
+          description: ИД вопроса
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Описание ошибки
+    Result:
+      type: integer
+      description: оценка юзера от 1 до 5

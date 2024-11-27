@@ -169,13 +169,13 @@ func (p *Postgres) Payments(ctx context.Context, authorID string) (int, error) {
 		SELECT 
 			COALESCE(SUM(t.cost), 0) + COALESCE(SUM(cs.cost), 0) AS total_payments
 		FROM 
-			tip t
-		FULL OUTER JOIN 
-			subscription s ON t.author_id = s.custom_subscription_id
-		FULL OUTER JOIN 
-			custom_subscription cs ON s.custom_subscription_id = cs.custom_subscription_id
+			custom_subscription cs
+		LEFT JOIN 
+			subscription s ON cs.custom_subscription_id = s.custom_subscription_id
+		LEFT JOIN 
+			tip t ON cs.author_id = t.author_id
 		WHERE 
-			t.author_id = $1 OR cs.author_id = $1;
+			cs.author_id = $1
 	`
 
 	var amountPayments int

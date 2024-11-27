@@ -2,15 +2,15 @@ package main
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"net/http"
+
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/author/api"
 	postgres "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/init/postgres_db"
 	repositories "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository"
 	service "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	middlewares "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 	// logger
 	logger.New()
 
-	config.InitEnv("pkg/.env.default", "pkg/author/.env.default")
+	config.InitEnv("config/.env.default", "config/author/.env.default")
 
 	// connect to DB
 	pool := postgres.InitPostgres(context.Background())
@@ -34,12 +34,6 @@ func main() {
 
 	// routers
 	router := api.NewRouter(serv)
-
-	// регистрируем middlewares
-	router.Use(middlewares.AddRequestID)
-	router.Use(middlewares.Logging)     // 1
-	router.Use(middlewares.HandlerAuth) // 2 для ручек, где требуется аутентификация
-	router.Use(middlewares.CsrfMiddleware)
 
 	// run server
 	port := config.GetEnv("SERVICE_PORT", "8083")

@@ -1,8 +1,9 @@
 package global
 
 import (
-	"github.com/pkg/errors"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 // ВРЕМЕННО В ЭТОМ ФАЙЛЕ ПОТОМ РАЗНЕСЕМ
@@ -39,6 +40,20 @@ var (
 	ErrNotValidUserAndPassword = errors.New("not valid user and password")
 	ErrNotEnoughRights         = errors.New("not enough rights")
 
+	// account
+
+	ErrRoleAlreadyChanged  = errors.New("user already changed role")
+	ErrNotValidOldPassword = errors.New("not valid old password")
+
+	// author
+
+	ErrInvalidMonthCount     = errors.New("month count must be positive integer and and no more than 12")
+	ErrInvalidLayer          = errors.New("layer must be from 1 to 3")
+	ErrInvalidAuthorID       = errors.New("the author cannot subscribe to himself")
+	ErrUserIsNotAuthor       = errors.New("user is not author")
+	ErrSubReqDoesNotExist    = errors.New("subscription request does not exit")
+	ErrCustomSubDoesNotExist = errors.New("custom subscription does not exist")
+
 	// logout
 
 	ErrUserNotAuthorized = errors.New("user not authorized")
@@ -61,11 +76,35 @@ var (
 
 	// post
 
-	ErrPostDoesntExists = errors.New("post doesn't")
+	ErrPostDoesntExists = errors.New("post doesn't exist")
+	ErrNoFilesUploaded  = errors.New("no files uploaded")
+	ErrNoFilesToDelete  = errors.New("no media IDs provided")
+
+	// static
+
+	ErrInvalidFileFormat = errors.New("invalid file format")
 
 	// uuid
 
 	ErrIsInvalidUUID = errors.New("uuid is invalid")
+
+	// custom_subscription
+
+	ErrLayerExists = errors.New("layer exists")
+	ErrTitleExists = errors.New("title exists")
+
+	// search authors
+
+	ErrAuthorNameTooLong = errors.New("author name too long")
+
+
+	// csat
+
+	ErrInvalidRating = errors.New("invalid rating value")
+
+	ErrNotValidDays      = errors.New("not valid number of days")
+	ErrDaysIsNotDigital  = errors.New("days is not digital")
+
 )
 
 type ErrorHttpInfo struct {
@@ -75,7 +114,7 @@ type ErrorHttpInfo struct {
 
 // ВРЕМЕННО ЗДЕСЬ
 var mapErrToHttpModel = map[error]ErrorHttpInfo{
-	ErrBadRequest: {msg: "bad request", code: http.StatusBadRequest},
+	ErrBadRequest: {msg: "Невалидный запрос", code: http.StatusBadRequest},
 
 	ErrSmallLogin: {msg: "логин должен быть не меньше 4 символов", code: http.StatusBadRequest},
 	ErrLongLogin:  {msg: "логин должен быть не более 10 символов", code: http.StatusBadRequest},
@@ -105,10 +144,29 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrServer:            {msg: "end-to-end error", code: http.StatusInternalServerError},
 	ErrUserNotAuthorized: {msg: "пользователь не авторизован", code: http.StatusUnauthorized},
 
+	// ACCOUNT
+
+	ErrRoleAlreadyChanged:  {msg: "Вы уже являетесь автором", code: http.StatusBadRequest},
+	ErrNotValidOldPassword: {msg: "Неверный старый пароль. Пожалуйста, попробуйте снова", code: http.StatusBadRequest},
+
+	// AUTHOR
+
+	ErrInvalidMonthCount:     {msg: "Подписка может быть оформлена на срок от 1 мес. до 1 года", code: http.StatusBadRequest},
+	ErrInvalidLayer:          {msg: "Уровень подписки должен быть числом от 1 до 3", code: http.StatusBadRequest},
+	ErrInvalidAuthorID:       {msg: "Вы не можете оформить подписки на себя", code: http.StatusBadRequest},
+	ErrUserIsNotAuthor:       {msg: "Пользователь не является автором", code: http.StatusBadRequest},
+	ErrSubReqDoesNotExist:    {msg: "Запрос на оформление подписки не найден", code: http.StatusBadRequest},
+	ErrCustomSubDoesNotExist: {msg: "Выбранный уровень подписки не существует", code: http.StatusBadRequest},
+
 	// content
 	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},
 	ErrFieldTooShort:            {msg: "поле слишком короткое", code: http.StatusBadRequest},
 	ErrFieldContainsSpecialChar: {msg: "поле содержит запрещенные символы", code: http.StatusBadRequest},
+
+	// static
+	ErrInvalidFileFormat: {msg: "Недопустимый формат файла", code: http.StatusUnsupportedMediaType},
+	ErrNoFilesUploaded:   {msg: "Файлы для добавления к посту не выбраны", code: http.StatusNoContent},
+	ErrNoFilesToDelete:   {msg: "Файлы для удаления не выбраны", code: http.StatusBadRequest},
 
 	// uuid
 	ErrIsInvalidUUID: {msg: "невалидный uuid", code: http.StatusBadRequest},
@@ -116,6 +174,21 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	// rights
 	ErrNotEnoughRights:  {msg: "недостаточно прав", code: http.StatusBadRequest},
 	ErrPostDoesntExists: {msg: "пост не найден", code: http.StatusNoContent},
+
+	// custom_subscriptions
+	ErrLayerExists: {msg: "На этом уровне уже существует подписка", code: http.StatusBadRequest},
+	ErrTitleExists: {msg: "Подписка с таким именем уже существует", code: http.StatusBadRequest},
+
+	// search author
+	ErrAuthorNameTooLong: {msg: "Имя автора слишком длинное", code: http.StatusBadRequest},
+
+	// csat
+
+	ErrInvalidRating: {msg: "Оценка должна быть от 0 до 5", code: http.StatusBadRequest},
+
+	ErrNotValidDays:     {msg: "Неправильное количество дней", code: http.StatusBadRequest},
+	ErrDaysIsNotDigital: {msg: "Количество дней выражается в числах", code: http.StatusBadRequest},
+
 }
 
 func GetMsgError(err error) string {

@@ -2,10 +2,12 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares/metrics"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"net/http"
 
@@ -25,8 +27,32 @@ type Route struct {
 
 type Routes []Route
 
-func NewRouter(service interfaces.AuthorService) *mux.Router {
-	op := "author.routers.NewRouter"
+func NewRouter(behavior interfaces.AuthorService) *mux.Router {
+	mainRouter := mux.NewRouter().StrictSlash(true)
+
+	authRouter := mainRouter.PathPrefix("/").Subrouter()
+	router := mainRouter.PathPrefix("/").Subrouter()
+
+	handleAuth(authRouter, behavior)
+	handleOther(router, behavior)
+
+	authRouter.Use(middlewares.HandlerAuth)
+	router.Use(middlewares.AuthMiddleware)
+
+	// регистрируем middlewares
+	mainRouter.Use(middlewares.CsrfMiddleware)
+	mainRouter.Use(middlewares.Logging)
+	mainRouter.Use(middlewares.AddRequestID)
+
+	// Метрики
+	metrics.NewMetrics(prometheus.DefaultRegisterer)
+	mainRouter.Use(middlewares.MetricsMiddleware)
+
+	return mainRouter
+}
+
+func handleAuth(router *mux.Router, service interfaces.AuthorService) *mux.Router {
+	op := "author.api.routers.NewRouterWithAuth"
 
 	handler := api.New(service)
 
@@ -36,12 +62,6 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			"GET",
 			"/author/payments",
 			handler.GetAuthorPayments,
-		},
-		Route{
-			"GetAuthorBackground",
-			"GET",
-			"/author/{authorID}/background",
-			handler.GetAuthorBackground,
 		},
 		Route{
 			"PostAuthorUpdateInfo",
@@ -62,10 +82,45 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			handler.PostAuthorTip,
 		},
 		Route{
-			"Subscribe",
-			strings.ToUpper("Post"),
-			"/author/{authorId}/following",
-			handler.PostFollowing,
+			"SubscriptionRequest",
+			"POST",
+			"/subscription/request",
+			handler.PostSubscriptionRequest,
+		},
+		Route{
+			"SubscriptionRealize",
+			"POST",
+			"/subscription/realize",
+			handler.PostSubscriptionRealize,
+		},
+	}
+
+	for _, route := range routes {
+		var handler http.Handler
+		handler = route.HandlerFunc
+		logger.StandardInfoF(context.Background(), op, "Registered: %s %s", route.Method, route.Pattern)
+
+		router.
+			Methods(route.Method).
+			Path(route.Pattern).
+			Name(route.Name).
+			Handler(handler)
+	}
+
+	return router
+}
+
+func handleOther(router *mux.Router, service interfaces.AuthorService) *mux.Router {
+	op := "author.api.routers.NewRouterOther"
+
+	handler := api.New(service)
+
+	var routes = Routes{
+		Route{
+			"GetAuthorBackground",
+			"GET",
+			"/author/{authorID}/background",
+			handler.GetAuthorBackground,
 		},
 		Route{
 			"GetAuthor",
@@ -79,22 +134,24 @@ func NewRouter(service interfaces.AuthorService) *mux.Router {
 			"/token-endpoint",
 			middlewares.GetCSRFTokenHandler,
 		},
+		Route{
+			"Metrics",
+			"GET",
+			"/metrics",
+			promhttp.Handler().ServeHTTP,
+		},
 	}
-	// Declare a new router
-	router := mux.NewRouter().StrictSlash(true)
 
 	for _, route := range routes {
-		logger.StandardInfo(
-			context.Background(),
-			fmt.Sprintf("Registered: %s %s", route.Method, route.Pattern),
-			op,
-		)
+		var handler http.Handler
+		handler = route.HandlerFunc
+		logger.StandardInfoF(context.Background(), op, "Registered: %s %s", route.Method, route.Pattern)
 
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(route.HandlerFunc)
+			Handler(handler)
 	}
 
 	return router

@@ -4,27 +4,48 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/pkg/errors"
 )
 
-func (s *Service) Subscribe(ctx context.Context, userID, authorID string) error {
-	op := "internal.author.service.Subscribe"
+func (s *Service) CreateSubscriptionRequest(ctx context.Context, subReq sModels.SubscriptionRequest) (string, error) {
+	op := "internal.author.service.CreateSubscriptionRequest"
+
+	// Автор не может подписаться на самого себя
+	logger.StandardDebugF(ctx, op, "want to check author=%v is not user=%v", subReq.AuthorID, subReq.UserID)
+	if subReq.AuthorID == subReq.UserID {
+		return "", global.ErrInvalidAuthorID
+	}
+
+	// Запрос в repository
+	logger.StandardDebugF(ctx, op, "want to create subscription request by user=%v, month=%v, layer=%v", subReq.UserID, subReq.MonthCount, subReq.Layer)
+	subReqID, err := s.rep.CreateSubscribeRequest(ctx, sModels.MapServSubReqToRepSubReq(subReq))
+	if err != nil {
+		return "", errors.Wrap(err, op)
+	}
 	logger.StandardInfo(
 		ctx,
-		fmt.Sprintf("want to subscribe info: %v from %v", authorID, userID),
+		fmt.Sprintf("successful create subscription request=%v", subReq),
 		op)
-	isSub, err := s.rep.Subscribe(ctx, userID, authorID)
-	if err != nil {
+
+	return subReqID, nil
+}
+
+func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID string) error {
+	op := "internal.author.service.RealizeSubscriptionRequest"
+
+	// Обращение в repository
+	logger.StandardDebugF(ctx, op, "want to realize subscription request=%v", subReqID)
+	if err := s.rep.RealizeSubscribeRequest(ctx, subReqID); err != nil {
 		return errors.Wrap(err, op)
-	} else if isSub {
-		logger.StandardInfo(
-			ctx,
-			fmt.Sprintf("successful subscribe info: %v from %v", authorID, userID),
-			op)
-	} else if !isSub {
-		logger.StandardDebugF(ctx, op, "successful unscribe info: %v from %v", authorID, userID)
 	}
+
+	logger.StandardInfo(
+		ctx,
+		fmt.Sprintf("successful realize subscription request=%v", subReqID),
+		op)
 
 	return nil
 }

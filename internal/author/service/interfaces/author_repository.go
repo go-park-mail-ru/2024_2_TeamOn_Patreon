@@ -33,11 +33,15 @@ type AuthorRepository interface {
 	// UpdateBackground обновляет путь к фону страницы автора
 	UpdateBackground(ctx context.Context, authorID string, background multipart.File, fileName string) error
 
-	// NewTip - обновление информации о себе
+	// NewTip сохраняет запись о пожертвовании
 	NewTip(ctx context.Context, userID, authorID string, cost int, message string) error
+
+	// CreateSubscribeRequest создаёт запрос на подписку
+	CreateSubscribeRequest(ctx context.Context, subReq repModels.SubscriptionRequest) (string, error)
+
+	// RealizeSubscribeRequest реализует запрос на подписку
+	RealizeSubscribeRequest(ctx context.Context, subReqID string) error
 
 	// GenerateID генерирует ID в формате UUIDv4
 	GenerateID() string
-
-	Subscribe(ctx context.Context, userID, authorID string) (bool, error)
 }

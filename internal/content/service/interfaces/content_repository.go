@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 )
 
@@ -11,6 +12,8 @@ type ContentRepository interface {
 	FeedInterface
 
 	LikePostInterface
+
+	MediaInterface
 
 	// utils
 
@@ -58,4 +61,12 @@ type LikePostInterface interface {
 	InsertLikePost(ctx context.Context, userID string, postID string) error
 	DeleteLikePost(ctx context.Context, userID string, postID string) error
 	GetPostLikes(ctx context.Context, postID string) (int, error)
+}
+
+type MediaInterface interface {
+	GetContentsByPost(ctx context.Context, postID string) ([]*models.Media, error)
+	// SaveFile - сохраняет файл к посту
+	SaveFile(ctx context.Context, postID string, file []byte, fileExtension string) error
+	// DeleteFile - удаляем файл, прикреплённый к посту
+	DeleteFile(ctx context.Context, postID, fileID string) error
 }

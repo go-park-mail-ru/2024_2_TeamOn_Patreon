@@ -1,0 +1,56 @@
+openapi: 3.0.3
+info:
+  title: PushART - Search author's | API
+  description: >-
+    API для поиска автора
+  version: 1.0.0
+paths:
+  /search/{authorName}:
+    get:
+      tags:
+        - Search
+      summary: Список подходящих авторов по названию
+      description: Возвращает список ID авторов, которых, возможно, предполагал найти пользователь
+      parameters:
+        - in: path
+          name: authorName
+          description: authorName - текст, который ввел пользователь
+          required: true
+          schema:
+            type: string
+          example:
+            Куплинов
+      responses:
+        '200':
+          description: Список подходящих авторов по названию
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorID'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    AuthorID:
+      type: string
+      description: ID автора
+    Error:
+      type: object
+      description: Сообщение об ошибке. Возвыращает бэк
+      properties:
+        message:
+          type: string
+          description: Описание ошибки

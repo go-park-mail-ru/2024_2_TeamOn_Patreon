@@ -2,10 +2,11 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"net/http"
 
@@ -13,6 +14,7 @@ import (
 	interfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/interfaces"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 
+	metrics "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares/metrics"
 	"github.com/gorilla/mux"
 )
 
@@ -26,7 +28,30 @@ type Route struct {
 type Routes []Route
 
 func NewRouter(service interfaces.AccountService) *mux.Router {
-	op := "account.routers.NewRouter"
+	mainRouter := mux.NewRouter().StrictSlash(true)
+
+	authRouter := mainRouter.PathPrefix("/").Subrouter()
+	router := mainRouter.PathPrefix("/").Subrouter()
+
+	handleAuth(authRouter, service)
+	handleOther(router, service)
+
+	authRouter.Use(middlewares.HandlerAuth)
+	router.Use(middlewares.AuthMiddleware)
+
+	mainRouter.Use(middlewares.CsrfMiddleware)
+	mainRouter.Use(middlewares.Logging)
+	mainRouter.Use(middlewares.AddRequestID)
+
+	// Метрики
+	metrics.NewMetrics(prometheus.DefaultRegisterer)
+	mainRouter.Use(middlewares.MetricsMiddleware)
+
+	return mainRouter
+}
+
+func handleAuth(router *mux.Router, service interfaces.AccountService) *mux.Router {
+	op := "account.api.routers.NewRouterWithAuth"
 
 	handler := api.New(service)
 
@@ -36,12 +61,6 @@ func NewRouter(service interfaces.AccountService) *mux.Router {
 			"GET",
 			"/account",
 			handler.GetAccount,
-		},
-		Route{
-			"GetAccountAvatar",
-			"GET",
-			"/account/{userID}/avatar",
-			handler.GetAccountAvatar,
 		},
 		Route{
 			"PostAccountUpdate",
@@ -61,30 +80,59 @@ func NewRouter(service interfaces.AccountService) *mux.Router {
 			"/account/update/role",
 			handler.PostAccountUpdateRole,
 		},
+	}
+
+	for _, route := range routes {
+		var handler http.Handler
+		handler = route.HandlerFunc
+		logger.StandardInfoF(context.Background(), op, "Registered: %s %s", route.Method, route.Pattern)
+
+		router.
+			Methods(route.Method).
+			Path(route.Pattern).
+			Name(route.Name).
+			Handler(handler)
+	}
+
+	return router
+}
+
+func handleOther(router *mux.Router, service interfaces.AccountService) *mux.Router {
+	op := "account.api.routers.NewRouterOther"
+
+	handler := api.New(service)
+
+	var routes = Routes{
+		Route{
+			"GetAccountAvatar",
+			"GET",
+			"/account/{userID}/avatar",
+			handler.GetAccountAvatar,
+		},
 		Route{
 			"GetCSRFToken",
 			strings.ToUpper("Get"),
 			"/token-endpoint",
 			middlewares.GetCSRFTokenHandler,
 		},
+		Route{
+			"Metrics",
+			"GET",
+			"/metrics",
+			promhttp.Handler().ServeHTTP,
+		},
 	}
-	// Declare a new router
-	router := mux.NewRouter().StrictSlash(true)
-
-	ctx := context.Background()
 
 	for _, route := range routes {
-		logger.StandardInfo(
-			ctx,
-			fmt.Sprintf("Registered: %s %s", route.Method, route.Pattern),
-			op,
-		)
+		var handler http.Handler
+		handler = route.HandlerFunc
+		logger.StandardInfoF(context.Background(), op, "Registered: %s %s", route.Method, route.Pattern)
 
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(route.HandlerFunc)
+			Handler(handler)
 	}
 
 	return router

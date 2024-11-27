@@ -113,6 +113,14 @@ paths:
       responses:
         '201':
           description: Успешное создание поста
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  postID:
+                    type: string
+                    description: Идентификатор поста
         '400':
           description: Ошибка валидации данных
           content:
@@ -162,7 +170,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /post/upload/content:
+  /post/upload/media/{postID}:
     post:
       tags:
         - post
@@ -171,6 +179,13 @@ paths:
         Эндпоинт для загрузки медиа-файлов с использованием `multipart/form-data`. Поддерживаемые форматы: PDF, JPG, JPEG, MP3, MP4.
       security:
         - cookieAuth: []
+      parameters:
+        - in: path
+          name: postID
+          required: true
+          schema:
+            type: integer
+          description: Идентификатор поста, к которому прикрепляются файлы
       requestBody:
         required: true
         content:
@@ -217,11 +232,11 @@ paths:
             schema:
               type: object
               properties:
-                postId:
+                postID:
                   type: integer
                   description: ID поста, который нужно лайкнуть или убрать лайк
               required:
-                - postId
+                - postID
       responses:
         '200':
           description: Успешное проставление реакции
@@ -242,22 +257,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /author/post/{authorId}:
+  /author/post/{authorID}:
     get:
       tags:
         - post
       summary: Получение ленты постов на страничке автора или своей
       description: >-
-        Возвращает ленту постов по authorId. Если authorId == me, то айди брать из куков.
-        Если нет, то парсить урл и вытаскивать authorId и уже даем данные относительно authorId.
+        Возвращает ленту постов по authorID. Если authorID == me, то айди брать из куков.
+        Если нет, то парсить урл и вытаскивать authorID и уже даем данные относительно authorID.
         **Используется в сервисе "Профиль"**
         
-        ***Запрос будет такой: /author/post/{authorId}?limit=10&offset=0***
+        ***Запрос будет такой: /author/post/{authorID}?limit=10&offset=0***
       security:
         - cookieAuth: []
       parameters:
       - in: path
-        name: authorId
+        name: authorID
         required: true
         schema:
           type: string
@@ -298,7 +313,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /delete/post/{postId}:
+  /delete/post/{postID}:
     delete:
       tags:
         - post
@@ -308,7 +323,7 @@ paths:
         - cookieAuth: []
       parameters:
         - in: path
-          name: postId
+          name: postID
           required: true
           schema:
             type: integer
@@ -335,8 +350,49 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-
-  /post/media:
+  /post/delete/media/{postID}:
+    delete:
+      tags:
+        - post
+      summary: Удалить медиа-контент поста
+      description: Удаляет медиа-контент поста по его идентификатору
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: postID
+          required: true
+          schema:
+            type: integer
+          description: Идентификатор поста, который нужно удалить
+        - in: query
+          name: mediaID
+          required: true
+          schema:
+            type: string
+          description: Идентификатор медиа-контента для удаления
+      responses:
+        '204':
+          description: Медиа-контент успешно удален
+        '403':
+          description: У пользователя недостаточно прав для удаления медиа-контента
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Пост не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /post/media/{postID}:
     get:
       tags:
         - post
@@ -345,13 +401,12 @@ paths:
       security:
         - cookieAuth: []
       parameters:
-        - in: query
-          name: postId
+        - in: path
+          name: postID
           required: true
           schema:
-            type: string
-            example: 'some-uuid'
-          description: Id  поста
+            type: integer
+          description: Идентификатор поста, от которого загружаются файлы
       responses:
         '200':
           description: Медиа-контент успешно получен
@@ -384,7 +439,7 @@ components:
     AuthorPosts:
       type: object
       properties:
-        postId:
+        postID:
           type: string
           description: Идентификатор поста
         title:
@@ -406,7 +461,7 @@ components:
     Post:
       type: object
       properties:
-        postId:
+        postID:
           type: string
           description: Идентификатор поста
         title:
@@ -418,7 +473,7 @@ components:
         authorUsername:
           type: string
           description: Имя автора поста
-        authorId:
+        authorID:
           type: string
           description: Идентификатор автора поста
         likes:
@@ -463,7 +518,7 @@ components:
       type: object
       description: Все, чего нет - не заменяется
       properties:
-        postId:
+        postID:
           type: integer
           description: Идентификатор поста для обновления
         title:
@@ -473,53 +528,44 @@ components:
           type: string
           description: Содержимое поста (текст)
       required:
-        - postId
+        - postID
     MediaUploadRequest:
       type: object
       properties:
-        postId:
+        postID:
           type: string
           description: Айди поста, в котором нужно редактировать медиа
-        file:
-          type: string
-          format: binary
-          description: Загружаемый файл (PDF, JPG, JPEG, MP3, MP4)
-        format:
-          type: string
-          enum: [PDF, JPG, JPEG, MP3, MP4, jpg, jpeg]
-          description: Формат загружаемого файла
-        description:
-          type: string
-          description: Описание медиа-контента
+        files:
+          type: array
+          items:
+            type: string
+            format: binary
+            example: "file1"
+            description: Массив загружаемых файлов (PDF, JPG, JPEG, MP3, MP4)
       required:
         - file
         - format
     MediaUploadSuccessResponse:
       type: object
       properties:
-        mediaId:
+        mediaID:
           type: string
-          description: Id загруженного медиа-контента
+          description: ID загруженного медиа-контента
     MediaGetSuccessResponse:
       type: object
       properties:
-        postId:
+        postID:
           type: string
         mediaContent:
           type: array
           items:
             type: object
             properties:
-              mediaId:
+              mediaID:
                 type: string
               mediaType:
                 type: string
                 enum: [PDF, JPG, JPEG, MP3, MP4, jpg, jpeg]
                 description: Формат файла
-              description:
+              mediaURL:
                 type: string
-                example: "Описание медиа-контента"
-              file:
-                type: string
-                format: binary
-                description: Загрузка медиа-файла

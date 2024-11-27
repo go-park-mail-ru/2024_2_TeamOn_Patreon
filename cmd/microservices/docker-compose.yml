@@ -12,6 +12,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - monitoring
 
   pgadmin:
     image: dpage/pgadmin4
@@ -23,6 +25,8 @@ services:
       - "8080:80"
     depends_on:
       - postgres
+    networks:
+      - monitoring
 
   auth-service:
     build:
@@ -35,6 +39,8 @@ services:
       - ../../config/.env.docker
     depends_on:
       - postgres
+    networks:
+      - monitoring
 
   account-service:
     build:
@@ -49,6 +55,8 @@ services:
       - ../../static/avatar:/app/static/avatar  # Указываем путь к локальной папке
     depends_on:
       - postgres
+    networks:
+      - monitoring
 
   author-service:
     build:
@@ -63,6 +71,8 @@ services:
       - ../../static/background:/app/static/background  # Указываем путь к локальной папке
     depends_on:
       - postgres
+    networks:
+      - monitoring
 
   content-service:
     build:
@@ -75,6 +85,38 @@ services:
     env_file:
       - ../../config/content/.env.default
       - ../../config/.env.docker
+    volumes:
+      - ../../static/post:/app/static/post  # Указываем путь к локальной папке
+    networks:
+      - monitoring
+
+  custom-subscribe-service:
+    build:
+      context: ../../
+      dockerfile: cmd/microservices/custom_subscribe/Dockerfile
+    ports:
+      - "8085:8085"
+    depends_on:
+      - postgres
+    env_file:
+      - ../../config/custom_subscription/.env.default
+      - ../../config/.env.docker
+    networks:
+      - monitoring
+
+  csat-service:
+    build:
+      context: ../../
+      dockerfile: cmd/microservices/csat/Dockerfile
+    ports:
+      - "8086:8086"
+    depends_on:
+      - postgres
+    env_file:
+      - ../../config/.env.docker
+      - ../../config/csat/.env.docker
+    networks:
+      - monitoring
 
   migrate-service:
     build:
@@ -82,6 +124,8 @@ services:
       dockerfile: internal/pkg/repository/postgres/migrate/Dockerfile
     depends_on:
       - postgres
+    networks:
+      - monitoring
 
   filling-service:
     build:
@@ -89,6 +133,108 @@ services:
       dockerfile: internal/pkg/repository/postgres/filling/Dockerfile
     depends_on:
       - migrate-service
+    networks:
+      - monitoring
+
+  # CSAT
+  postgres-csat:
+    image: postgres:14
+    container_name: postgres-csat
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpass
+      POSTGRES_DB: csatdb
+    ports:
+      - "5433:5432"
+    networks:
+      - monitoring
+#    volumes:
+#      - postgres_csat_data:/var/lib/postgresql/data
+
+  # CSAT
+  pgadmin-csat:
+    image: dpage/pgadmin4
+    container_name: pgadmin-csat
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: adminpass
+    ports:
+      - "8091:80"
+    depends_on:
+      - postgres-csat
+    networks:
+      - monitoring
+
+  # CSAT
+  migrate-csat-service:
+    build:
+      context: ../../
+      dockerfile: internal/pkg/repository/csat/migrate/Dockerfile
+#    env_file:
+#      - ../../config/csat/.env.default
+#      - ../../config/.env.docker
+    depends_on:
+      - postgres-csat
+    networks:
+      - monitoring
+
+  # CSAT
+  filling-csat-service:
+    build:
+      context: ../../
+      dockerfile: internal/pkg/repository/csat/filling/Dockerfile
+#    env_file:
+#      - ../../config/csat/.env.default
+#      - ../../config/.env.docker
+    depends_on:
+      - migrate-csat-service
+    networks:
+      - monitoring
+
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - 9100:9100
+    networks:
+      - monitoring
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+    volumes:
+      - ../../internal/pkg/middlewares/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    driver: bridge
 
 volumes:
   postgres_data:
+#  postgres_csat_data:

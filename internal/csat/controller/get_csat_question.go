@@ -3,49 +3,50 @@ package controller
 import (
 	"net/http"
 
+	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/csat/controller/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
-	"github.com/gorilla/mux"
 )
 
-// PostFollowing - ручка пожертвований автору
-func (handler *Handler) PostFollowing(w http.ResponseWriter, r *http.Request) {
-	op := "internal.account.controller.PostFollowing"
+// CsatQuestionGet - ручка обновления информации об авторе
+func (h *Handler) CsatQuestionGet(w http.ResponseWriter, r *http.Request) {
+	op := "csat.controller.CsatQuestionGet"
 
 	ctx := r.Context()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Определяем authorID
-	vars := mux.Vars(r)
-	authorID := vars["authorId"]
-
-	// Извлекаем userID из контекста
+	// Извлекаем userData из контекста
 	userData, ok := r.Context().Value(global.UserKey).(bModels.User)
+
 	if !ok {
 		logger.StandardResponse(ctx, "userData not found in context", http.StatusUnauthorized, r.Host, op)
 		// Status 401
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	userID := string(userData.UserID)
 
 	// Валидация userID на соответствие стандарту UUIDv4
-	if ok := utils.IsValidUUIDv4(userID); !ok {
+	if ok := utils.IsValidUUIDv4(string(userData.UserID)); !ok {
 		// Status 400
 		logger.StandardResponse(ctx, "invalid userID format", http.StatusBadRequest, r.Host, op)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err := handler.serv.Subscribe(ctx, userID, authorID)
-	logger.StandardDebugF(ctx, op, "err: %v", err)
+	// Обращение к service
+	question, err := h.b.CSATQuestion(r.Context(), string(userData.UserID))
 	if err != nil {
-		logger.StandardResponse(ctx, op, http.StatusInternalServerError, r.Host, op)
-		w.WriteHeader(http.StatusInternalServerError)
+		logger.StandardWarnF(ctx, op, "get question error {%v}", err)
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
+
+	quest := models.MapServQuestionToControlQuestion(question)
+	utils.SendModel(quest, w, op, ctx)
 
 	w.WriteHeader(http.StatusOK)
 }

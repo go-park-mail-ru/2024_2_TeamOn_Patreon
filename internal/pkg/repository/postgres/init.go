@@ -3,8 +3,8 @@ package postgres
 import (
 	"context"
 	"fmt"
-
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/jackc/pgx/v5/pgxpool"

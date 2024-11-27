@@ -22,20 +22,21 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 
 	// Определяем authorID
 	vars := mux.Vars(r)
-	authorID := vars["authorID"]
+	authorID := vars[authorIDParam]
+	var userID string
 
 	// Извлекаем userID из контекста
 	userData, ok := r.Context().Value(global.UserKey).(s2Models.User)
 	if !ok {
 		logger.StandardResponse(ctx, "userData not found in context", http.StatusUnauthorized, r.Host, op)
-		// Status 401
-		w.WriteHeader(http.StatusUnauthorized)
-		return
+		userID = anon
+	} else {
+		userID = string(userData.UserID)
 	}
 
 	// Если пользователь запрашивает свою страницу
-	if authorID == "me" {
-		authorID = string(userData.UserID)
+	if authorID == "me" && userID != anon {
+		authorID = userID
 	}
 
 	// Валидация authorID на соответствие стандарту UUIDv4
@@ -65,7 +66,7 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Обращение к service для получения статуса подписки на автора
-	isSubscribe, err := handler.serv.GetUserIsSubscribe(r.Context(), authorID, string(userData.UserID))
+	isSubscribe, err := handler.serv.GetUserIsSubscribe(r.Context(), authorID, userID)
 	if err != nil {
 		logger.StandardDebugF(ctx, op, "Received author isSubscribe status error {%v}", err)
 		// Status 500

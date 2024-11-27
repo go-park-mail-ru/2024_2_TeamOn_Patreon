@@ -12,17 +12,17 @@ func Post(ctx context.Context, title, content string, layer int) (string, string
 
 	err := validate.Title(title)
 	if err != nil {
-		return "", "", 0, errors.Wrap(err, op)
+		return "", "", 0, errors.Wrap(err, op+" title")
 	}
 
 	err = validate.Content(content)
 	if err != nil {
-		return "", "", 0, errors.Wrap(err, op)
+		return "", "", 0, errors.Wrap(err, op+"content")
 	}
 
 	err = validate.Layer(layer)
 	if err != nil {
-		return "", "", 0, errors.Wrap(err, op)
+		return "", "", 0, errors.Wrap(err, op+"layer")
 	}
 
 	title = sanitize.Sanitize(title)

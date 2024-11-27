@@ -9,3 +9,9 @@ type Handler struct {
 func New(service interfaces.AuthorService) *Handler {
 	return &Handler{serv: service}
 }
+
+const (
+	// Path param
+	authorIDParam string = "authorID"
+	anon          string = "anonim"
+)

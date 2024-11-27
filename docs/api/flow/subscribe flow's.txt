@@ -1,0 +1,114 @@
+@startuml
+
+skin rose
+
+title "Флоу создания кастомной подписки автору"
+
+actor Author
+boundary Frontend
+entity Backend
+
+Author -> Frontend : *создать кастомную подписку*
+
+Frontend -> Backend: get /subscription/layers
+Backend -> Frontend: [{layer, layerName}, ... ]
+
+Frontend -> Author: *допустимые уровни подписки*
+Author -> Frontend: *выбирает уровень*
+Frontend -> Author: *введите стоимость*
+' Стоимость целочисленная, в рублях
+Author -> Frontend: *ввод стоимости*
+Frontend -> Author: *введите название*
+Author -> Frontend: *ввод названия*
+Frontend -> Author: *введите описание*
+Author -> Frontend: *ввод описания*
+
+Frontend -> Backend: post /subscription/custom 
+Backend -> Frontend: 201
+
+
+@enduml
+
+
+-------
+
+
+@startuml
+
+skin rose
+
+title "Флоу создания поста"
+
+'This is a single line comment
+
+/'
+This is a multi-
+line comment
+'/
+
+actor Author
+boundary Frontend
+entity Backend
+
+Author -> Frontend : *создать новый пост*
+
+Frontend -> Backend: get /subscription/layers
+Backend -> Frontend: [{layer, layerName}, ... ]
+
+Frontend -> Author: *допустимые уровни подписки*
+Author -> Frontend: *выбирает уровень*
+
+Frontend -> Author: *введите название*
+Author -> Frontend: *ввод названия*
+Frontend -> Author: *введите описание*
+Author -> Frontend: *ввод описания*
+
+Frontend -> Backend: get /post {title, content, layer}
+Backend -> Frontend: 201
+
+
+
+@enduml
+
+
+------
+
+@startuml
+
+skin rose
+
+title "Флоу подписки на автора"
+
+
+actor User
+boundary Frontend
+entity Backend
+
+User -> Frontend : *подписаться*
+
+Frontend -> Backend: get /subscription/{authorID}/custom
+Backend -> Frontend: 200 [{title, cost, layer, ...}, ... ]
+Frontend -> User: *существующие подписки автора*
+User -> Frontend: *выбирает подписку*
+
+Frontend -> User: *выберите количество месяцев*
+User -> Frontend: *ввод количества месяцев*
+
+Frontend -> Backend: post /subscription/request 
+Frontend -> Backend: body: {authorID, monthCount, layer}
+Backend -> Frontend: 200 {subscriptionRequestID}
+
+Frontend -> User: *страничка оплаты*
+User -> Frontend: *подтвердить оплату*
+
+Frontend -> Backend: post /subscription/realize 
+Frontend -> Backend: body: {subscriptionRequestID}
+
+Frontend <- Backend: 200
+
+Frontend -> User: *вы подписаны!*
+
+
+@enduml
+
+

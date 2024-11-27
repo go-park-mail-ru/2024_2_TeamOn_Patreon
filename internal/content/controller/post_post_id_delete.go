@@ -11,6 +11,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const PathPostID = "postID"
+
 func (h *Handler) PostsPostIdDelete(w http.ResponseWriter, r *http.Request) {
 	op := "content.controller.post_post_id_delete.PostsPostIdDelete"
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -18,7 +20,7 @@ func (h *Handler) PostsPostIdDelete(w http.ResponseWriter, r *http.Request) {
 
 	// Достаем postId
 	vr := mux.Vars(r)
-	postId, ok := vr["postId"]
+	postId, ok := vr[PathPostID]
 	logger.StandardDebugF(ctx, op, "postId=%v", postId)
 	if !ok {
 		// Надо бэд реквест
