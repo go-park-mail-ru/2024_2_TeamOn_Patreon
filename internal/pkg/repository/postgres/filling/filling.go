@@ -11,6 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"math/rand"
+	"os"
 )
 
 type CustomSub struct {
@@ -48,10 +49,17 @@ func main() {
 
 	// Параметры подключения к PostgreSQL
 	dbHost := "postgres"
+	dbHost = "127.0.0.1"
 	dbPort := 5432
 	dbUser := "admin"
 	dbPassword := "adminpass"
 	dbName := "testdb"
+
+	path := "models/authors.json"
+	path = "internal/pkg/repository/postgres/filling/models/authors.json"
+
+	wd, _ := os.Getwd()
+	log.Println("Current working directory:", wd)
 
 	// Формируем строку подключения
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", dbUser, dbPassword, dbHost, dbPort, dbName)
@@ -62,7 +70,19 @@ func main() {
 	}
 	defer pool.Close()
 
-	filling := Filling{}
+	filling := &Filling{
+		CustomSubToAuthor: map[string]CustomSub{},
+		Subscriptions:     map[string]CustomSub{},
+
+		Posts: make(map[Author]map[Layer][]PostTitle),
+		Users: make(map[Author]map[Layer][]User),
+	}
+	filling.Authors = models.GetAuthors(path)
+	if filling.Authors == nil {
+		panic("filling is empty")
+	}
+
+	log.Println(filling)
 
 	if err := filling.createUsers(context.Background(), pool, n); err != nil {
 		log.Fatalf("Ошибка при создании пользователей: %v", err)
@@ -318,16 +338,19 @@ func (f *Filling) createSubscriptions(ctx context.Context, pool *pgxpool.Pool, n
 	batch := &pgx.Batch{}
 
 	// Подготавливаем данные для пользователей и связанных записей
-	for i := 0; i < n; i++ {
+	for i := 0; i < len(f.Authors); i++ {
 		//authorName := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
-		authorName := f.Authors[i%len(f.Authors)].AuthorName
 		author := f.Authors[i%len(f.Authors)]
-		customSub := fmt.Sprintf(consts.CUSTOM_NAME, i+1, authorName)
+		log.Println("Author::: ", author)
+		authorName := f.Authors[i%len(f.Authors)].AuthorName
+		//customSub := fmt.Sprintf(consts.CUSTOM_NAME, i+1, authorName)
+		customSubName := f.Authors[i%len(f.Authors)].CustomSubscription[i%len(f.Authors[i%len(f.Authors)].CustomSubscription)].Title
+		//customSubID :=  f.Authors[i%len(f.Authors)].CustomSubscription[i%len(f.Authors[i%len(f.Authors)].CustomSubscription)].
 		layer := author.CustomSubscription[i%len(author.CustomSubscription)].Layer
 		for j := 0; j < n; j++ {
 			username := fmt.Sprintf(consts.USERNAME, j+1)
 
-			f.Subscriptions[username] = f.CustomSubToAuthor[customSub]
+			f.Subscriptions[username] = f.CustomSubToAuthor[customSubName]
 
 			if f.Users[Author(authorName)] == nil {
 				f.Users[Author(authorName)] = make(map[Layer][]User)
@@ -337,9 +360,13 @@ func (f *Filling) createSubscriptions(ctx context.Context, pool *pgxpool.Pool, n
 			// Запрос на добавление пользователя
 			batch.Queue(`
   INSERT INTO Subscription (subscription_id, user_id, custom_subscription_id, started_date, finished_date) VALUES
-    (gen_random_uuid(), (SELECT user_id FROM People WHERE username = $1), (SELECT custom_subscription_id FROM Custom_Subscription WHERE custom_name = $2), NOW(), NOW() + INTERVAL '30 days')
+    (gen_random_uuid(), (SELECT user_id FROM People
+                                        WHERE username = $1), (SELECT custom_subscription_id
+                                                               FROM Custom_Subscription
+                                                               join People ON Custom_Subscription.author_id = people.user_id
+    WHERE custom_name = $2 and username = $3 limit 1), NOW(), NOW() + INTERVAL '30 days')
 `,
-				username, customSub)
+				username, customSubName, authorName)
 		}
 	}
 
@@ -368,20 +395,22 @@ func (f *Filling) createPosts(ctx context.Context, pool *pgxpool.Pool, n int) er
 	batch := &pgx.Batch{}
 
 	// Подготавливаем данные для пользователей и связанных записей
-	for i := 0; i < n; i++ {
-		authorName := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
-		about := fmt.Sprintf(consts.ABOUT, authorName)
-		layer := i % 4
+	for i := 0; i < len(f.Authors); i++ {
+		//authorName := fmt.Sprintf(consts.AUTHOR_NAME, i+1)
+		//about := fmt.Sprintf(consts.ABOUT, authorName)
+		//layer := i % 4
+		authorName := f.Authors[i].AuthorName
 
-		for j := 0; j < n; j++ {
-			title := fmt.Sprintf(consts.TITLE, i, j, authorName)
-
+		//for j := 0; j < n; j++ {
+		for _, post := range f.Authors[i].Posts {
+			title := post.Title
+			about := post.Info
+			layer := post.Layer
+			//title := fmt.Sprintf(consts.TITLE, i, j, authorName)
 			if f.Posts[Author(authorName)] == nil {
 				f.Posts[Author(authorName)] = make(map[Layer][]PostTitle)
 			}
-			f.Posts[Author(authorName)][Layer(string(layer))] = append(f.Posts[Author(authorName)][Layer(string(layer))], PostTitle(title))
-
-			// Запрос на добавление пользователя
+			f.Posts[Author(authorName)][Layer(string(layer))] = append(f.Posts[Author(authorName)][Layer(string(layer))], PostTitle(title)) // Запрос на добавление пользователя
 			batch.Queue(`
 INSERT INTO Post (post_id, user_id, title, about, subscription_layer_id) VALUES
     (gen_random_uuid(), (SELECT user_id FROM People WHERE username = $1), $2, $3 , (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $4))
@@ -434,9 +463,9 @@ func (f *Filling) createPostLikes(ctx context.Context, pool *pgxpool.Pool, n int
 					// Запрос на добавление пользователя
 					batch.Queue(`
 INSERT INTO Like_Post (like_post_id, post_id, user_id, posted_date) VALUES
-    (gen_random_uuid(), (SELECT post_id FROM Post WHERE title = $1), (SELECT user_id FROM People WHERE username = $2), NOW())
+    (gen_random_uuid(), (SELECT post_id FROM Post WHERE title = $1 and post.user_id = (SELECT user_id FROM People WHERE username = $3) limit 1), (SELECT user_id FROM People WHERE username = $2), NOW())
    `,
-						string(title), string(username))
+						string(title), string(username), authorName)
 				}
 			}
 		}

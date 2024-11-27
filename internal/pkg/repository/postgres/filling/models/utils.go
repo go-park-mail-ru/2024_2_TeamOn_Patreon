@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func getAuthors(jsonPath string) []*FillingAuthor {
+func GetAuthors(jsonPath string) []*FillingAuthor {
 	// Открытие файла
 	file, err := os.Open(jsonPath)
 	if err != nil {
