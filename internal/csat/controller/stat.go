@@ -12,7 +12,6 @@ import (
 
 func (h *Handler) CsatTableGet(w http.ResponseWriter, r *http.Request) {
 	op := "csat.controller.CsatTableGet"
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	ctx := r.Context()
 
