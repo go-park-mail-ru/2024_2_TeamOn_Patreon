@@ -25,6 +25,8 @@ services:
       - "8080:80"
     depends_on:
       - postgres
+    networks:
+      - monitoring
 
   auth-service:
     build:
@@ -122,6 +124,8 @@ services:
       dockerfile: internal/pkg/repository/postgres/migrate/Dockerfile
     depends_on:
       - postgres
+    networks:
+      - monitoring
 
   filling-service:
     build:
@@ -129,6 +133,8 @@ services:
       dockerfile: internal/pkg/repository/postgres/filling/Dockerfile
     depends_on:
       - migrate-service
+    networks:
+      - monitoring
 
   # CSAT
   postgres-csat:
@@ -156,6 +162,8 @@ services:
       - "8091:80"
     depends_on:
       - postgres-csat
+    networks:
+      - monitoring
 
   # CSAT
   migrate-csat-service:
@@ -167,6 +175,8 @@ services:
 #      - ../../config/.env.docker
     depends_on:
       - postgres-csat
+    networks:
+      - monitoring
 
   # CSAT
   filling-csat-service:
@@ -178,6 +188,8 @@ services:
 #      - ../../config/.env.docker
     depends_on:
       - migrate-csat-service
+    networks:
+      - monitoring
 
 
   node-exporter:
