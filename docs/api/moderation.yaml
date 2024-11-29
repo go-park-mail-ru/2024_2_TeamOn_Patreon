@@ -6,7 +6,10 @@ info:
     API для интерфейса модератора по проверке постов
     
     
-  version: 1.0.0
+    ПОРТ  8087
+  
+
+  version: 1.0.1
 paths:
   /moderation/post:
     get:
@@ -14,22 +17,23 @@ paths:
         - Moderation
       summary: Возвращает посты необходимые для модерации по нужному фильтру
       description: >-
-       В рабочем месте модератора будет лента (как у автора, популярных и тп) с постами. 
-       
-       Должно быть 2 вкладки: первая вкладка - после публикации и апрува от системы авто-модерации, вторая вкладка - посты после жалоб пользователей
-       
-       
-       - ручка получить посты на ручную модерацию с фильтром: после публикации или с жалобой
-       
-       Input: fliter: "COMPLAINED" or "PUBLISHED", limit, offset
-       
-       
-       Output: posts: [{"postID", "status", "title", "content", "authorUsername", "authorID", "createdAt"}]
-       
-       
-       !!! заметка фронту медиа нужно получать по существующей ручке.
+        В рабочем месте модератора будет лента (как у автора, популярных и тп) с постами. 
         
-        модератора берем из кук
+        Должно быть 2 вкладки: первая вкладка - после публикации и апрува от системы авто-модерации, вторая вкладка - посты после жалоб пользователей
+        
+        
+        - ручка получить посты на ручную модерацию с фильтром: после публикации или с жалобой
+        
+        Input: fliter: "COMPLAINED" or "PUBLISHED", limit, offset
+        
+        
+        Output: posts: [{"postID", "status", "title", "content", "authorUsername", "authorID", "createdAt"}]
+        
+        
+        !!! заметка фронту медиа нужно получать по существующей ручке.
+        
+         модератора берем из кук
+
       security:
         - cookieAuth: []
       parameters:
@@ -75,8 +79,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                
-    
+
+
   /moderation/post/decision:
     post:
       tags:
@@ -112,7 +116,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
- 
+
+  /moderation/post/complaint:
+    post:
+      tags:
+        - Moderation
+      summary: Эндпоинт для жалобы на конкретный пост
+      description: По этой ручки совершается жалоба пользователя на пост. Пользователь берется из кук. Если пользователь не может видеть пост - 404. После жалобы пост не удаляется из ленты, а добавляется в ленту модерации для модераторов
+      security:
+        - cookieAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostID'
+      responses:
+        '200':
+          description: Все ок
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   securitySchemes:
     cookieAuth:
@@ -162,3 +195,12 @@ components:
           type: string
           description: Новый статус поста
           example: "BLOCKED"
+      required:
+        - postID
+        - status
+    PostID:
+      type: object
+      properties:
+        postID:
+          type: string
+          description: ID поста
