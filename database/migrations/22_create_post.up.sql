@@ -6,6 +6,7 @@ CREATE TABLE post (
     subscription_layer_id uuid REFERENCES subscription_layer ON DELETE RESTRICT NOT NULL, -- нельзя создать пост без уровня
     -- по умолчанию будет задаваться уровень доступный вссем
     -- будет в следующих миграция
+    post_status_id uuid REFERENCES post_status ON RESTRICT;
     created_date timestamp NOT NULL DEFAULT now(),
     updated_date timestamp -- может быть пустым - не обновляли
 );
