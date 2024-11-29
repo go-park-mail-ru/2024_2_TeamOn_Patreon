@@ -1,0 +1,164 @@
+
+openapi: 3.0.3
+info:
+  title: PushART - Модерация | API
+  description: >-
+    API для интерфейса модератора по проверке постов
+    
+    
+  version: 1.0.0
+paths:
+  /moderation/post:
+    get:
+      tags:
+        - Moderation
+      summary: Возвращает посты необходимые для модерации по нужному фильтру
+      description: >-
+       В рабочем месте модератора будет лента (как у автора, популярных и тп) с постами. 
+       
+       Должно быть 2 вкладки: первая вкладка - после публикации и апрува от системы авто-модерации, вторая вкладка - посты после жалоб пользователей
+       
+       
+       - ручка получить посты на ручную модерацию с фильтром: после публикации или с жалобой
+       
+       Input: fliter: "COMPLAINED" or "PUBLISHED", limit, offset
+       
+       
+       Output: posts: [{"postID", "status", "title", "content", "authorUsername", "authorID", "createdAt"}]
+       
+       
+       !!! заметка фронту медиа нужно получать по существующей ручке.
+        
+        модератора берем из кук
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            example: 10
+          description: Максимальное количество постов, которые нужно вернуть (по умолчанию 10)
+        - in: query
+          name: offset
+          required: false
+          schema:
+            type: integer
+            example: 0
+          description: Смещение для пагинации (по умолчанию 0)
+        - in: query
+          name: filter
+          required: true
+          schema:
+            type: string
+            example: "PUBLISHED"
+          description: Статус для вкладок, может быть PUBLISHED - опубликованные посты, не прошедшие проверку, COMPLAINED - посты, на которые поступали жалобы
+      responses:
+        '200':
+          description: Список постов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
+    
+  /moderation/post/decision:
+    post:
+      tags:
+        - Moderation
+      summary: Проставляет новый статус поста по решению модератора
+      description: >-
+        Ручка решения модератора для конкретного поста 
+        
+        Метод: POST
+        
+        Input: {"postID", "status"} если "ALLOWED" - пост одобрен, если "BLOCKED" пост заблокирвоан
+        
+        Output: 200
+      security:
+        - cookieAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Decision'
+      responses:
+        '200':
+          description: Все ок
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+ 
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JWT
+  schemas:
+    Post:
+      type: object
+      properties:
+        postID:
+          type: string
+          description: Идентификатор поста
+        title:
+          type: string
+          description: Заголовок поста
+        content:
+          type: string
+          description: Содержимое поста
+        authorUsername:
+          type: string
+          description: Имя автора поста
+        authorID:
+          type: string
+          description: Идентификатор автора поста
+        status:
+          type: string
+          description: Статус поста
+          example: "ALLOWED"
+        createdAt:
+          type: string
+          description: Время создания поста
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Описание ошибки
+    Decision:
+      type: object
+      description: решение модератора об одобрении поста
+      properties:
+        postID:
+          type: string
+          description: Идентификатор поста
+        status:
+          type: string
+          description: Новый статус поста
+          example: "BLOCKED"
