@@ -40,7 +40,7 @@ WORKDIR /app
 COPY --from=builder /app/filling-service /app/filling-service
 
 # Копируем файл с переменными окружения из директории pkg
-COPY internal/pkg/repository/postgres/filling/models/authors.json models/authors.json
+COPY internal/pkg/repository/postgres/filling/models/authors.json internal/pkg/repository/postgres/filling/models/authors.json
 
 # Экспортируем переменные окружения из файла .env.docker
 # Используем формат key=value
