@@ -34,6 +34,7 @@ func main() {
 
 	monster := middlewares.NewMonster()
 	defer monster.Close()
+
 	// handlers
 	router := api.NewRouter(beh, monster)
 

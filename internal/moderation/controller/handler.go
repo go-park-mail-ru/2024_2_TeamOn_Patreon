@@ -11,3 +11,12 @@ func New(serv interfaces.ModerationService) *Handler {
 		serv: serv,
 	}
 }
+
+const (
+
+	// GET параметры запросов
+
+	QueryLimit  = "limit"
+	QueryOffset = "offset"
+	QueryFilter = "filter"
+)

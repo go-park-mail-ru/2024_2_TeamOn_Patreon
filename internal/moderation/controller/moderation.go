@@ -10,11 +10,24 @@ import (
 
 func (h *Handler) ModerationPostComplaintPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// TODO: Достать юзера из кук
+	// TODO: Достать пост ид из кук
+	// TODO: Валидация пост ид
+
+	// TODO: получить ответ от бизнес-логики
+
 	w.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) ModerationPostDecisionPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// TODO: Достать юзера из кук
+	// TODO: Достать решение из кук
+	// TODO: Валидация решения
+	// TODO: получить ответ от бизнес-логики
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -22,8 +35,12 @@ func (h *Handler) ModerationPostGet(w http.ResponseWriter, r *http.Request) {
 	op := "moderation.controller.ModerationPostGet"
 	ctx := r.Context()
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	// TODO: Достать юзера из кук
+
+	// TODO: Достать лимит оффсет и фильтр
+	// TODO: Валидация гет параметров
+
+	// TODO: получить ответ от бизнес-логики
 
 	post := models.Post{
 		PostID:         uuid.NewV4().String(),
