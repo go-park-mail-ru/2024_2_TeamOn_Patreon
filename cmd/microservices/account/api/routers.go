@@ -27,7 +27,7 @@ type Route struct {
 
 type Routes []Route
 
-func NewRouter(service interfaces.AccountService) *mux.Router {
+func NewRouter(service interfaces.AccountService, monster *middlewares.Monster) *mux.Router {
 	mainRouter := mux.NewRouter().StrictSlash(true)
 
 	authRouter := mainRouter.PathPrefix("/").Subrouter()
@@ -36,8 +36,8 @@ func NewRouter(service interfaces.AccountService) *mux.Router {
 	handleAuth(authRouter, service)
 	handleOther(router, service)
 
-	authRouter.Use(middlewares.HandlerAuth)
-	router.Use(middlewares.AuthMiddleware)
+	authRouter.Use(monster.HandlerAuth)
+	router.Use(monster.AuthMiddleware)
 
 	mainRouter.Use(middlewares.CsrfMiddleware)
 	mainRouter.Use(middlewares.Logging)

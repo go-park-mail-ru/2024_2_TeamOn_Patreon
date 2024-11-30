@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
@@ -32,16 +33,11 @@ func main() {
 	// service
 	serv := service.New(rep)
 
-	// routers
-	router := api.NewRouter(serv)
-
 	monster := middlewares.NewMonster()
 	defer monster.Close()
-	// регистрируем middlewares
-	router.Use(middlewares.AddRequestID)
-	router.Use(middlewares.Logging) // 1
-	router.Use(monster.HandlerAuth) // 2 для ручек, где требуется аутентификация
-	router.Use(middlewares.CsrfMiddleware)
+
+	// routers
+	router := api.NewRouter(serv, monster)
 
 	// run server
 	port := config.GetEnv("SERVICE_PORT", "8083")
