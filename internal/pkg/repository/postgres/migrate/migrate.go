@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/golang-migrate/migrate/v4"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -15,11 +18,12 @@ import (
 
 func main() {
 	// Параметры подключения к PostgreSQL
-	dbHost := "postgres"
-	dbPort := 5432
-	dbUser := "admin"
-	dbPassword := "adminpass"
-	dbName := "testdb"
+	dbHost := config.GetEnv(global.EnvDBHost, "127.0.0.1")
+	dbPort, _ := strconv.Atoi(config.GetEnv(global.EnvPort, "5432"))
+	dbUser := config.GetEnv(global.EnvDbUser, "admin")
+	dbPassword := config.GetEnv(global.EnvDbPassword, "adminpass")
+	dbName := config.GetEnv(global.EnvDbName, "testdb")
+
 	migrationsDir := "file://database/migrations" // Путь к папке с миграциями
 
 	wd, _ := os.Getwd()

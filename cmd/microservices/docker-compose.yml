@@ -126,6 +126,9 @@ services:
       - postgres
     networks:
       - monitoring
+    env_file:
+      - ../../config/.env.docker
+    restart: on-failure  # Перезапускать, если сервис завершился с ошибкой
 
   filling-service:
     build:
@@ -135,6 +138,10 @@ services:
       - migrate-service
     networks:
       - monitoring
+    env_file:
+      - ../../config/.env.docker
+    restart: on-failure  # Перезапускать, если сервис завершился с ошибкой
+
 
   # CSAT
   postgres-csat:
