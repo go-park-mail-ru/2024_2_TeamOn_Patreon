@@ -34,6 +34,7 @@ services:
       dockerfile: cmd/microservices/auth/Dockerfile
     ports:
       - "8081:8081"
+      - "777:777"
     env_file:
       - ../../config/auth/.env.default
       - ../../config/.env.docker

@@ -48,6 +48,7 @@ COPY --from=builder /app/auth-service /app/auth-service
 
 # Пробрасываем порт 8080 снаружи на 8081 внутри контейнера
 EXPOSE 8081
+EXPOSE 777
 
 # Запускаем приложение
 CMD ["sh", "-c", "/app/auth-service --port=8081"]

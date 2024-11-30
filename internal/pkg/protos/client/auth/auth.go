@@ -1,7 +1,10 @@
 package auth
 
 import (
+	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	authv1 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/protos/gen/go/pushart.auth.v1"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -13,7 +16,9 @@ func GetConn() (*grpc.ClientConn, error) {
 	op := "internal.pkg.protos.client.auth.auth.GetConn"
 
 	port := os.Getenv(global.EnvGRPCPort)
-	addr := "localhost:" + port
+	address := config.GetEnv(global.EnvGRPCAddress, "localhost")
+	addr := address + ":" + port
+	logger.StandardDebugF(context.Background(), op, "try grpc connect to %v", addr)
 	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
