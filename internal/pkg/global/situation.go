@@ -97,14 +97,16 @@ var (
 
 	ErrAuthorNameTooLong = errors.New("author name too long")
 
-
 	// csat
 
 	ErrInvalidRating = errors.New("invalid rating value")
 
-	ErrNotValidDays      = errors.New("not valid number of days")
-	ErrDaysIsNotDigital  = errors.New("days is not digital")
+	ErrNotValidDays     = errors.New("not valid number of days")
+	ErrDaysIsNotDigital = errors.New("days is not digital")
 
+	// moderation
+
+	ErrStatusIncorrect = errors.New("status incorrect")
 )
 
 type ErrorHttpInfo struct {
@@ -189,6 +191,8 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrNotValidDays:     {msg: "Неправильное количество дней", code: http.StatusBadRequest},
 	ErrDaysIsNotDigital: {msg: "Количество дней выражается в числах", code: http.StatusBadRequest},
 
+	// moderation
+	ErrStatusIncorrect: {msg: "Статус неверный", code: http.StatusBadRequest},
 }
 
 func GetMsgError(err error) string {

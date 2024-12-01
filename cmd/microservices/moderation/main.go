@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/moderation/api"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/moderation/service"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -26,13 +27,13 @@ func main() {
 	//rep := postgresql.___(db)
 
 	// service
-	//beh := service.New(nil)
+	beh := service.New(nil)
 
 	monster := middlewares.NewMonster()
 	defer monster.Close()
 
 	// handlers
-	router := api.NewRouter(nil, monster)
+	router := api.NewRouter(beh, monster)
 
 	// run end-to-end
 	port := config.GetEnv("SERVICE_PORT", "8087")
