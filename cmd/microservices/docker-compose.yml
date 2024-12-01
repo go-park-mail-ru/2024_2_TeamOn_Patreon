@@ -119,6 +119,21 @@ services:
     networks:
       - monitoring
 
+  moderation-service:
+    build:
+      context: ../../
+      dockerfile: cmd/microservices/moderation/Dockerfile
+    ports:
+      - "8087:8087"
+    depends_on:
+      - postgres
+    env_file:
+      - ../../config/moderation/.env.default
+      - ../../config/.env.docker
+    networks:
+      - monitoring
+
+
   migrate-service:
     build:
       context: ../../
