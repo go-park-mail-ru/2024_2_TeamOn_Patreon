@@ -1,9 +1,13 @@
 package interfaces
 
-import "context"
+import (
+	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/moderation/pkg/models"
+)
 
 type ModerationRepository interface {
 	User
+	Status
 }
 
 type User interface {
@@ -15,4 +19,12 @@ type User interface {
 	GetUserLayerOfAuthor(ctx context.Context, userID, authorID string) (int, error)
 
 	GetUserRole(ctx context.Context, userID string) (string, error)
+}
+
+type Status interface {
+	UpdatePostStatus(ctx context.Context, postID string, status string) error
+
+	GetPostsByStatus(ctx context.Context, status string, limit, offset int) ([]*models.Post, error)
+
+	GetStatusByPostID(ctx context.Context, postID string) (string, error)
 }
