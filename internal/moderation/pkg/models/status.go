@@ -24,3 +24,14 @@ func CheckStatus(status string) bool {
 		return false
 	}
 }
+
+func CheckFilter(filter string) bool {
+	switch filter {
+	case Published:
+		return true
+	case Complained:
+		return true
+	default:
+		return false
+	}
+}
