@@ -11,7 +11,7 @@ func (s *Service) ComplaintPost(ctx context.Context, postID string, userID strin
 	op := "moderation.service.ComplaintPost"
 
 	// Проверяем может ли юзер видеть пост - в таком случае ошибка
-	ok, err := s.userCanSeePost(ctx, postID, userID)
+	ok, err := s.userCanSeePost(ctx, userID, postID)
 	if err != nil {
 		err = errors.Wrap(err, op)
 		return errors.Wrap(err, "userCanSeePost")

@@ -44,7 +44,7 @@ where People.user_id = $1
 )
 
 func (mr *ModerationRepository) GetAuthorOfPost(ctx context.Context, postID string) (string, error) {
-	op := "internal.content.repository.post.GetAuthorOfPost"
+	op := "moderation.repository.post.GetAuthorOfPost"
 
 	rows, err := mr.db.Query(ctx, getAuthorOfPost, postID)
 	if err != nil {
