@@ -51,7 +51,7 @@ const (
 	// Output: empty
 	updateContentOfPost = `
 		update Post
-		SET about = $2, updated_at = NOW(), post_status_id = (select post_status_id from Post_Status where status = 'PUBLISHED')
+		SET about = $2, updated_date = NOW(), post_status_id = (select post_status_id from Post_Status where status = 'PUBLISHED')
 		WHERE post_id = $1
 `
 )

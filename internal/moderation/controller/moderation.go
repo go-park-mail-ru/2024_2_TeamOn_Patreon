@@ -10,9 +10,7 @@ import (
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 	"net/http"
-	"time"
 )
 
 func (h *Handler) ModerationPostComplaintPost(w http.ResponseWriter, r *http.Request) {
@@ -165,18 +163,6 @@ func (h *Handler) ModerationPostGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	posts := mapper.MapBPostsToTPosts(bPosts)
-
-	post := &models.Post{
-		PostID:         uuid.NewV4().String(),
-		Title:          "Пост на модерации",
-		Content:        "Содержимое поста для модерации",
-		AuthorID:       uuid.NewV4().String(),
-		AuthorUsername: "автор",
-		Status:         "PUBLISHED",
-		CreatedAt:      time.Now().String(),
-	}
-
-	posts = append(posts, post)
 
 	w.WriteHeader(http.StatusOK)
 	if err = json.NewEncoder(w).Encode(posts); err != nil {

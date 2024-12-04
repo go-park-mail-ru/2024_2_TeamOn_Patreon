@@ -26,10 +26,11 @@ const (
 		select post_id, title, about,  user_id, username, created_date
 		from Post
 			join people using (user_id)
-		where post_status_is = (select post_status_id from post_status where status = $1) 
+		where post_status_id = (select post_status_id from post_status where status = $1) 
+		ORDER BY 
+		    created_date DESC
 		limit $2
-		offset $3
-		ORDER BY created_date DESC;
+		offset $3;
 `
 
 	// updateStatusOfPost - обновляет статус поста
@@ -47,7 +48,7 @@ const (
 	getStatusByPost = `
 	select status
 	from Post
-		join post_status using (post_id)
+		join post_status using (post_status_id)
 	where post_id = $1
 `
 )

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/moderation/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/pkg/errors"
 )
 
@@ -74,8 +75,9 @@ func (s *Service) GetPostsForModeration(ctx context.Context, userID string, filt
 	// Валидация лимит оффсет
 	limit, offset = validateLimitOffset(limit, offset)
 
+	logger.StandardDebugF(ctx, op, "Want to get posts for moderatorID=%v", userID)
 	// Достаем посты по фильтру из репозитория
-	posts, err := s.getPostsByStatus(ctx, userID, limit, offset)
+	posts, err := s.getPostsByStatus(ctx, filter, limit, offset)
 	if err != nil {
 		err = errors.Wrap(err, op)
 		return nil, errors.Wrap(err, "getPostsByStatus")
