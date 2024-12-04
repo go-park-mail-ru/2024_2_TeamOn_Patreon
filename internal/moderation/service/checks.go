@@ -4,18 +4,19 @@ import (
 	"context"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/moderation/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
-	models2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/pkg/errors"
 )
 
 func (s *Service) isUserModerator(ctx context.Context, userID string) (bool, error) {
-	// TODO: Достаем из БД роль
-	// TODO: Проверяем, что роль соответствует нашей роли модартора
-	return true, nil
-}
+	// Достаем из БД роль
+	role, err := s.rep.GetUserRole(ctx, userID)
+	if err != nil {
+		return false, errors.Wrap(err, "cant get user role")
+	}
 
-func isValidPostStatus(status string) bool {
-	return models.CheckStatus(status)
+	// Проверяем, что роль соответствует нашей роли модератора
+	return pkgModels.StringToRole(role) == pkgModels.Moderator, nil
 }
 
 func isValidPostFilter(filter string) bool {
@@ -57,7 +58,7 @@ func (s *Service) userCanSeePost(ctx context.Context, userID, postID string) (bo
 }
 
 func validateLimitOffset(limit, offset int) (int, int) {
-	opt := models2.FeedOpt{Offset: offset, Limit: limit}
+	opt := pkgModels.FeedOpt{Offset: offset, Limit: limit}
 	opt.Validate()
 	return opt.Limit, opt.Offset
 }

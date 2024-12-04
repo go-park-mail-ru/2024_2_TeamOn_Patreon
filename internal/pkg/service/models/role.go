@@ -6,9 +6,10 @@ type Role string
 
 // Именованные константы для ролей
 const (
-	Reader Role = "Reader" // Читатель
-	Author Role = "Author" // Автор
-	Anon   Role = "Anon"   // Инкогнито
+	Reader    Role = "Reader" // Читатель
+	Author    Role = "Author" // Автор
+	Moderator Role = "Moderator"
+	Anon      Role = "Anon" // Инкогнито
 )
 
 func StringToRole(s string) Role {
@@ -17,6 +18,8 @@ func StringToRole(s string) Role {
 		return Reader
 	case "Author":
 		return Author
+	case "Moderator":
+		return Moderator
 	default:
 		return Anon
 	}
