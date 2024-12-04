@@ -14,3 +14,8 @@ func (s *Service) getPostsByStatus(ctx context.Context, status string, limit, of
 	// TODO: Достаем из репозитория по статусу посты в отсортированном порядке, сначала старые
 	return nil, nil
 }
+
+func (s *Service) getStatusPost(ctx context.Context, postID string) (string, error) {
+	// TODO: Достать статус поста по ИД
+	return "", nil
+}

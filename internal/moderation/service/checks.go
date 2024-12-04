@@ -14,12 +14,16 @@ func (s *Service) isUserModerator(ctx context.Context, userID string) (bool, err
 	return true, nil
 }
 
-func (s *Service) isValidPostStatus(status string) bool {
+func isValidPostStatus(status string) bool {
 	return models.CheckStatus(status)
 }
 
-func (s *Service) isValidPostFilter(filter string) bool {
+func isValidPostFilter(filter string) bool {
 	return models.CheckFilter(filter)
+}
+
+func isValidPostDecision(status string) bool {
+	return models.CheckDecision(status)
 }
 
 func (s *Service) userCanSeePost(ctx context.Context, userID, postID string) (bool, error) {

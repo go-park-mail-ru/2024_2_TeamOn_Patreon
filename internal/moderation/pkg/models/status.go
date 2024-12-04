@@ -35,3 +35,14 @@ func CheckFilter(filter string) bool {
 		return false
 	}
 }
+
+func CheckDecision(decision string) bool {
+	switch decision {
+	case Allowed:
+		return true
+	case Blocked:
+		return true
+	default:
+		return false
+	}
+}
