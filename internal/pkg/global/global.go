@@ -48,4 +48,5 @@ const (
 
 	EnvGRPCPort    = "GRPC_PORT"
 	EnvGRPCTimeout = "GRPC_TIMEOUT"
+	EnvGRPCAddress = "GRPC_ADDRESS"
 )

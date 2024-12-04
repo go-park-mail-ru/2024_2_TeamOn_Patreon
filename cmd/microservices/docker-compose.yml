@@ -34,6 +34,7 @@ services:
       dockerfile: cmd/microservices/auth/Dockerfile
     ports:
       - "8081:8081"
+      - "777:777"
     env_file:
       - ../../config/auth/.env.default
       - ../../config/.env.docker
@@ -118,6 +119,21 @@ services:
     networks:
       - monitoring
 
+  moderation-service:
+    build:
+      context: ../../
+      dockerfile: cmd/microservices/moderation/Dockerfile
+    ports:
+      - "8087:8087"
+    depends_on:
+      - postgres
+    env_file:
+      - ../../config/moderation/.env.default
+      - ../../config/.env.docker
+    networks:
+      - monitoring
+
+
   migrate-service:
     build:
       context: ../../
@@ -126,6 +142,9 @@ services:
       - postgres
     networks:
       - monitoring
+    env_file:
+      - ../../config/.env.docker
+    restart: on-failure  # Перезапускать, если сервис завершился с ошибкой
 
   filling-service:
     build:
@@ -135,6 +154,10 @@ services:
       - migrate-service
     networks:
       - monitoring
+    env_file:
+      - ../../config/.env.docker
+    restart: on-failure  # Перезапускать, если сервис завершился с ошибкой
+
 
   # CSAT
   postgres-csat:

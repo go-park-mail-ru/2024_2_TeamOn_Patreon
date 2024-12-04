@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres/filling/consts"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres/filling/models"
 	"github.com/google/uuid"
@@ -12,6 +14,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 )
 
 type CustomSub struct {
@@ -48,12 +51,11 @@ func main() {
 	n := consts.COUNT_USER
 
 	// Параметры подключения к PostgreSQL
-	dbHost := "postgres"
-	dbHost = "127.0.0.1"
-	dbPort := 5432
-	dbUser := "admin"
-	dbPassword := "adminpass"
-	dbName := "testdb"
+	dbHost := config.GetEnv(global.EnvDBHost, "127.0.0.1")
+	dbPort, _ := strconv.Atoi(config.GetEnv(global.EnvPort, "5432"))
+	dbUser := config.GetEnv(global.EnvDbUser, "admin")
+	dbPassword := config.GetEnv(global.EnvDbPassword, "adminpass")
+	dbName := config.GetEnv(global.EnvDbName, "testdb")
 
 	path := "models/authors.json"
 	path = "internal/pkg/repository/postgres/filling/models/authors.json"
