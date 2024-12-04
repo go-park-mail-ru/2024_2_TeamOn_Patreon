@@ -44,7 +44,7 @@ func (s *Service) userCanSeePost(ctx context.Context, userID, postID string) (bo
 		return false, errors.Wrap(err, op)
 	}
 
-	postLayer, err := s.rep.GetPostLayerBuPostID(ctx, postID)
+	postLayer, err := s.rep.GetPostLayerByPostID(ctx, postID)
 	if err != nil {
 		return false, errors.Wrap(err, op)
 	}

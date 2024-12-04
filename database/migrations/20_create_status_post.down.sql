@@ -1,1 +1,1 @@
-DROP TABLE status_post;
+DROP TABLE post_status;

@@ -4,8 +4,10 @@ import (
 	"context"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/cmd/microservices/moderation/api"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/moderation/repository/postgresql"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/moderation/service"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"net/http"
@@ -21,13 +23,13 @@ func main() {
 	config.InitEnv("config/.env.default", "config/moderation/.env.default")
 
 	// repository
-	//db := postgres.InitPostgresDB(context.Background())
-	//defer db.Close()
+	db := postgres.InitPostgresDB(context.Background())
+	defer db.Close()
 
-	//rep := postgresql.___(db)
+	rep := postgresql.NewModerationRepository(db)
 
 	// service
-	beh := service.New(nil)
+	beh := service.New(rep)
 
 	monster := middlewares.NewMonster()
 	defer monster.Close()

@@ -11,8 +11,8 @@ type ModerationRepository interface {
 }
 
 type User interface {
-	// GetPostLayerBuPostID уровень поста по ид поста
-	GetPostLayerBuPostID(ctx context.Context, postID string) (int, error)
+	// GetPostLayerByPostID уровень поста по ид поста
+	GetPostLayerByPostID(ctx context.Context, postID string) (int, error)
 	// GetAuthorOfPost - получение  ID автора поста
 	GetAuthorOfPost(ctx context.Context, postID string) (string, error)
 	// GetUserLayerOfAuthor - уровень подписки пользователя на определенном авторе
