@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	// getPostLayerBuPostIdSQL - возвращает уровень поста по его ид
+	// getPostLayerByPostIdSQL - возвращает уровень поста по его ид
 	// Input: $1 postId
 	// Output: layer (int) - минимальный, уровень подписки, на котором можно смотреть пост
-	getPostLayerBuPostIdSQL = `
+	getPostLayerByPostIdSQL = `
 		select layer
 			from Post
 			join Subscription_Layer USING (subscription_layer_id)
@@ -19,10 +19,10 @@ const (
 `
 )
 
-func (cr *ContentRepository) GetPostLayerBuPostID(ctx context.Context, postID string) (int, error) {
-	op := "internal.content.repository.subscription.CheckCustomLayer"
+func (cr *ContentRepository) GetPostLayerByPostID(ctx context.Context, postID string) (int, error) {
+	op := "internal.content.repository.subscription.GetPostLayerByPostID"
 
-	rows, err := cr.db.Query(ctx, getPostLayerBuPostIdSQL, postID)
+	rows, err := cr.db.Query(ctx, getPostLayerByPostIdSQL, postID)
 	if err != nil {
 		return 0, errors.Wrap(err, op)
 	}

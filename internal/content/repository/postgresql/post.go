@@ -42,7 +42,7 @@ const (
 	// Output: empty
 	updateTitleOfPost = `
 		update Post
-		SET title = $2, updated_date = NOW()
+		SET title = $2, updated_date = NOW(), post_status_id = (select post_status_id from Post_Status where status = 'PUBLISHED')
 		WHERE post_id = $1
 `
 
@@ -51,7 +51,7 @@ const (
 	// Output: empty
 	updateContentOfPost = `
 		update Post
-		SET about = $2, updated_at = NOW()
+		SET about = $2, updated_at = NOW(), post_status_id = (select post_status_id from Post_Status where status = 'PUBLISHED')
 		WHERE post_id = $1
 `
 )
