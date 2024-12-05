@@ -6,6 +6,7 @@ CREATE ROLE auth_service WITH LOGIN PASSWORD 'example_password';
 CREATE ROLE author_service WITH LOGIN PASSWORD 'example_password';
 CREATE ROLE account_service WITH LOGIN PASSWORD 'example_password';
 CREATE ROLE content_service WITH LOGIN PASSWORD 'example_password';
+CREATE ROLE moderation_service WITH LOGIN PASSWORD 'example_password';
 CREATE ROLE custom_subscription_service WITH LOGIN PASSWORD 'example_password';
 
 GRANT backend TO auth_service;
