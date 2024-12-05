@@ -29,6 +29,7 @@ func NewRouter(behavior interfaces.ModerationService, monster *middlewares.Monst
 	router := mainRouter.PathPrefix("/").Subrouter()
 
 	handleAuth(authRouter, behavior)
+	handleOther(router, behavior)
 
 	// authRouter.Use(monster.HandlerAuth)
 	router.Use(monster.AuthMiddleware)
