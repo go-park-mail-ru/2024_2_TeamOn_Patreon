@@ -55,7 +55,7 @@ func main() {
 	dbPort, _ := strconv.Atoi(config.GetEnv(global.EnvPort, "5432"))
 	dbUser := config.GetEnv(global.EnvDbUser, "admin")
 	dbPassword := config.GetEnv(global.EnvDbPassword, "adminpass")
-	dbName := config.GetEnv(global.EnvDbName, "testdb")
+	dbName := config.GetEnv(global.EnvDbName, "pushart")
 
 	path := "models/authors.json"
 	path = "internal/pkg/repository/postgres/filling/models/authors.json"

@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: adminpass
-      POSTGRES_DB: testdb
+      POSTGRES_DB: pushart
     ports:
       - "5432:5432"
     volumes:

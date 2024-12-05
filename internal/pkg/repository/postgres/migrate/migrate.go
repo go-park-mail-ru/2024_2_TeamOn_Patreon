@@ -22,7 +22,7 @@ func main() {
 	dbPort, _ := strconv.Atoi(config.GetEnv(global.EnvPort, "5432"))
 	dbUser := config.GetEnv(global.EnvDbUser, "admin")
 	dbPassword := config.GetEnv(global.EnvDbPassword, "adminpass")
-	dbName := config.GetEnv(global.EnvDbName, "testdb")
+	dbName := config.GetEnv(global.EnvDbName, "pushart")
 
 	migrationsDir := "file://database/migrations" // Путь к папке с миграциями
 
