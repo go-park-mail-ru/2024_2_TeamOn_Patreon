@@ -4,6 +4,7 @@ import (
 	"context"
 
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
+	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 )
 
 // Интерфейс AccountService необходим для взаимодействия уровня controller с уровнем service
@@ -31,4 +32,9 @@ type AccountService interface {
 
 	// PostUpdateRole - изменение аватарки аккаунта по userID
 	PostUpdateRole(ctx context.Context, userID string) error
+
+	// NOTIFICATIONS
+
+	// GetNotifications - получение уведомлений для пользователя
+	GetNotifications(ctx context.Context, userID string, opt *pkgModels.NotificationsOpt) ([]*sModels.Notification, error)
 }

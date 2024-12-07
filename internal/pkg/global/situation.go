@@ -47,6 +47,7 @@ var (
 
 	// author
 
+	ErrAuthorDoesNotExist    = errors.New("author doesn`t exist")
 	ErrInvalidMonthCount     = errors.New("month count must be positive integer and and no more than 12")
 	ErrInvalidLayer          = errors.New("layer must be from 1 to 3")
 	ErrInvalidAuthorID       = errors.New("the author cannot subscribe to himself")
@@ -159,6 +160,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrUserIsNotAuthor:       {msg: "Пользователь не является автором", code: http.StatusBadRequest},
 	ErrSubReqDoesNotExist:    {msg: "Запрос на оформление подписки не найден", code: http.StatusBadRequest},
 	ErrCustomSubDoesNotExist: {msg: "Выбранный уровень подписки не существует", code: http.StatusBadRequest},
+	ErrAuthorDoesNotExist:    {msg: "Автор не существует", code: http.StatusBadRequest},
 
 	// content
 	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},
