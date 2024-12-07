@@ -1,0 +1,201 @@
+
+openapi: 3.0.3
+info:
+  title: PushART - Уведомления | API
+  description: >-
+    API для интерфейса уведомлений
+    
+    
+    ПОРТ  8082 (там же где account)
+  
+
+  version: 1.0.1
+paths:
+  /notification:
+    get:
+      tags:
+        - Notification
+      summary: Возвращает ВСЕ или ТОЛЬКО НЕПРОЧИТАННЫЕ уведомления за всё время
+      description: >-
+        userID, для которого запрашиваются уведомления, берётся из cookie
+        
+        
+        Для каждого увдеомления указан статус: прочитано или нет
+        
+        
+        Опционально: Если status в query параметре не указан, то вернутся все уведомления. Если **status = NOTREAD**, то вернутся только непрочитанные уведомления.
+        
+        
+        Пример: /notification?status=NOTREAD - получить непрочитанные уведомления
+        
+        
+        /notification - получить все уведомления
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: string
+            example: NOTREAD
+          description: 'Статус: все уведомления (тогда этот параметр не указывается) или только непрочитанные (status = NOTREAD). Если прочитано'
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            example: 10
+          description: Максимальное количество уведомлений, которые нужно вернуть (по умолчанию 10)
+        - in: query
+          name: offset
+          required: false
+          schema:
+            type: integer
+            example: 0
+          description: Смещение для пагинации (по умолчанию 0)
+      responses:
+        '200':
+          description: Список уведомлений
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /notification/new:
+    get:
+      tags:
+        - Notification
+      summary: Возвращает новые уведомления за указанный интервал времени
+      description: >-
+        Использовать для всплывающих уведомлений. В квери параметре указать прошедшее время в секундах, за которое нужно вернуть уведомления.
+        
+          
+          Пример: /notification/new?time=10 - вернутся новые уведомления за последние 10 секунд
+          
+          
+        userID, для которого запрашиваются уведомления, берётся из cookie
+
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: time
+          required: true
+          schema:
+            type: string
+          description: Время, за которое нужно вернуть уведомления
+      responses:
+        '200':
+          description: Список постов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+             
+  /notification/status/update:
+    post:
+      tags:
+        - Notification
+      summary: Изменяет статус уведмоления на "Прочитано"
+      description: >-
+        userID, которому будет отправлено уведомление, берётся из cookie
+        
+        
+        Принимает ID уведомления, статус которого нужно изменить
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationID'
+      responses:
+        '200':
+          description: Успешное изменение статуса
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JWT
+  schemas:
+    Notification:
+      type: object
+      properties:
+        notificationID:
+          type: string
+          description: Идентификатор уведомления
+        message:
+          type: string
+          description: Сообщение в уведомлении
+        senderUsername:
+          type: string
+          description: Имя отправителя (инициатора) уведомления
+        senderID:
+          type: string
+          description: ID отправителя (инициатора) уведомления
+        isRead:
+          type: boolean
+          description: Статус уведомления - прочитано или нет
+          example: false
+        createdAt:
+          type: string
+          description: Время получения уведомления
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Описание ошибки
+      required:
+        - postID
+        - status
+    NotificationID:
+      type: object
+      properties:
+        notificationID:
+          type: string
+          description: ID уведомления
