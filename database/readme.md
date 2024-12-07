@@ -16,9 +16,9 @@
 | **moderation_service** | роль, наследует права от __backend__ |  __-__ | __-__ | __-__ |
 | **custom_subscription_service** | роль, наследует права от __backend__ |  __-__ | __-__ | __-__ |
 
-- Права отбираются у всех в миграции - `100_revoke_all.up.sql`.
-- Создается базовая роль __backend__ - `101_create_backend_role.up.sql`
-- Создаются остальные роли со специфичными правами - `102_create_service_roles.up.sql`
+- Права отбираются у всех в миграции - [`100_revoke_all.up.sql`](migrations/100_revoke_all.up.sql).
+- Создается базовая роль __backend__ - [`101_create_backend_role.up.sql`](migrations/101_create_backend_role.up.sql)
+- Создаются остальные роли со специфичными правами - [`102_create_service_roles.up.sql`](migrations/102_create_service_roles.up.sql)
 
 Каждому сервису выдается роль пользователя в соответствующем ему env файл. 
 Все конфиги лежат по пути - `config/*service_name*`
