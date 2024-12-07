@@ -47,6 +47,7 @@ var (
 
 	// author
 
+	ErrAuthorDoesNotExist    = errors.New("author doesn`t exist")
 	ErrInvalidMonthCount     = errors.New("month count must be positive integer and and no more than 12")
 	ErrInvalidLayer          = errors.New("layer must be from 1 to 3")
 	ErrInvalidAuthorID       = errors.New("the author cannot subscribe to himself")
@@ -97,14 +98,12 @@ var (
 
 	ErrAuthorNameTooLong = errors.New("author name too long")
 
-
 	// csat
 
 	ErrInvalidRating = errors.New("invalid rating value")
 
-	ErrNotValidDays      = errors.New("not valid number of days")
-	ErrDaysIsNotDigital  = errors.New("days is not digital")
-
+	ErrNotValidDays     = errors.New("not valid number of days")
+	ErrDaysIsNotDigital = errors.New("days is not digital")
 )
 
 type ErrorHttpInfo struct {
@@ -157,6 +156,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrUserIsNotAuthor:       {msg: "Пользователь не является автором", code: http.StatusBadRequest},
 	ErrSubReqDoesNotExist:    {msg: "Запрос на оформление подписки не найден", code: http.StatusBadRequest},
 	ErrCustomSubDoesNotExist: {msg: "Выбранный уровень подписки не существует", code: http.StatusBadRequest},
+	ErrAuthorDoesNotExist:    {msg: "Автор не существует", code: http.StatusBadRequest},
 
 	// content
 	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},
@@ -188,7 +188,6 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	ErrNotValidDays:     {msg: "Неправильное количество дней", code: http.StatusBadRequest},
 	ErrDaysIsNotDigital: {msg: "Количество дней выражается в числах", code: http.StatusBadRequest},
-
 }
 
 func GetMsgError(err error) string {

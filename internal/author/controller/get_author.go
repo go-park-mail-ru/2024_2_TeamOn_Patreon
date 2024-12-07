@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/models"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -51,8 +52,9 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	authorData, err := handler.serv.GetAuthorDataByID(r.Context(), authorID)
 	if err != nil {
 		logger.StandardDebugF(ctx, op, "Received author error {%v}", err)
-		// Status 500
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(global.GetCodeError(err))
+		// отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
@@ -60,8 +62,9 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	subscriptions, err := handler.serv.GetAuthorSubscriptions(r.Context(), authorID)
 	if err != nil {
 		logger.StandardDebugF(ctx, op, "Received author subscriptions error {%v}", err)
-		// Status 500
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(global.GetCodeError(err))
+		// отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
@@ -69,8 +72,9 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	isSubscribe, err := handler.serv.GetUserIsSubscribe(r.Context(), authorID, userID)
 	if err != nil {
 		logger.StandardDebugF(ctx, op, "Received author isSubscribe status error {%v}", err)
-		// Status 500
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(global.GetCodeError(err))
+		// отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 

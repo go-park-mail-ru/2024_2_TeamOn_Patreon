@@ -11,9 +11,11 @@ import (
 	"time"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
@@ -45,13 +47,13 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*repModels.
 	var author repModels.Author
 
 	if err := p.db.QueryRow(ctx, query, authorID).Scan(&author.Username, &author.Info); err != nil {
-		if err == sql.ErrNoRows {
+		if err == pgx.ErrNoRows {
 			// Если автор не найден, возвращаем nil без ошибки
 			logger.StandardInfoF(
 				ctx,
 				"author with authorID='%v' not found", authorID,
 				op)
-			return nil, nil
+			return nil, errors.Wrap(global.ErrAuthorDoesNotExist, op)
 		}
 		return nil, errors.Wrap(err, op)
 	}
@@ -72,9 +74,10 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*repModels.
 		if err == sql.ErrNoRows {
 			// Если подписчики не найдены, проставляем ноль
 			author.Followers = 0
+		} else {
+			logger.StandardDebugF(ctx, op, "get followers error: {%v}", err)
+			return nil, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(ctx, op, "get followers error: {%v}", err)
-		return nil, errors.Wrap(err, op)
 	}
 
 	// Возвращаем данные автора
