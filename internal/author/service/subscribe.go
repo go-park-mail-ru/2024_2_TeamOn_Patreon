@@ -47,5 +47,6 @@ func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID strin
 		fmt.Sprintf("successful realize subscription request=%v", subReqID),
 		op)
 
+	// Отправка уведомления о новой подписке
 	return nil
 }

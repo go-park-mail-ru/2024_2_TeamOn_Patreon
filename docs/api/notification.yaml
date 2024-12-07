@@ -30,6 +30,9 @@ paths:
         
         
         /notification - получить все уведомления
+        
+        
+        **В тексте уведмоления перед именем пользователя стоит символ '@'.** По этому символу парсить имя пользователя. 
       security:
         - cookieAuth: []
       parameters:
@@ -154,7 +157,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-
 components:
   securitySchemes:
     cookieAuth:
@@ -171,9 +173,6 @@ components:
         message:
           type: string
           description: Сообщение в уведомлении
-        senderUsername:
-          type: string
-          description: Имя отправителя (инициатора) уведомления
         senderID:
           type: string
           description: ID отправителя (инициатора) уведомления

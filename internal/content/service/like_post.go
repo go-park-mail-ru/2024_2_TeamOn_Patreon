@@ -2,13 +2,15 @@ package service
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/pkg/errors"
 )
 
-func (b *Behavior) LikePost(ctx context.Context, userID, postID string) (int, error) {
+func (b *Behavior) LikePost(ctx context.Context, userID, postID, username string) (int, error) {
 	op := "service.behavior.LikePost"
 
 	if ok := utils.IsValidUUIDv4(userID); !ok {
@@ -40,6 +42,12 @@ func (b *Behavior) LikePost(ctx context.Context, userID, postID string) (int, er
 		err = b.likePost(ctx, userID, postID)
 		if err != nil {
 			return 0, errors.Wrap(err, op)
+		}
+
+		// Отправляем уведомление автору о лайке
+		err = b.sendNotificationLike(ctx, userID, postID, username)
+		if err != nil {
+			logger.StandardDebugF(ctx, op, "Failed send notification: %v", err)
 		}
 	} else {
 		// Убираем лайк
@@ -130,4 +138,34 @@ func (b *Behavior) userCanSeePost(ctx context.Context, userID, postID string) (b
 	}
 	return false, nil
 
+}
+
+func (b *Behavior) sendNotificationLike(ctx context.Context, userID, postID, username string) error {
+	op := "service.behavior.sendNotificationLike"
+
+	logger.StandardDebugF(ctx, op, "Want to send notification about like post by user=%v", username)
+
+	authorID, err := b.rep.GetAuthorOfPost(ctx, postID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	// Если пользователь и есть автор поста - ничего не отправляем
+	if authorID == userID {
+		return nil
+	}
+
+	titleOfPost, err := b.rep.GetTitleOfPost(ctx, postID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	message := fmt.Sprintf("Ваш пост «%v» понравился @%v.", titleOfPost, username)
+
+	if err := b.rep.SendNotificationOfLike(ctx, message, userID, authorID); err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	logger.StandardDebugF(ctx, op, "Successful send notification: %v", message)
+	return nil
 }

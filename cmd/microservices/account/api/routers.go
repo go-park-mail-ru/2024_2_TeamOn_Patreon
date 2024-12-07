@@ -80,6 +80,24 @@ func handleAuth(router *mux.Router, service interfaces.AccountService) *mux.Rout
 			"/account/update/role",
 			handler.PostAccountUpdateRole,
 		},
+		Route{
+			"GetNewNotifications",
+			"GET",
+			"/notification/new",
+			handler.GetNewNotifications,
+		},
+		Route{
+			"GetNotifications",
+			"GET",
+			"/notification",
+			handler.GetNotifications,
+		},
+		Route{
+			"PostNotificationStatusUpdate",
+			"POST",
+			"/notification/status/update",
+			handler.PostNotificationStatusUpdate,
+		},
 	}
 
 	for _, route := range routes {

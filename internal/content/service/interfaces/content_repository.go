@@ -39,6 +39,8 @@ type PostInterface interface {
 	UpdateTitleOfPost(ctx context.Context, postID string, title string) error
 	// UpdateContentOfPost - обновляет описание одного поста
 	UpdateContentOfPost(ctx context.Context, postID string, content string) error
+	// GetTitleOfPost - обновляет описание одного поста
+	GetTitleOfPost(ctx context.Context, postID string) (string, error)
 }
 
 type FeedInterface interface {
@@ -61,6 +63,9 @@ type LikePostInterface interface {
 	InsertLikePost(ctx context.Context, userID string, postID string) error
 	DeleteLikePost(ctx context.Context, userID string, postID string) error
 	GetPostLikes(ctx context.Context, postID string) (int, error)
+
+	// SendNotificationOfLike - отправляет уведомление о лайке поста
+	SendNotificationOfLike(ctx context.Context, message, userID, authorID string) error
 }
 
 type MediaInterface interface {

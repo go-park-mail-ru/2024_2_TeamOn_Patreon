@@ -49,7 +49,7 @@ func (h *Handler) PostLikePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Ставим лайки
-	count, err := h.b.LikePost(ctx, string(user.UserID), plb.PostId)
+	count, err := h.b.LikePost(ctx, string(user.UserID), plb.PostId, user.Username)
 	if err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))

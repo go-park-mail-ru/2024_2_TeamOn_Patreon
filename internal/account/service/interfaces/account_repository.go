@@ -3,6 +3,7 @@ package interfaces
 import (
 	"context"
 
+	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/pkg/models"
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/repository/models"
 )
 
@@ -46,4 +47,18 @@ type AccountRepository interface {
 
 	// GenerateID генерирует ID в формате UUIDv4
 	GenerateID() string
+
+	// NOTIFICATIONS
+
+	// GetAllNotifications возвращает все уведомления c offset по (offset + limit)
+	GetAllNotifications(ctx context.Context, userID string, offset, limit int) ([]*pkgModels.Notification, error)
+
+	// GetNotReadNotifications возвращает непрочитанные  уведомления c offset по (offset + limit)
+	GetNotReadNotifications(ctx context.Context, userID string, offset, limit int) ([]*pkgModels.Notification, error)
+
+	// GetNewNotificationsByTime возвращает последние уведомления за указанное время
+	GetNewNotificationsByTime(ctx context.Context, userID string, time int) ([]*pkgModels.Notification, error)
+
+	// ChangeNotificationStatus - изменяет статус уведомления на "прочитано"
+	ChangeNotificationStatus(ctx context.Context, userID, notificationID string) error
 }
