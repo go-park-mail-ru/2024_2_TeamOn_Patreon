@@ -13,8 +13,10 @@ const (
 	// Input: $1 postId, $2 userId, $3 title, $4 about, $5 layer - уровень подписки
 	// Output: empty
 	insertPostSQL = `
-		INSERT INTO Post (post_id, user_id, title, about, subscription_layer_id, created_date) VALUES
-    ($1, $2, $3, $4, (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $5), NOW())
+		INSERT INTO Post (post_id, user_id, title, about, subscription_layer_id, post_status_id, created_date) VALUES
+    ($1, $2, $3, $4, (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $5), 
+     (SELECT post_status_id FROM Post_Status WHERE status = 'PUBLISHED'),
+     NOW())
   `
 
 	// deletePostSQL - удаляет 1 пост по id
@@ -40,7 +42,7 @@ const (
 	// Output: empty
 	updateTitleOfPost = `
 		update Post
-		SET title = $2
+		SET title = $2, updated_date = NOW(), post_status_id = (select post_status_id from Post_Status where status = 'PUBLISHED')
 		WHERE post_id = $1
 `
 
@@ -49,7 +51,7 @@ const (
 	// Output: empty
 	updateContentOfPost = `
 		update Post
-		SET about = $2
+		SET about = $2, updated_date = NOW(), post_status_id = (select post_status_id from Post_Status where status = 'PUBLISHED')
 		WHERE post_id = $1
 `
 )

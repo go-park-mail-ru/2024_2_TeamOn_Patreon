@@ -200,6 +200,7 @@ services:
       - postgres-csat
     networks:
       - monitoring
+    restart: on-failure  # Перезапускать, если сервис завершился с ошибкой
 
   # CSAT
   filling-csat-service:
@@ -213,6 +214,7 @@ services:
       - migrate-csat-service
     networks:
       - monitoring
+    restart: on-failure  # Перезапускать, если сервис завершился с ошибкой
 
 
   node-exporter:

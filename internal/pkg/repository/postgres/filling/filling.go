@@ -86,7 +86,13 @@ func main() {
 
 	log.Println(filling)
 
-	if err := filling.createUsers(context.Background(), pool, n); err != nil {
+	if err := filling.createModerator(context.Background(), pool); err != nil {
+		log.Fatalf("Ошибка при создании модератора: %v", err)
+	}
+
+	fmt.Printf("Создано модератор \n", n)
+
+	if err = filling.createUsers(context.Background(), pool, n); err != nil {
 		log.Fatalf("Ошибка при создании пользователей: %v", err)
 	}
 
@@ -127,6 +133,47 @@ func main() {
 	}
 
 	fmt.Printf("Создано %d лайков \n", index)
+}
+
+func (f *Filling) createModerator(ctx context.Context, pool *pgxpool.Pool) error {
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return fmt.Errorf("не удалось получить соединение из пула: %v", err)
+	}
+	defer conn.Release()
+
+	batch := &pgx.Batch{}
+
+	// Подготавливаем данные для пользователей и связанных записей
+	userID := uuid.New()
+	username := "moderator"
+	email := fmt.Sprintf(consts.EMAIL_DOMAIN_NAME, username)
+
+	// Генерация хеша пароля
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(consts.PASSWORD), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("ошибка хеширования пароля: %v", err)
+	}
+
+	// Запрос на добавление пользователя
+	batch.Queue(`
+            INSERT INTO People (user_id, username, email, role_id, hash_password) 
+            VALUES ($1, $2, $3, (SELECT role_id FROM Role WHERE role_default_name = 'Moderator'), $4)`,
+		userID, username, email, passwordHash)
+
+	// Выполнение батч-запроса
+	br := conn.Conn().SendBatch(ctx, batch)
+	defer br.Close()
+
+	// Проверка результатов выполнения батча
+	for i := 0; i < batch.Len(); i++ {
+		_, err := br.Exec()
+		if err != nil {
+			return fmt.Errorf("ошибка выполнения батч-запроса на шаге %d: %v", i+1, err)
+		}
+	}
+
+	return nil
 }
 
 func (f *Filling) createUsers(ctx context.Context, pool *pgxpool.Pool, n int) error {
@@ -414,8 +461,9 @@ func (f *Filling) createPosts(ctx context.Context, pool *pgxpool.Pool, n int) er
 			}
 			f.Posts[Author(authorName)][Layer(string(layer))] = append(f.Posts[Author(authorName)][Layer(string(layer))], PostTitle(title)) // Запрос на добавление пользователя
 			batch.Queue(`
-INSERT INTO Post (post_id, user_id, title, about, subscription_layer_id) VALUES
-    (gen_random_uuid(), (SELECT user_id FROM People WHERE username = $1), $2, $3 , (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $4))
+INSERT INTO Post (post_id, user_id, title, about, subscription_layer_id, post_status_id) VALUES
+    (gen_random_uuid(), (SELECT user_id FROM People WHERE username = $1), $2, $3 , (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $4),
+     (select post_status_id from post_status where status = 'PUBLISHED'))
 `,
 				authorName, title, about, layer)
 		}

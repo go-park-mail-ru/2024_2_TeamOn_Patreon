@@ -198,9 +198,9 @@ func (mr *MockContentRepositoryMockRecorder) GetPopularPostsForUser(ctx, userID,
 }
 
 // GetPostLayerBuPostID mocks base method.
-func (m *MockContentRepository) GetPostLayerBuPostID(ctx context.Context, postID string) (int, error) {
+func (m *MockContentRepository) GetPostLayerByPostID(ctx context.Context, postID string) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPostLayerBuPostID", ctx, postID)
+	ret := m.ctrl.Call(m, "GetPostLayerByPostID", ctx, postID)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -209,7 +209,7 @@ func (m *MockContentRepository) GetPostLayerBuPostID(ctx context.Context, postID
 // GetPostLayerBuPostID indicates an expected call of GetPostLayerBuPostID.
 func (mr *MockContentRepositoryMockRecorder) GetPostLayerBuPostID(ctx, postID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostLayerBuPostID", reflect.TypeOf((*MockContentRepository)(nil).GetPostLayerBuPostID), ctx, postID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostLayerByPostID", reflect.TypeOf((*MockContentRepository)(nil).GetPostLayerByPostID), ctx, postID)
 }
 
 // GetPostLikeID mocks base method.

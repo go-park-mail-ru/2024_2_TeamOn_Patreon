@@ -8,6 +8,8 @@
 
 package models
 
+import "fmt"
+
 type Post struct {
 	// Идентификатор поста
 	PostID string `json:"postID"`
@@ -23,4 +25,9 @@ type Post struct {
 	Status string `json:"status"`
 	// Время создания поста
 	CreatedAt string `json:"createdAt"`
+}
+
+func (p *Post) String() string {
+	return fmt.Sprintf("Post{Post ID: %s\nTitle: %s\nStatus: %s\n AuthorUsername:%s}",
+		p.PostID, p.Title, p.Status, p.AuthorUsername)
 }

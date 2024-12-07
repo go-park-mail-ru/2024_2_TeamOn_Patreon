@@ -3,26 +3,12 @@ package postgresql
 import (
 	"context"
 
-	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	_ "github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
 
 const (
-	getUserLayerSql = `
--- First result set.
-select
-	layer
-from
-	subscription_layer 
-	join custom_subscription on subscription_layer.subscription_layer_id = custom_subscription.subscription_layer_id
-	join subscription on subscription.custom_subscription_id = custom_subscription.custom_subscription_id
-where
-	subscription.user_id = ?
-	and custom_subscription.author_id = ?
-;
-`
 
 	// getUserRoleSQL - возвращает текстовое имя роли пользователя
 	// Input: userId
@@ -49,35 +35,6 @@ where People.user_id = $1
 		;
 `
 )
-
-func (cr *ContentRepository) GetUserLayerForAuthor(ctx context.Context, userID string, authorID string) (int, error) {
-	op := "internal.content.repository.user.GetUserLayerForAuthor"
-
-	rows, err := cr.db.Query(ctx, getUserLayerSql, userID, authorID)
-	if err != nil {
-		return 0, errors.Wrap(err, op)
-	}
-
-	defer rows.Close()
-
-	var (
-		layer int
-	)
-	for rows.Next() {
-		if err = rows.Scan(&layer); err != nil {
-			return 0, errors.Wrap(err, op)
-		}
-		logger.StandardDebugF(ctx, op, "Got layer= %s user= %s author %s", layer, userID, authorID)
-	}
-
-	// Rows.Err will report the last error encountered by Rows.Scan.
-	if err := rows.Err(); err != nil {
-		return 0, errors.Wrap(global.ErrServer, op)
-	}
-	logger.StandardDebugF(ctx, op, "Got layer= %s user= %s author %s", layer, userID, authorID)
-
-	return 0, nil
-}
 
 func (cr *ContentRepository) GetUserRole(ctx context.Context, userID string) (string, error) {
 	op := "internal.content.repository.user.GetUserRole"

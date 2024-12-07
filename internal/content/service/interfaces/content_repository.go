@@ -22,7 +22,7 @@ type ContentRepository interface {
 	GetUserRole(ctx context.Context, userID string) (string, error)
 	CheckCustomLayer(ctx context.Context, authorID string, layer int) (bool, error)
 	// GetPostLayerBuPostID уровень поста по ид поста
-	GetPostLayerBuPostID(ctx context.Context, postID string) (int, error)
+	GetPostLayerByPostID(ctx context.Context, postID string) (int, error)
 	// GetAuthorOfPost - получение  ID автора поста
 	GetAuthorOfPost(ctx context.Context, postID string) (string, error)
 	// GetUserLayerOfAuthor - уровень подписки пользователя на определенном авторе
