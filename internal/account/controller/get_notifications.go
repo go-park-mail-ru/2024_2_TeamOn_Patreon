@@ -17,7 +17,7 @@ import (
 // status - статус уведомлений. Если NOTREAD - получить непрочитанные. Если не передаётся - получить все
 // offsetParam - имя для параметра ограничения, limitParam - имя для параметра смещения
 func (handler *Handler) GetNotifications(w http.ResponseWriter, r *http.Request) {
-	op := "content.controller.GetNotifications"
+	op := "account.controller.GetNotifications"
 	ctx := r.Context()
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

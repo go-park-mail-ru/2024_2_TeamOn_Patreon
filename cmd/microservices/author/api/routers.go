@@ -93,6 +93,12 @@ func handleAuth(router *mux.Router, service interfaces.AuthorService) *mux.Route
 			"/subscription/realize",
 			handler.PostSubscriptionRealize,
 		},
+		Route{
+			"GetStatPosts",
+			"GET",
+			"/stat/posts",
+			handler.GetStatPosts,
+		},
 	}
 
 	for _, route := range routes {

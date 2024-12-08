@@ -16,7 +16,7 @@ import (
 // GetNewNotifications - ручка получения последних уведомлений  пользователя
 // time - время [с], за которое требуется получиться уведомления.
 func (handler *Handler) GetNewNotifications(w http.ResponseWriter, r *http.Request) {
-	op := "content.controller.GetNewNotifications"
+	op := "account.controller.GetNewNotifications"
 	ctx := r.Context()
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

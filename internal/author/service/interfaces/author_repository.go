@@ -4,6 +4,7 @@ import (
 	"context"
 	"mime/multipart"
 
+	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/pkg/models"
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
 )
 
@@ -53,4 +54,18 @@ type AuthorRepository interface {
 
 	// SendNotification - отправляет уведомление
 	SendNotification(ctx context.Context, message, userID, authorID string) error
+
+	// GetAuthorPageID - получает ID страницы автора
+	GetAuthorPageID(ctx context.Context, userID string) (string, error)
+
+	// STATISTIC
+
+	// GetStatByDay - возвращает статистику за последний день по часам
+	GetStatByDay(ctx context.Context, userID string) (*pkgModels.Graphic, error)
+
+	// GetStatByMonth - возвращает статистику за последний месяц по дням
+	GetStatByMonth(ctx context.Context, userID string) (*pkgModels.Graphic, error)
+
+	// GetStatByYear - возвращает статистику за последний год по месяцам
+	GetStatByYear(ctx context.Context, userID string) (*pkgModels.Graphic, error)
 }

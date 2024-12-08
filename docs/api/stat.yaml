@@ -1,0 +1,198 @@
+
+openapi: 3.0.3
+info:
+  title: PushART - Статистика | API
+  description: >-
+    API для интерфейса статистики
+    
+   
+    ПОРТ  8086
+    
+    
+  version: 1.0.1
+paths:
+  /stat/posts:
+    get:
+      tags:
+        - Statistics
+      summary: Возвращает поля постов для статистики
+      description: >-
+        Отдельная страница в настройках "Статистика". Ксат перейдет в "Наши оценки".
+        
+        
+        В квери параметрах будет писаться: статистика для подсчета постов за последнее время и по выплатам.
+        
+        
+        Так же будет разделение на:
+        - за день           (time=day)
+        - за месяц          (time=month)
+        - за год            (time=year)
+        
+        
+        Данные на выходе будут такими:
+        
+        
+        Массив количества постов за по часу - если за последний день.
+        Массив количества постов за по дню - если за последний месяц.
+        Массив количества постов за по месяцу - если за год
+        
+        
+        Пример:
+        [3, 6, 0, 0, 0, и так оставшиеся 19 числа(24 должно быть в массиве)] - если за один день
+        
+        
+        [3, 6, 2, 1, 0, и так оставшиеся 25 чисел (30 должно быть в массиве)] - если за месяц
+        
+        
+        [3, 6, 2, 1, 0, и так 7 чисел (12 должно быть в массиве)] - если за год
+        
+        
+        Пример ручки:
+        /stat/posts?time=day
+        
+        
+        /stat/posts?time=month
+        
+        
+        /stat/posts?time=year
+        
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: time
+          required: false
+          schema:
+            type: string
+            example: day
+          description: За день.
+      responses:
+        '200':
+          description: Массив количество постов за каждый час
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Posts'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
+    
+  /stat/payments:
+    get:
+      tags:
+        - Statistics
+      summary: Возвращает поля выплат для статистики
+      description: >-
+        Отдельная страница в настройках "Статистика". Ксат перейдет в "Наши оценки".
+        
+        
+        В квери параметрах будет писаться: статистика для подсчета постов за последнее время и по выплатам.
+        
+        
+        Так же будет разделение на:
+        - за день           (time=day)
+        - за месяц          (time=month)
+        - за год            (time=year)
+        
+        
+        Данные на выходе будут такими:
+        
+        
+        Массив количества выплат за по часу - если за последний день.
+        Массив количества выплат за по дню - если за последний месяц.
+        Массив количества выплат за по месяцу - если за год
+        
+        
+        Пример:
+        [3, 6, 0, 0, 0, и так оставшиеся 19 числа(24 должно быть в массиве)] - если за один день
+        
+        
+        [3, 6, 2, 1, 0, и так оставшиеся 25 чисел (30 должно быть в массиве)] - если за месяц
+        
+        
+        [3, 6, 2, 1, 0, и так 7 чисел (12 должно быть в массиве)] - если за год
+        
+        
+        Пример ручки:
+        /stat/payments?time=day
+        
+        
+        /stat/payments?time=month
+        
+        
+        /stat/payments?time=year
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: time
+          required: false
+          schema:
+            type: string
+            example: year
+          description: За год.
+      responses:
+        '200':
+          description: Массив количество выплат за каждый час
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payments'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JWT
+  schemas:
+    Posts:
+      type: object
+      properties:
+        valueY:
+          type: string
+          description: Магнитуда (значение по оси игрик) постов
+        valueX:
+          type: string
+          description: Значение по оси икс. (время)
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Описание ошибки
+    Payments:
+      type: object
+      properties:
+        valueY:
+          type: string
+          description: Магнитуда (значение по оси игрик) выплат
+        valueX:
+          type: string
+          description: Значение по оси икс. (время)
