@@ -47,6 +47,7 @@ func (s *Service) DecisionPost(ctx context.Context, postID string, userID string
 		err = errors.Wrap(err, op)
 		return errors.Wrap(err, "updatePostStatus")
 	}
+	logger.StandardDebugF(ctx, op, "Successful update status on %v", status)
 	return nil
 }
 

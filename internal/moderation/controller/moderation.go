@@ -111,6 +111,8 @@ func (h *Handler) ModerationPostDecisionPost(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.WriteHeader(http.StatusOK)
+	logger.StandardDebugF(ctx, op, "Successful sent %v")
+
 }
 
 func (h *Handler) ModerationPostGet(w http.ResponseWriter, r *http.Request) {
@@ -169,4 +171,5 @@ func (h *Handler) ModerationPostGet(w http.ResponseWriter, r *http.Request) {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 	}
+	logger.StandardDebugF(ctx, op, "Successful sent %v", posts)
 }

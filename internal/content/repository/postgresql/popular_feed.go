@@ -35,7 +35,7 @@ RIGHT OUTER JOIN
 LEFT OUTER JOIN 
     Like_Post USING (post_id)
 WHERE 
-    Subscription_Layer.layer <= (
+    (Subscription_Layer.layer <= (
         SELECT COALESCE(Subscription_Layer.layer, 0)
         FROM Subscription
         JOIN Custom_Subscription ON Subscription.custom_subscription_id = Custom_Subscription.custom_subscription_id
@@ -43,7 +43,8 @@ WHERE
         WHERE Custom_Subscription.author_id = author.user_id AND Subscription.user_id = $1
     )
     OR post.subscription_layer_id = (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = 0)
-    OR post.user_id = $1
+    OR post.user_id = $1)
+	and post.post_status_id IN (select post_status_id FROM Post_Status WHERE status = 'PUBLISHED' or status = 'ALLOWED' or status = 'COMPLAINED')
 GROUP BY 
     post.post_id,  
     post.About, 
@@ -94,6 +95,7 @@ LEFT OUTER JOIN
     Like_Post USING (post_id)
 WHERE 
     post.subscription_layer_id = (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = 0)
+	and post.post_status_id IN (select post_status_id FROM Post_Status WHERE status = 'PUBLISHED' or status = 'ALLOWED' or status = 'COMPLAINED')
 GROUP BY 
     post.post_id,  
     post.About, 

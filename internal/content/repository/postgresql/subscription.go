@@ -53,6 +53,7 @@ WHERE
         JOIN Subscription_Layer ON Custom_Subscription.subscription_layer_id = Subscription_Layer.subscription_layer_id
         WHERE Custom_Subscription.author_id = author.user_id AND Subscription.user_id = $1
     )
+	and post.post_status_id IN (select post_status_id FROM Post_Status WHERE status = 'PUBLISHED' or status = 'ALLOWED' or status = 'COMPLAINED')
 GROUP BY 
     post.post_id,  
     post.About, 
