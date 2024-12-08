@@ -14,7 +14,7 @@ paths:
         required: true
         schema:
           type: string
-        description: Идентификатор коммента
+        description: Идентификатор поста
     get:
       tags:
         - comments
@@ -73,6 +73,12 @@ paths:
       description: Позволяет создать новый коммент, добавить содержимое
       security:
         - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateComment'
       responses:
         '201':
           description: Успешное добавление комментария
@@ -210,13 +216,10 @@ components:
           type: string
           description: Содержимое коммента
       required:
-        - commentId
+        - commentID
     UpdateComment:
       type: object
-      description: Все, чего нет - не заменяется
       properties:
         content:
           type: string
           description: Содержимое коммента
-      required:
-        - commentId
