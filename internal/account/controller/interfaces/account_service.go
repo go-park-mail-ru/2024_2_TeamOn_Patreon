@@ -3,8 +3,8 @@ package interfaces
 import (
 	"context"
 
+	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/pkg/models"
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/service/models"
-	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 )
 
 // Интерфейс AccountService необходим для взаимодействия уровня controller с уровнем service
@@ -35,6 +35,12 @@ type AccountService interface {
 
 	// NOTIFICATIONS
 
-	// GetNotifications - получение уведомлений для пользователя
-	GetNotifications(ctx context.Context, userID string, opt *pkgModels.NotificationsOpt) ([]*sModels.Notification, error)
+	// GetNotifications - получение уведомлений пользователя
+	GetNotifications(ctx context.Context, userID string, opt *pkgModels.NotificationsOpt) ([]*pkgModels.Notification, error)
+
+	// GetNewNotifications - получение последних уведомлений пользователя
+	GetNewNotifications(ctx context.Context, userID string, opt *pkgModels.NotificationsTimeOpt) ([]*pkgModels.Notification, error)
+
+	// ReadNotification - изменяет статус уведомления на "прочитано"
+	ReadNotification(ctx context.Context, userID, notificationID string) error
 }

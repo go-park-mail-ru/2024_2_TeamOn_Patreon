@@ -34,6 +34,14 @@ const (
 		from Post
 		where post_id = $1
 `
+	// getTitleOfPost - возвращает title поста
+	// Input: $1 postId
+	// Output: title
+	getTitleOfPost = `
+		select title
+		from Post
+		where post_id = $1
+`
 
 	// Update
 
@@ -120,4 +128,28 @@ func (cr *ContentRepository) UpdateContentOfPost(ctx context.Context, postID str
 		return errors.Wrap(err, op)
 	}
 	return nil
+}
+
+func (cr *ContentRepository) GetTitleOfPost(ctx context.Context, postID string) (string, error) {
+	op := "internal.content.repository.post.GetTitleOfPost"
+
+	rows, err := cr.db.Query(ctx, getTitleOfPost, postID)
+	if err != nil {
+		return "", errors.Wrap(err, op)
+	}
+
+	defer rows.Close()
+
+	var (
+		title string
+	)
+
+	for rows.Next() {
+		if err = rows.Scan(&title); err != nil {
+			return "", errors.Wrap(err, op)
+		}
+		logger.StandardDebugF(ctx, op, "Got title='%s' of post='%v'", title, postID)
+		return title, nil
+	}
+	return "", errors.Wrap(global.ErrPostDoesntExists, op)
 }

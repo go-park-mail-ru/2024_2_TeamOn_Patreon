@@ -13,11 +13,10 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
-// GetNotifications - ручка получения уведомлений пользователя
-// status - статус уведомлений. Если NOTREAD - получить непрочитанные. Если не передаётся - получить все
-// offsetParam - имя для параметра ограничения, limitParam - имя для параметра смещения
-func (handler *Handler) GetNotifications(w http.ResponseWriter, r *http.Request) {
-	op := "content.controller.GetNotifications"
+// GetNewNotifications - ручка получения последних уведомлений  пользователя
+// time - время [с], за которое требуется получиться уведомления.
+func (handler *Handler) GetNewNotifications(w http.ResponseWriter, r *http.Request) {
+	op := "content.controller.GetNewNotifications"
 	ctx := r.Context()
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -47,13 +46,11 @@ func (handler *Handler) GetNotifications(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Получение query параметров из запроса
-	offsetStr := r.URL.Query().Get(offsetParam)
-	limitStr := r.URL.Query().Get(limitParam)
-	status := r.URL.Query().Get(statusParam)
+	timeStr := r.URL.Query().Get(timeParam)
 
-	opt := pkgModels2.NewNotificationsOpt(offsetStr, limitStr, status)
+	opt := pkgModels2.NewNotificationsTimeOpt(timeStr)
 
-	sNotifications, err := handler.serv.GetNotifications(ctx, userID, opt)
+	sNotifications, err := handler.serv.GetNewNotifications(ctx, userID, opt)
 	if err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))

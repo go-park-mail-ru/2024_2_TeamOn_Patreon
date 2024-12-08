@@ -1,6 +1,8 @@
 package models
 
-// Service модель Notification
+import "time"
+
+// Repository модель Notification
 type Notification struct {
 	// ID уведомления
 	NotificationID string
@@ -8,10 +10,8 @@ type Notification struct {
 	Message string
 	// ID отправителя
 	SenderID string
-	// Имя отправителя
-	SenderUsername string
 	// Статус: прочитано / нет
 	IsRead bool
 	// Дата отправления
-	CreatedAt string
+	CreatedAt time.Time
 }

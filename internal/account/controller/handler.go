@@ -17,4 +17,5 @@ const (
 	offsetParam string = "offset"
 	limitParam  string = "limit"
 	statusParam string = "status"
+	timeParam   string = "time"
 )

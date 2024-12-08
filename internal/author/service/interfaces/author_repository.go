@@ -40,8 +40,17 @@ type AuthorRepository interface {
 	CreateSubscribeRequest(ctx context.Context, subReq repModels.SubscriptionRequest) (string, error)
 
 	// RealizeSubscribeRequest реализует запрос на подписку
-	RealizeSubscribeRequest(ctx context.Context, subReqID string) error
+	RealizeSubscribeRequest(ctx context.Context, subReqID string) (string, error)
 
 	// GenerateID генерирует ID в формате UUIDv4
 	GenerateID() string
+
+	// GetUsername - получение имени пользователя по userID
+	GetUsername(ctx context.Context, userID string) (string, error)
+
+	// GetCustomSubscriptionInfo - получает основные данные о кастомной подписке
+	GetCustomSubscriptionInfo(ctx context.Context, customSubID string) (string, string, error)
+
+	// SendNotification - отправляет уведомление
+	SendNotification(ctx context.Context, message, userID, authorID string) error
 }

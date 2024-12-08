@@ -2,7 +2,7 @@ package models
 
 import "strconv"
 
-const notReadStatus = "NOTREAD"
+const NotReadStatus = "NOTREAD"
 
 type NotificationsOpt struct {
 	Offset int
@@ -22,7 +22,7 @@ func (no *NotificationsOpt) validateOffset() {
 }
 
 func (no *NotificationsOpt) validateStatus() {
-	if no.Status != "" && no.Status != notReadStatus {
+	if no.Status != "" && no.Status != NotReadStatus {
 		no.Status = ""
 	}
 }
