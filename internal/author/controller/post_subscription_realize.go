@@ -64,7 +64,7 @@ func (handler *Handler) PostSubscriptionRealize(w http.ResponseWriter, r *http.R
 	}
 
 	// Обращение в service
-	err := handler.serv.RealizeSubscriptionRequest(ctx, subReqID)
+	err := handler.serv.RealizeSubscriptionRequest(ctx, subReqID, userID)
 	if err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))

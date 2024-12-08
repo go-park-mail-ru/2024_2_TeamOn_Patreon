@@ -66,6 +66,8 @@ type LikePostInterface interface {
 
 	// SendNotificationOfLike - отправляет уведомление о лайке поста
 	SendNotificationOfLike(ctx context.Context, message, userID, authorID string) error
+	// GetUsername - получение имени пользователя по userID
+	GetUsername(ctx context.Context, userID string) (string, error)
 }
 
 type MediaInterface interface {

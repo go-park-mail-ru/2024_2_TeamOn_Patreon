@@ -49,7 +49,7 @@ func (p *Postgres) CreateSubscribeRequest(ctx context.Context, subReq repModels.
 	return subReqID, nil
 }
 
-func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string) error {
+func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string) (string, error) {
 	op := "internal.author.repository.RealizeSubscribeRequest"
 
 	mu.Lock()
@@ -59,7 +59,7 @@ func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string)
 	logger.StandardDebugF(ctx, op, "want to get subscription request by reqID=%v", subReqID)
 	subReq, exists := subscriptionRequests[subReqID]
 	if !exists {
-		return global.ErrSubReqDoesNotExist
+		return "", global.ErrSubReqDoesNotExist
 	}
 
 	customSubID, _ := p.getCustomSubscriptionID(ctx, subReq.AuthorID, subReq.Layer)
@@ -77,10 +77,78 @@ func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string)
     	VALUES ($1, $2, $3, $4, $5)
 	`
 	if _, err := p.db.Exec(ctx, query, subID, subReq.UserID, customSubID, currentTime, finishedDate); err != nil {
-		return errors.Wrap(err, op)
+		return "", errors.Wrap(err, op)
 	}
 	// Удаляем запрос из map после реализации
 	delete(subscriptionRequests, subReqID)
+
+	return customSubID, nil
+}
+
+func (p *Postgres) GetCustomSubscriptionInfo(ctx context.Context, customSubID string) (string, string, error) {
+	op := "internal.author.repository.GetCustomSubscriptionInfo"
+
+	query := `
+        SELECT 
+			author_id, custom_name
+        FROM
+			custom_subscription
+        WHERE
+			custom_subscription_id = $1;
+	`
+	var (
+		authorID   string
+		customName string
+	)
+
+	err := p.db.QueryRow(ctx, query, customSubID).Scan(&authorID, &customName)
+
+	if err != nil {
+		return "", "", errors.Wrap(err, op)
+	}
+
+	return authorID, customName, nil
+}
+
+// GetUsername - получение имени пользователя по userID
+func (p *Postgres) GetUsername(ctx context.Context, userID string) (string, error) {
+	op := "internal.account.repository.GetUsername"
+
+	query := `
+		SELECT 
+			username
+		FROM
+			people
+		WHERE
+			user_id = $1;
+	`
+
+	var username string
+	err := p.db.QueryRow(ctx, query, userID).Scan(&username)
+
+	if err != nil {
+		return "", errors.Wrap(err, op)
+	}
+
+	return username, nil
+}
+
+func (p *Postgres) SendNotificationOfNewSubscriber(ctx context.Context, message, userID, authorID string) error {
+	op := "internal.content.repository.postgresql.SendNotificationOfNewSubscriber"
+
+	query := `
+	INSERT INTO 
+		notification (notification_id, user_id, sender_id, about)
+	VALUES
+		($1, $2, $3, $4);
+	`
+	notificationID := utils.GenerateUUID()
+
+	// Не путать: userID ($2) = authorID (получатель), senderID ($3) = userID (отправитель)
+	_, err := p.db.Exec(ctx, query, notificationID, authorID, userID, message)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
 
 	return nil
 }

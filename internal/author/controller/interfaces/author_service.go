@@ -37,5 +37,5 @@ type AuthorService interface {
 	CreateSubscriptionRequest(ctx context.Context, subReq sModels.SubscriptionRequest) (string, error)
 
 	// CreateSubscribeRequest реализует запрос пользователя на подписку на автора
-	RealizeSubscriptionRequest(ctx context.Context, subReqID string) error
+	RealizeSubscriptionRequest(ctx context.Context, subReqID, userID string) error
 }

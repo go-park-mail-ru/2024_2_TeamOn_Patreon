@@ -33,12 +33,13 @@ func (s *Service) CreateSubscriptionRequest(ctx context.Context, subReq sModels.
 	return subReqID, nil
 }
 
-func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID string) error {
+func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID, userID string) error {
 	op := "internal.author.service.RealizeSubscriptionRequest"
 
 	// Обращение в repository
 	logger.StandardDebugF(ctx, op, "want to realize subscription request=%v", subReqID)
-	if err := s.rep.RealizeSubscribeRequest(ctx, subReqID); err != nil {
+	customSubscriptionID, err := s.rep.RealizeSubscribeRequest(ctx, subReqID)
+	if err != nil {
 		return errors.Wrap(err, op)
 	}
 
@@ -48,5 +49,31 @@ func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID strin
 		op)
 
 	// Отправка уведомления о новой подписке
+	if err := s.sendNotificationOfSubscribe(ctx, customSubscriptionID, userID); err != nil {
+		logger.StandardDebugF(ctx, op, "failed send notification about new subscribe: %v", err)
+	}
+	return nil
+}
+
+func (s *Service) sendNotificationOfSubscribe(ctx context.Context, customSubscriptionID, userID string) error {
+	op := "internal.author.service.sendNotificationOfSubscribe"
+
+	username, err := s.rep.GetUsername(ctx, userID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	authorID, customName, err := s.rep.GetCustomSubscriptionInfo(ctx, customSubscriptionID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	message := fmt.Sprintf("Новый подписчик! Пользователь @%v присоединился к вашему сообществу с уровнем: «%v»", username, customName)
+
+	if err := s.rep.SendNotificationOfNewSubscriber(ctx, message, userID, authorID); err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	logger.StandardDebugF(ctx, op, "Successful send notification: %v", message)
 	return nil
 }

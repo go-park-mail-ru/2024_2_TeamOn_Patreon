@@ -14,7 +14,7 @@ type ContentBehavior interface {
 
 	CreatePost(ctx context.Context, userID string, title string, content string, layer int) (string, error)
 	UpdatePost(ctx context.Context, userID string, postID string, title string, about string) error
-	LikePost(ctx context.Context, userID, postID, username string) (int, error)
+	LikePost(ctx context.Context, userID, postID string) (int, error)
 	DeletePost(ctx context.Context, userID, postID string) error
 
 	// feed

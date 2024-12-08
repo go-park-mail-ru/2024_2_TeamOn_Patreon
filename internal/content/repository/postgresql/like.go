@@ -123,6 +123,38 @@ func (cr *ContentRepository) GetPostLikes(ctx context.Context, postID string) (i
 	return 0, nil
 }
 
+// GetUsername - получение имени пользователя по userID
+func (cr *ContentRepository) GetUsername(ctx context.Context, userID string) (string, error) {
+	op := "internal.account.repository.GetUsername"
+
+	query := `
+		SELECT 
+			username
+		FROM
+			people
+		WHERE
+			user_id = $1;
+	`
+
+	rows, err := cr.db.Query(ctx, query, userID)
+	if err != nil {
+		return "", errors.Wrap(err, op)
+	}
+
+	defer rows.Close()
+
+	var username string
+
+	for rows.Next() {
+		if err = rows.Scan(&username); err != nil {
+			return "", errors.Wrap(err, op)
+		}
+		logger.StandardDebugF(ctx, op, "Got username='%v' for userID='%v'", username, userID)
+		return username, nil
+	}
+	return "", nil
+}
+
 func (cr *ContentRepository) SendNotificationOfLike(ctx context.Context, message, userID, authorID string) error {
 	op := "internal.content.repository.postgresql.SendNotificationOfLike"
 

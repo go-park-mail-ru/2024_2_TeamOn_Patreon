@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (b *Behavior) LikePost(ctx context.Context, userID, postID, username string) (int, error) {
+func (b *Behavior) LikePost(ctx context.Context, userID, postID string) (int, error) {
 	op := "service.behavior.LikePost"
 
 	if ok := utils.IsValidUUIDv4(userID); !ok {
@@ -45,7 +45,7 @@ func (b *Behavior) LikePost(ctx context.Context, userID, postID, username string
 		}
 
 		// Отправляем уведомление автору о лайке
-		err = b.sendNotificationLike(ctx, userID, postID, username)
+		err = b.sendNotificationLike(ctx, userID, postID)
 		if err != nil {
 			logger.StandardDebugF(ctx, op, "Failed send notification: %v", err)
 		}
@@ -140,8 +140,13 @@ func (b *Behavior) userCanSeePost(ctx context.Context, userID, postID string) (b
 
 }
 
-func (b *Behavior) sendNotificationLike(ctx context.Context, userID, postID, username string) error {
+func (b *Behavior) sendNotificationLike(ctx context.Context, userID, postID string) error {
 	op := "service.behavior.sendNotificationLike"
+
+	username, err := b.rep.GetUsername(ctx, userID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
 
 	logger.StandardDebugF(ctx, op, "Want to send notification about like post by user=%v", username)
 
