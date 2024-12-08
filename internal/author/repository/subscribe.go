@@ -133,8 +133,8 @@ func (p *Postgres) GetUsername(ctx context.Context, userID string) (string, erro
 	return username, nil
 }
 
-func (p *Postgres) SendNotificationOfNewSubscriber(ctx context.Context, message, userID, authorID string) error {
-	op := "internal.content.repository.postgresql.SendNotificationOfNewSubscriber"
+func (p *Postgres) SendNotification(ctx context.Context, message, userID, authorID string) error {
+	op := "internal.content.repository.postgresql.SendNotification"
 
 	query := `
 	INSERT INTO 

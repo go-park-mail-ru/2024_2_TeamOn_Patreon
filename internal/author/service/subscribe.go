@@ -70,7 +70,7 @@ func (s *Service) sendNotificationOfSubscribe(ctx context.Context, customSubscri
 
 	message := fmt.Sprintf("Новый подписчик! Пользователь @%v присоединился к вашему сообществу с уровнем: «%v»", username, customName)
 
-	if err := s.rep.SendNotificationOfNewSubscriber(ctx, message, userID, authorID); err != nil {
+	if err := s.rep.SendNotification(ctx, message, userID, authorID); err != nil {
 		return errors.Wrap(err, op)
 	}
 

@@ -51,6 +51,6 @@ type AuthorRepository interface {
 	// GetCustomSubscriptionInfo - получает основные данные о кастомной подписке
 	GetCustomSubscriptionInfo(ctx context.Context, customSubID string) (string, string, error)
 
-	// SendNotificationOfNewSubscriber - отправляет уведомление о новом подписчике
-	SendNotificationOfNewSubscriber(ctx context.Context, message, userID, authorID string) error
+	// SendNotification - отправляет уведомление
+	SendNotification(ctx context.Context, message, userID, authorID string) error
 }
