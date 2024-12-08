@@ -169,16 +169,30 @@ func (p *Postgres) Payments(ctx context.Context, authorID string) (int, error) {
 
 	// SQL-запрос для получения payments за донаты и подписки
 	query := `
+		WITH total_tips AS (
+			SELECT 
+				COALESCE(SUM(cost), 0) AS total_cost
+			FROM 
+				tip
+			WHERE 
+				author_id = $1
+			),
+		total_subscriptions AS (
+			SELECT 
+				COALESCE(SUM(cs.cost), 0) AS total_cost
+			FROM 
+				subscription s
+			LEFT JOIN
+				custom_subscription cs ON cs.custom_subscription_id = s.custom_subscription_id
+			WHERE 
+				cs.author_id = $1
+		)
+
 		SELECT 
-			COALESCE(SUM(t.cost), 0) + COALESCE(SUM(cs.cost), 0) AS total_payments
+			tt.total_cost + ts.total_cost AS total_payments
 		FROM 
-			custom_subscription cs
-		LEFT JOIN 
-			subscription s ON cs.custom_subscription_id = s.custom_subscription_id
-		LEFT JOIN 
-			tip t ON cs.author_id = t.author_id
-		WHERE 
-			cs.author_id = $1
+			total_tips tt,
+			total_subscriptions ts;
 	`
 
 	var amountPayments int

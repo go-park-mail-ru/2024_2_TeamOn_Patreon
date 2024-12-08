@@ -26,6 +26,12 @@ const CtxReqId = "request_id"
 
 // ROLEs - лежат в общих моделях
 
+// statistic
+const (
+	StatPosts    = "posts"
+	StatPayments = "payments"
+)
+
 // ENV
 const (
 	EnvStatus = "STATUS"

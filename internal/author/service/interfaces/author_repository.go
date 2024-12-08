@@ -61,11 +61,11 @@ type AuthorRepository interface {
 	// STATISTIC
 
 	// GetStatByDay - возвращает статистику за последний день по часам
-	GetStatByDay(ctx context.Context, userID string) (*pkgModels.Graphic, error)
+	GetStatByDay(ctx context.Context, userID, statParam string) (*pkgModels.Graphic, error)
 
 	// GetStatByMonth - возвращает статистику за последний месяц по дням
-	GetStatByMonth(ctx context.Context, userID string) (*pkgModels.Graphic, error)
+	GetStatByMonth(ctx context.Context, userID, statParam string) (*pkgModels.Graphic, error)
 
 	// GetStatByYear - возвращает статистику за последний год по месяцам
-	GetStatByYear(ctx context.Context, userID string) (*pkgModels.Graphic, error)
+	GetStatByYear(ctx context.Context, userID, statParam string) (*pkgModels.Graphic, error)
 }
