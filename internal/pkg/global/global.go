@@ -21,6 +21,9 @@ const BehaviorKey = "service"
 // UserKey - ключ для получения бизнес-модельки юзера из контекста
 const UserKey string = "user"
 
+// CtxReqId Константа для пролучения reqID из контекста
+const CtxReqId = "request_id"
+
 // ROLEs - лежат в общих моделях
 
 // ENV

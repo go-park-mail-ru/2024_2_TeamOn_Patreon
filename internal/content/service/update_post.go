@@ -42,6 +42,8 @@ func (b *Behavior) UpdatePost(ctx context.Context, userID string, postID string,
 		return errors.Wrap(err, op)
 	}
 
+	go b.moderatePost(ctx, postID, title, about, true)
+
 	return nil
 }
 

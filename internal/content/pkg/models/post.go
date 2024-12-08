@@ -23,4 +23,6 @@ type Post struct {
 	IsLiked bool
 	// Когда создан
 	CreatedDate time.Time
+	// Непустой только для выборки автором для авторов
+	Status string
 }

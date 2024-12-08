@@ -39,6 +39,9 @@ type PostInterface interface {
 	UpdateTitleOfPost(ctx context.Context, postID string, title string) error
 	// UpdateContentOfPost - обновляет описание одного поста
 	UpdateContentOfPost(ctx context.Context, postID string, content string) error
+
+	UpdatePostStatus(ctx context.Context, postID string, status string) error
+	GetPostByID(ctx context.Context, postID string) (string, string, error)
 }
 
 type FeedInterface interface {

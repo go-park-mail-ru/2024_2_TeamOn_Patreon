@@ -76,7 +76,7 @@ func extractReqID(ctx context.Context) string {
 	if ctx == nil {
 		return "unknown"
 	}
-	reqID, ok := ctx.Value("request_id").(string)
+	reqID, ok := ctx.Value(global.CtxReqId).(string)
 	if !ok {
 		return "unknown"
 	}
