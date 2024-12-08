@@ -1,0 +1,222 @@
+openapi: 3.0.3
+info:
+  title: PushART - Comments | API
+  description: >-
+    API для управления комментариями к постам
+    
+    Порт там же где посты: 8084
+  version: 1.0.0
+paths:
+  /posts/{postID}/comments:
+    parameters:
+      - in: path
+        name: postID
+        required: true
+        schema:
+          type: string
+        description: Идентификатор коммента
+    get:
+      tags:
+        - comments
+      summary: Комментарии поста
+      description: >-
+        Возвращает комментарии для указанного поста с поддержкой сортировки и пагинации
+      parameters:
+        - in: query
+          name: limit
+          description: Количество комментов для вывода
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: offset
+          description: Смещение для пагинации (по умолчанию 0)
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Список комментариев
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /posts/{postID}/comments/create:
+    parameters:
+      - in: path
+        name: postID
+        required: true
+        schema:
+          type: string
+        description: Идентификатор поста
+    post:
+      tags:
+        - comments
+      summary: Добавление комментария
+      description: Позволяет создать новый коммент, добавить содержимое
+      security:
+        - cookieAuth: []
+      responses:
+        '201':
+          description: Успешное добавление комментария
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddComment'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /posts/comments/{commentID}/update:
+    post:
+      tags:
+        - comments
+      summary: Изменение комментария
+      description: >-
+        Позволяет изменить комментарий:  содержание
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: commentID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateComment'
+      responses:
+        '200':
+          description: Успешное изменение комментария
+        '204':
+          description: Нет содержимого
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /posts/comments/{commentID}/delete:
+    delete:
+      tags:
+        - comments
+      summary: Удалить комментарий
+      description: Удаляет комментарий по идентификатору
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: commentID
+          required: true
+          schema:
+            type: integer
+          description: Идентификатор коммента, который нужно удалить
+      responses:
+        '204':
+          description: Коммент успешно удален
+        '403':
+          description: У пользователя недостаточно прав для удаления поста
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Пост не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JWT
+  schemas:
+    Comment:
+      type: object
+      properties:
+        commentID:
+          type: string
+          description: Уникальный идентификатор комментария
+        content:
+          type: string
+          description: Содержимое коомента
+        username:
+          type: string
+          description: Имя автора коммента
+        userID:
+          type: string
+          description: Имя пользователя кому был оставлен коммент
+        createdAt:
+          type: string
+          description: Время создания коммента
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Описание ошибки
+    AddComment:
+      type: object
+      properties:
+        commentID:
+          type: string
+          description: Содержимое коммента
+      required:
+        - commentId
+    UpdateComment:
+      type: object
+      description: Все, чего нет - не заменяется
+      properties:
+        content:
+          type: string
+          description: Содержимое коммента
+      required:
+        - commentId
