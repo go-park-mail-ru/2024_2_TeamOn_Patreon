@@ -108,6 +108,9 @@ var (
 	// moderation
 
 	ErrStatusIncorrect = errors.New("status incorrect")
+
+	// statistic
+	ErrBadTime = errors.New("bad time request")
 )
 
 type ErrorHttpInfo struct {
@@ -195,6 +198,9 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	// moderation
 	ErrStatusIncorrect: {msg: "Статус неверный", code: http.StatusBadRequest},
+
+	// statistic
+	ErrBadTime: {msg: "Статистику можно получить только за day/month/year", code: http.StatusBadRequest},
 }
 
 func GetMsgError(err error) string {

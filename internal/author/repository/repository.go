@@ -325,6 +325,31 @@ func (p *Postgres) NewTip(ctx context.Context, userID, authorID string, cost int
 	return nil
 }
 
+func (p *Postgres) GetAuthorPageID(ctx context.Context, userID string) (string, error) {
+	op := "internal.author.repository.GetAuthorPageID"
+
+	// SQL-запрос для получения username, info
+	query := `
+		SELECT 
+			page_id
+		FROM 
+			page 
+		WHERE 
+			user_id = $1;
+	`
+
+	var pageID string
+
+	err := p.db.QueryRow(ctx, query, userID).Scan(&pageID)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return "", nil
+		}
+		return "", errors.Wrap(err, op)
+	}
+	return pageID, nil
+}
+
 func (p *Postgres) GenerateID() string {
 	return utils.GenerateUUID()
 }

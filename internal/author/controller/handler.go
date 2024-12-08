@@ -14,4 +14,7 @@ const (
 	// Path param
 	authorIDParam string = "authorID"
 	anon          string = "anonim"
+
+	// Query param
+	timeParam string = "time"
 )

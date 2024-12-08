@@ -4,6 +4,7 @@ import (
 	"context"
 	"mime/multipart"
 
+	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/pkg/models"
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
 )
 
@@ -38,4 +39,12 @@ type AuthorService interface {
 
 	// CreateSubscribeRequest реализует запрос пользователя на подписку на автора
 	RealizeSubscriptionRequest(ctx context.Context, subReqID, userID string) error
+
+	// STATISTIC
+
+	// GetStatisticPosts - возвращает структуру с массивом точек по времени и массивом точек по количеству постов
+	GetStatisticPosts(ctx context.Context, userID, time string) (*pkgModels.Graphic, error)
+
+	// GetStatisticPayments - возвращает структуру с массивом точек по времени и массивом точек по выплатам
+	// GetStatisticPayments(ctx context.Context, userID, time string) (*pkgModels.Graphic, error)
 }
