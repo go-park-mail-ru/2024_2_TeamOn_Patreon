@@ -11,10 +11,10 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
-// GetStatPosts - ручка получения статистики постов пользователя
+// GetStatPayments - ручка получения статистики выплат пользователя
 // time - период, за который запрашивается статистика
-func (handler *Handler) GetStatPosts(w http.ResponseWriter, r *http.Request) {
-	op := "account.controller.GetStatPosts"
+func (handler *Handler) GetStatPayments(w http.ResponseWriter, r *http.Request) {
+	op := "account.controller.GetStatPayments"
 	ctx := r.Context()
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -46,7 +46,7 @@ func (handler *Handler) GetStatPosts(w http.ResponseWriter, r *http.Request) {
 	// Получение query параметров из запроса
 	time := r.URL.Query().Get(timeParam)
 
-	points, err := handler.serv.GetStatistic(ctx, userID, time, global.StatPosts)
+	points, err := handler.serv.GetStatistic(ctx, userID, time, global.StatPayments)
 	if err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))

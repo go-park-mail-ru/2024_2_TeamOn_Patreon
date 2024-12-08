@@ -5,12 +5,118 @@ import (
 	"time"
 
 	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/pkg/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
 )
 
-func (p *Postgres) GetStatByDay(ctx context.Context, userID string) (*pkgModels.Graphic, error) {
+const (
+	amountPostsByHour = `
+		SELECT COUNT(*)
+		FROM
+			post
+		WHERE
+			created_date >= now() - interval '1 hour' * $2 AND created_date < now() - interval '1 hour' * $3 AND user_id = $1;
+	`
+
+	amountPostsByDay = `
+		SELECT COUNT(*)
+		FROM
+			post
+		WHERE
+			created_date >= now() - interval '1 day' * $2 AND created_date < now() - interval '1 day' * $3 AND user_id = $1;
+	`
+
+	amountPostsByMonth = `
+		SELECT COUNT(*)
+		FROM
+			post
+		WHERE
+			created_date >= now() - interval '1 month' * $2 AND created_date < now() - interval '1 month' * $3 AND user_id = $1;
+	`
+
+	amountPaymentsByHour = `
+		WITH total_tips AS (
+			SELECT 
+				COALESCE(SUM(cost), 0) AS total_cost
+			FROM 
+				tip
+			WHERE 
+				payed_date >= now() - interval '1 hour' * $2 AND payed_date < now() - interval '1 hour' * $3 AND author_id = $1
+			),
+		total_subscriptions AS (
+			SELECT 
+				COALESCE(SUM(cs.cost), 0) AS total_cost
+			FROM 
+				subscription s
+			LEFT JOIN
+				custom_subscription cs ON cs.custom_subscription_id = s.custom_subscription_id
+			WHERE 
+				started_date >= now() - interval '1 hour' * $2 AND started_date < now() - interval '1 hour' * $3 AND cs.author_id = $1
+		)
+
+		SELECT 
+			tt.total_cost + ts.total_cost AS total_payments
+		FROM 
+			total_tips tt,
+			total_subscriptions ts;
+	`
+	amountPaymentsByDay = `
+		WITH total_tips AS (
+			SELECT 
+				COALESCE(SUM(cost), 0) AS total_cost
+			FROM 
+				tip
+			WHERE 
+				payed_date >= now() - interval '1 day' * $2 AND payed_date < now() - interval '1 day' * $3 AND author_id = $1
+			),
+		total_subscriptions AS (
+			SELECT 
+				COALESCE(SUM(cs.cost), 0) AS total_cost
+			FROM 
+				subscription s
+			LEFT JOIN
+				custom_subscription cs ON cs.custom_subscription_id = s.custom_subscription_id
+			WHERE 
+				started_date >= now() - interval '1 day' * $2 AND started_date < now() - interval '1 day' * $3 AND cs.author_id = $1
+		)
+
+		SELECT 
+			tt.total_cost + ts.total_cost AS total_payments
+		FROM 
+			total_tips tt,
+			total_subscriptions ts;
+	`
+	amountPaymentsByMonth = `
+		WITH total_tips AS (
+			SELECT 
+				COALESCE(SUM(cost), 0) AS total_cost
+			FROM 
+				tip
+			WHERE 
+				payed_date >= now() - interval '1 month' * $2 AND payed_date < now() - interval '1 month' * $3 AND author_id = $1
+			),
+		total_subscriptions AS (
+			SELECT 
+				COALESCE(SUM(cs.cost), 0) AS total_cost
+			FROM 
+				subscription s
+			LEFT JOIN
+				custom_subscription cs ON cs.custom_subscription_id = s.custom_subscription_id
+			WHERE 
+				started_date >= now() - interval '1 month' * $2 AND started_date < now() - interval '1 month' * $3 AND cs.author_id = $1
+		)
+
+		SELECT 
+			tt.total_cost + ts.total_cost AS total_payments
+		FROM 
+			total_tips tt,
+			total_subscriptions ts;
+	`
+)
+
+func (p *Postgres) GetStatByDay(ctx context.Context, userID, statParam string) (*pkgModels.Graphic, error) {
 	op := "internal.author.repository.GetStatByDay"
 
 	var (
@@ -29,7 +135,7 @@ func (p *Postgres) GetStatByDay(ctx context.Context, userID string) (*pkgModels.
 		hour := (i + currentHour) % 24
 		graphic.PointsX = append(graphic.PointsX, hour)
 
-		amountOfPosts, err := p.amountPostsByHour(ctx, userID, 24-i)
+		amountOfPosts, err := p.amountPostsByHour(ctx, userID, statParam, 24-i)
 		if err != nil {
 			return graphic, errors.Wrap(err, op)
 		}
@@ -39,7 +145,7 @@ func (p *Postgres) GetStatByDay(ctx context.Context, userID string) (*pkgModels.
 	return graphic, nil
 }
 
-func (p *Postgres) GetStatByMonth(ctx context.Context, userID string) (*pkgModels.Graphic, error) {
+func (p *Postgres) GetStatByMonth(ctx context.Context, userID, statParam string) (*pkgModels.Graphic, error) {
 	op := "internal.author.repository.GetStatByMonth"
 
 	var (
@@ -58,7 +164,7 @@ func (p *Postgres) GetStatByMonth(ctx context.Context, userID string) (*pkgModel
 		day := (i+currentDay)%31 + 1
 		graphic.PointsX = append(graphic.PointsX, day)
 
-		amountOfPosts, err := p.amountPostsByDay(ctx, userID, 30-i)
+		amountOfPosts, err := p.amountPostsByDay(ctx, userID, statParam, 30-i)
 		if err != nil {
 			return graphic, errors.Wrap(err, op)
 		}
@@ -68,7 +174,7 @@ func (p *Postgres) GetStatByMonth(ctx context.Context, userID string) (*pkgModel
 	return graphic, nil
 }
 
-func (p *Postgres) GetStatByYear(ctx context.Context, userID string) (*pkgModels.Graphic, error) {
+func (p *Postgres) GetStatByYear(ctx context.Context, userID, statParam string) (*pkgModels.Graphic, error) {
 	op := "internal.author.repository.GetStatByYear"
 
 	var (
@@ -87,7 +193,7 @@ func (p *Postgres) GetStatByYear(ctx context.Context, userID string) (*pkgModels
 		month := (i+currentMonth)%13 + 1
 		graphic.PointsX = append(graphic.PointsX, month)
 
-		amountOfPosts, err := p.amountPostsByMonth(ctx, userID, 12-i)
+		amountOfPosts, err := p.amountPostsByMonth(ctx, userID, statParam, 12-i)
 		if err != nil {
 			return graphic, errors.Wrap(err, op)
 		}
@@ -97,18 +203,20 @@ func (p *Postgres) GetStatByYear(ctx context.Context, userID string) (*pkgModels
 	return graphic, nil
 }
 
-func (p *Postgres) amountPostsByHour(ctx context.Context, userID string, hour int) (int, error) {
+func (p *Postgres) amountPostsByHour(ctx context.Context, userID, statParam string, hour int) (int, error) {
 	op := "internal.author.repository.amountPostsByHour"
 
-	query := `
-		SELECT COUNT(*)
-		FROM
-			post
-		WHERE
-			created_date >= now() - interval '1 hour' * $2 AND created_date < now() - interval '1 hour' * $3 AND user_id = $1;
-	`
+	var (
+		amount int
+		query  string
+	)
 
-	var amount int
+	// Используем запрос в зависимости от требуемого параметра выборки для статистики
+	if statParam == global.StatPosts {
+		query = amountPostsByHour
+	} else if statParam == global.StatPayments {
+		query = amountPaymentsByHour
+	}
 
 	err := p.db.QueryRow(ctx, query, userID, hour, hour-1).Scan(&amount)
 	if err != nil {
@@ -120,18 +228,20 @@ func (p *Postgres) amountPostsByHour(ctx context.Context, userID string, hour in
 	return amount, nil
 }
 
-func (p *Postgres) amountPostsByDay(ctx context.Context, userID string, day int) (int, error) {
+func (p *Postgres) amountPostsByDay(ctx context.Context, userID, statParam string, day int) (int, error) {
 	op := "internal.author.repository.amountPostsByDay"
 
-	query := `
-		SELECT COUNT(*)
-		FROM
-			post
-		WHERE
-			created_date >= now() - interval '1 day' * $2 AND created_date < now() - interval '1 day' * $3 AND user_id = $1;
-	`
+	var (
+		amount int
+		query  string
+	)
 
-	var amount int
+	// Используем запрос в зависимости от требуемого параметра выборки для статистики
+	if statParam == global.StatPosts {
+		query = amountPostsByDay
+	} else if statParam == global.StatPayments {
+		query = amountPaymentsByDay
+	}
 
 	err := p.db.QueryRow(ctx, query, userID, day, day-1).Scan(&amount)
 	if err != nil {
@@ -143,18 +253,20 @@ func (p *Postgres) amountPostsByDay(ctx context.Context, userID string, day int)
 	return amount, nil
 }
 
-func (p *Postgres) amountPostsByMonth(ctx context.Context, userID string, month int) (int, error) {
+func (p *Postgres) amountPostsByMonth(ctx context.Context, userID, statParam string, month int) (int, error) {
 	op := "internal.author.repository.amountPostsByMonth"
 
-	query := `
-		SELECT COUNT(*)
-		FROM
-			post
-		WHERE
-			created_date >= now() - interval '1 month' * $2 AND created_date < now() - interval '1 month' * $3 AND user_id = $1;
-	`
+	var (
+		amount int
+		query  string
+	)
 
-	var amount int
+	// Используем запрос в зависимости от требуемого параметра выборки для статистики
+	if statParam == global.StatPosts {
+		query = amountPostsByMonth
+	} else if statParam == global.StatPayments {
+		query = amountPaymentsByMonth
+	}
 
 	err := p.db.QueryRow(ctx, query, userID, month, month-1).Scan(&amount)
 	if err != nil {

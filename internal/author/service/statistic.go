@@ -15,7 +15,7 @@ const (
 	YEAR  = "year"
 )
 
-func (s *Service) GetStatisticPosts(ctx context.Context, userID, time string) (*pkgModels.Graphic, error) {
+func (s *Service) GetStatistic(ctx context.Context, userID, time, statParam string) (*pkgModels.Graphic, error) {
 	op := "internal.author.service.GetStatisticPosts"
 
 	points := &pkgModels.Graphic{}
@@ -31,13 +31,15 @@ func (s *Service) GetStatisticPosts(ctx context.Context, userID, time string) (*
 		return points, errors.Wrap(global.ErrNotEnoughRights, op)
 	}
 
+	logger.StandardDebugF(ctx, op, "Want to get stat by %v for user=%v", statParam, userID)
+
 	// Валидация времени
 	if time == DAY {
-		points, err = s.statByDays(ctx, userID)
+		points, err = s.statByDays(ctx, userID, statParam)
 	} else if time == MONTH {
-		points, err = s.statByMonth(ctx, userID)
+		points, err = s.statByMonth(ctx, userID, statParam)
 	} else if time == YEAR {
-		points, err = s.statByYear(ctx, userID)
+		points, err = s.statByYear(ctx, userID, statParam)
 	} else {
 		return points, errors.Wrap(global.ErrBadTime, op)
 	}
@@ -65,12 +67,12 @@ func (s *Service) isUserAuthor(ctx context.Context, userID string) (bool, error)
 	return true, nil
 }
 
-func (s *Service) statByDays(ctx context.Context, userID string) (*pkgModels.Graphic, error) {
+func (s *Service) statByDays(ctx context.Context, userID, statParam string) (*pkgModels.Graphic, error) {
 	op := "internal.author.service.statByDays"
 
 	logger.StandardDebugF(ctx, op, "Want to get stat by day for user=%v", userID)
 
-	points, err := s.rep.GetStatByDay(ctx, userID)
+	points, err := s.rep.GetStatByDay(ctx, userID, statParam)
 	if err != nil {
 		return nil, errors.Wrap(global.ErrServer, op)
 	}
@@ -78,12 +80,12 @@ func (s *Service) statByDays(ctx context.Context, userID string) (*pkgModels.Gra
 	return points, nil
 }
 
-func (s *Service) statByMonth(ctx context.Context, userID string) (*pkgModels.Graphic, error) {
+func (s *Service) statByMonth(ctx context.Context, userID, statParam string) (*pkgModels.Graphic, error) {
 	op := "internal.author.service.statByMonth"
 
 	logger.StandardDebugF(ctx, op, "Want to get stat by month for user=%v", userID)
 
-	points, err := s.rep.GetStatByMonth(ctx, userID)
+	points, err := s.rep.GetStatByMonth(ctx, userID, statParam)
 	if err != nil {
 		return nil, errors.Wrap(global.ErrServer, op)
 	}
@@ -91,10 +93,12 @@ func (s *Service) statByMonth(ctx context.Context, userID string) (*pkgModels.Gr
 	return points, nil
 }
 
-func (s *Service) statByYear(ctx context.Context, userID string) (*pkgModels.Graphic, error) {
+func (s *Service) statByYear(ctx context.Context, userID, statParam string) (*pkgModels.Graphic, error) {
 	op := "internal.author.service.statByYear"
 
-	points, err := s.rep.GetStatByYear(ctx, userID)
+	logger.StandardDebugF(ctx, op, "Want to get stat by year for user=%v", userID)
+
+	points, err := s.rep.GetStatByYear(ctx, userID, statParam)
 	if err != nil {
 		return nil, errors.Wrap(global.ErrServer, op)
 	}

@@ -23,6 +23,12 @@ const UserKey string = "user"
 
 // ROLEs - лежат в общих моделях
 
+// statistic
+const (
+	StatPosts    = "posts"
+	StatPayments = "payments"
+)
+
 // ENV
 const (
 	EnvStatus = "STATUS"

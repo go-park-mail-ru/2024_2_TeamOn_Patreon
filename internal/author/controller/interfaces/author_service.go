@@ -42,9 +42,7 @@ type AuthorService interface {
 
 	// STATISTIC
 
-	// GetStatisticPosts - возвращает структуру с массивом точек по времени и массивом точек по количеству постов
-	GetStatisticPosts(ctx context.Context, userID, time string) (*pkgModels.Graphic, error)
-
-	// GetStatisticPayments - возвращает структуру с массивом точек по времени и массивом точек по выплатам
-	// GetStatisticPayments(ctx context.Context, userID, time string) (*pkgModels.Graphic, error)
+	// GetStatistic - возвращает структуру с массивом точек по времени и массивом точек по количеству выборки
+	// statParam - параметр, по которому собирается статистика
+	GetStatistic(ctx context.Context, userID, time, statParam string) (*pkgModels.Graphic, error)
 }
