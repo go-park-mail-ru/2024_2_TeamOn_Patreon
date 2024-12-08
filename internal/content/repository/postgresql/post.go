@@ -62,6 +62,24 @@ const (
 		SET about = $2, updated_date = NOW(), post_status_id = (select post_status_id from Post_Status where status = 'PUBLISHED')
 		WHERE post_id = $1
 `
+
+	// updateStatusOfPost - обновляет статус поста
+	// Input: $1 - postID, $2 - status
+	// Output: empty
+	updateStatusOfPost = `
+		update Post
+		SET post_status_id = (select post_status_id from Post_Status where status = $2)
+		WHERE post_id = $1
+`
+
+	// getPostByIDSQL - достает пост по ид
+	// Input: $1 - postID
+	// Output: title, content
+	getPostByIDSQL = `
+	SELECT title, about
+	FROM Post
+	WHERE post_id = $1
+`
 )
 
 func (cr *ContentRepository) InsertPost(ctx context.Context, userID string, postID string, title string, content string, layer int) error {
@@ -152,4 +170,40 @@ func (cr *ContentRepository) GetTitleOfPost(ctx context.Context, postID string) 
 		return title, nil
 	}
 	return "", errors.Wrap(global.ErrPostDoesntExists, op)
+}
+
+
+func (cr *ContentRepository) UpdatePostStatus(ctx context.Context, postID string, status string) error {
+	op := "moderation.repository.post.UpdatePostStatus"
+
+	_, err := cr.db.Exec(ctx, updateStatusOfPost, postID, status)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+	return nil
+}
+
+func (cr *ContentRepository) GetPostByID(ctx context.Context, postID string) (string, string, error) {
+	op := "internal.content.repository.post.GetPostByID"
+
+	rows, err := cr.db.Query(ctx, getPostByIDSQL, postID)
+	if err != nil {
+		return "", "", errors.Wrap(err, op)
+	}
+
+	defer rows.Close()
+
+	var (
+		title   string
+		content string
+	)
+
+	for rows.Next() {
+		if err = rows.Scan(&title, &content); err != nil {
+			return "", "", errors.Wrap(err, op)
+		}
+		logger.StandardDebugF(ctx, op, "Got title='%s' content='%v' of post='%v'", title, content, postID)
+		return title, content, nil
+	}
+	return "", "", errors.Wrap(global.ErrPostDoesntExists, op)
 }

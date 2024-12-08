@@ -50,7 +50,7 @@ OFFSET $2;
 `
 
 	// getAuthorPostsForMe возвращает автору его посты, отсортированные по дате по убывающей
-	// Output: postID, title, about, authorId, authorUsername, likes, created_date
+	// Output: postID, title, about, authorId, authorUsername, likes, created_date, status
 	// likes - количество лайков
 	// Input: $1 - authorId {$2 offset} и { $3 limit}
 	getAuthorPostsForMe = `
@@ -61,22 +61,24 @@ SELECT
     author.user_id AS author_id, 
     author.Username AS author_username, 
     COUNT(Like_Post.like_post_id) AS likes,
-    post.created_date
+    post.created_date,
+	post_status.status AS status
 FROM 
     post
 JOIN 
 	People AS author ON author.user_id = post.user_id 
+    JOIN Post_Status ON Post_Status.post_status_id = post.post_status_id
 LEFT OUTER JOIN 
 	Like_Post USING (post_id)
 WHERE
     post.user_id = $1
-	and post.post_status_id IN (select post_status_id FROM Post_Status WHERE status = 'PUBLISHED' or status = 'ALLOWED' or status = 'COMPLAINED')
 GROUP BY 
     post.post_id,  
     post.About, 
     post.Title, 
     author_id, 
-    author_username
+    author_username,
+    status
 ORDER BY 
 	created_date DESC
 LIMIT $3
@@ -143,10 +145,11 @@ func (cr *ContentRepository) GetAuthorPostsForMe(ctx context.Context, authorID s
 		authorUsername string
 		likes          int
 		createdDate    time.Time
+		status         string
 	)
 
 	for rows.Next() {
-		if err = rows.Scan(&postID, &title, &content, &_authorId, &authorUsername, &likes, &createdDate); err != nil {
+		if err = rows.Scan(&postID, &title, &content, &_authorId, &authorUsername, &likes, &createdDate, &status); err != nil {
 			return nil, errors.Wrap(err, op)
 		}
 		logger.StandardDebugF(ctx, op,
@@ -160,6 +163,7 @@ func (cr *ContentRepository) GetAuthorPostsForMe(ctx context.Context, authorID s
 			AuthorUsername: authorUsername,
 			Likes:          likes,
 			CreatedDate:    createdDate,
+			Status:         status,
 		})
 
 	}

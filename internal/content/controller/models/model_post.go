@@ -25,6 +25,8 @@ type Post struct {
 	IsLiked bool `json:"isLiked"`
 	// Дата создания поста
 	CreatedAt string `json:"createdAt"`
+	// Статус поста только для автор ми
+	Status string `json:"status"`
 }
 
 func (p *Post) String() string {

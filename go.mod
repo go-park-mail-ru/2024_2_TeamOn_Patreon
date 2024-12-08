@@ -28,6 +28,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pborman/uuid v1.2.1
 	github.com/prometheus/client_golang v1.20.5
+	github.com/sahilm/fuzzy v0.1.1
 	github.com/satori/go.uuid v1.2.0
 	google.golang.org/grpc v1.64.1
 	google.golang.org/protobuf v1.34.2
