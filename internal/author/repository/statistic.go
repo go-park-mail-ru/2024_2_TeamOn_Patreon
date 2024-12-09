@@ -182,8 +182,8 @@ func (p *Postgres) GetStatByYear(ctx context.Context, userID, statParam string) 
 	)
 
 	// Текущий месяц
-	currentTime := time.Now()             // Получаем текущее время
-	currentMonth := currentTime.Day() + 4 // Извлекаем текущий месяц
+	currentTime := time.Now()                // Получаем текущее время
+	currentMonth := int(currentTime.Month()) // Извлекаем текущий месяц
 	logger.StandardDebugF(ctx, op, "Get currentMonth=%v", currentMonth)
 
 	logger.StandardDebugF(ctx, op, "Want to get points for graphic")
