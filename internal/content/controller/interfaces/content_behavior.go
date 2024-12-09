@@ -28,4 +28,10 @@ type ContentBehavior interface {
 	GetFile(ctx context.Context, userID string, postID string) ([]*models.Media, error)
 	UploadMedia(ctx context.Context, userID, postID string, file []byte, fileExtension, key string) error
 	DeleteMedia(ctx context.Context, userID, postID string, mediaIDs []string) error
+
+	CommentBehavior
+}
+
+type CommentBehavior interface {
+	CreateComment(ctx context.Context, userID string, postID string, content string) (string, error)
 }
