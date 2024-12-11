@@ -11,6 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/pkg/errors"
 )
@@ -126,6 +127,9 @@ func (p *Postgres) GetCostCustomSub(ctx context.Context, authorID string, layer 
 
 	var cost int
 	if err := p.db.QueryRow(ctx, query, layer, authorID).Scan(&cost); err != nil {
+		if err == pgx.ErrNoRows {
+			return 0, global.ErrCustomSubDoesNotExist
+		}
 		return 0, errors.Wrap(err, op)
 	}
 

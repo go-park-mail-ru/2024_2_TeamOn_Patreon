@@ -54,6 +54,7 @@ var (
 	ErrUserIsNotAuthor       = errors.New("user is not author")
 	ErrSubReqDoesNotExist    = errors.New("subscription request does not exit")
 	ErrCustomSubDoesNotExist = errors.New("custom subscription does not exist")
+	ErrNotPaid               = errors.New("request rejected: not paid")
 
 	// logout
 
@@ -164,6 +165,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrSubReqDoesNotExist:    {msg: "Запрос на оформление подписки не найден", code: http.StatusBadRequest},
 	ErrCustomSubDoesNotExist: {msg: "Выбранный уровень подписки не существует", code: http.StatusBadRequest},
 	ErrAuthorDoesNotExist:    {msg: "Автор не существует", code: http.StatusBadRequest},
+	ErrNotPaid:               {msg: "Отклонено: оплата не произведена.", code: http.StatusBadRequest},
 
 	// content
 	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},

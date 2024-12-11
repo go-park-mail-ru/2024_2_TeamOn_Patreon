@@ -51,8 +51,15 @@ func (s *Service) CreateSubscriptionRequest(ctx context.Context, subReq sModels.
 	return nil
 }
 
-func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID, userID string) error {
+func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID string, status bool, description, userID string) error {
 	op := "internal.author.service.RealizeSubscriptionRequest"
+
+	logger.StandardDebugF(ctx, op, "payment status: %v", status)
+	// Если не оплачено, подписку не оформляем
+	if !status {
+		logger.StandardDebugF(ctx, op, "Fail: user did not pay for the order")
+		return global.ErrNotPaid
+	}
 
 	// Обращение в repository
 	logger.StandardDebugF(ctx, op, "want to realize subscription request=%v", subReqID)
@@ -66,9 +73,14 @@ func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID, user
 		fmt.Sprintf("successful realize subscription request=%v", subReqID),
 		op)
 
-	// Отправка уведомления о новой подписке
+	// Отправка уведомления автору о новом подписчике
 	if err := s.sendNotificationOfSubscribe(ctx, customSubscriptionID, userID); err != nil {
-		logger.StandardDebugF(ctx, op, "failed send notification about new subscribe: %v", err)
+		logger.StandardDebugF(ctx, op, "failed send notification to AUTHOR about new subscribe: %v", err)
+	}
+
+	// Отправка уведомления пользователю о оформленной подписке
+	if err := s.sendNotificationOfSubscribeToSubscriber(ctx, customSubscriptionID, userID, description); err != nil {
+		logger.StandardDebugF(ctx, op, "failed send notification to SUBSCRIBER successful save subscription: %v", err)
 	}
 	return nil
 }
@@ -87,6 +99,30 @@ func (s *Service) sendNotificationOfSubscribe(ctx context.Context, customSubscri
 	}
 
 	message := fmt.Sprintf("Новый подписчик! Пользователь @%v присоединился к вашему сообществу с уровнем: «%v»", username, customName)
+
+	if err := s.rep.SendNotification(ctx, message, userID, authorID); err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	logger.StandardDebugF(ctx, op, "Successful send notification: %v", message)
+	return nil
+}
+
+func (s *Service) sendNotificationOfSubscribeToSubscriber(ctx context.Context, customSubscriptionID, userID, description string) error {
+	op := "internal.author.service.sendNotificationOfSubscribe"
+
+	authorID, customName, err := s.rep.GetCustomSubscriptionInfo(ctx, customSubscriptionID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	// Имя автора, на которого пользователь подписался
+	authorName, err := s.rep.GetUsername(ctx, authorID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	message := fmt.Sprintf("%v на @%v успешно оформлена! Уровень подписки: «%v».", description, authorName, customName)
 
 	if err := s.rep.SendNotification(ctx, message, userID, authorID); err != nil {
 		return errors.Wrap(err, op)

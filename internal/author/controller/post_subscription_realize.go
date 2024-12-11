@@ -40,8 +40,9 @@ func (handler *Handler) PostSubscriptionRealize(w http.ResponseWriter, r *http.R
 	}
 
 	// Парсинг модели вводных данных для сохранения запроса на подписку
-	var subReq models.SubscriptionRequest
-	if err := utils.ParseModels(r, &subReq, op); err != nil {
+	// payResponse - ответ от API сервиса оплаты
+	var payResponse models.PaymentResponse
+	if err := utils.ParseModels(r, &payResponse, op); err != nil {
 		// проставляем http.StatusBadRequest
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
@@ -50,21 +51,8 @@ func (handler *Handler) PostSubscriptionRealize(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	subReqID := subReq.SubscriptionRequestID
-
-	// Валидация введённых данных
-	if ok := utils.IsValidUUIDv4(subReqID); !ok {
-		err := global.ErrIsInvalidUUID
-		logger.StandardWarnF(ctx, op, "subReqID={%v} is not UUID", userID)
-		// Status 400
-		w.WriteHeader(global.GetCodeError(err))
-		// отправляем структуру ошибки
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
-		return
-	}
-
 	// Обращение в service
-	err := handler.serv.RealizeSubscriptionRequest(ctx, subReqID, userID)
+	err := handler.serv.RealizeSubscriptionRequest(ctx, payResponse.ID, payResponse.Paid, payResponse.Description, userID)
 	if err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
