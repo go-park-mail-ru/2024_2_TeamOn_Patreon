@@ -8,15 +8,16 @@ import (
 )
 
 type SubscriptionRequest struct {
+	SubscriptionRequestID string `json:"subscriptionRequestID"`
 	AuthorID              string `json:"authorID"`
 	MonthCount            int    `json:"monthCount"`
 	Layer                 int    `json:"layer"`
-	SubscriptionRequestID string `json:"subscriptionRequestID"`
 }
 
 // MapSubReqToServiceSubReq конвертирует controller SubscriptionRequest в service SubscriptionRequest
 func MapSubReqToServiceSubReq(userID string, subReq SubscriptionRequest) sModels.SubscriptionRequest {
 	return sModels.SubscriptionRequest{
+		SubReqID:   subReq.SubscriptionRequestID,
 		UserID:     userID,
 		AuthorID:   subReq.AuthorID,
 		MonthCount: subReq.MonthCount,

@@ -37,12 +37,6 @@ type AuthorRepository interface {
 	// NewTip сохраняет запись о пожертвовании
 	NewTip(ctx context.Context, userID, authorID string, cost int, message string) error
 
-	// CreateSubscribeRequest создаёт запрос на подписку
-	CreateSubscribeRequest(ctx context.Context, subReq repModels.SubscriptionRequest) (string, error)
-
-	// RealizeSubscribeRequest реализует запрос на подписку
-	RealizeSubscribeRequest(ctx context.Context, subReqID string) (string, error)
-
 	// GenerateID генерирует ID в формате UUIDv4
 	GenerateID() string
 
@@ -57,6 +51,17 @@ type AuthorRepository interface {
 
 	// GetAuthorPageID - получает ID страницы автора
 	GetAuthorPageID(ctx context.Context, userID string) (string, error)
+
+	// SUBSCRIPTION
+
+	// GetCostCustomSub получает стоимость кастомной подписки по ID автора и уровню подписки
+	GetCostCustomSub(ctx context.Context, authorID string, layer int) (int, error)
+
+	// SaveSubscribeRequest сохраняет запрос на подписку
+	SaveSubscribeRequest(ctx context.Context, subReq repModels.SubscriptionRequest) error
+
+	// RealizeSubscribeRequest реализует запрос на подписку
+	RealizeSubscribeRequest(ctx context.Context, subReqID string) (string, error)
 
 	// STATISTIC
 

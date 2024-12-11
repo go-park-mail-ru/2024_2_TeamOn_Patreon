@@ -18,25 +18,25 @@ import (
 var subscriptionRequests = make(map[string]repModels.SubscriptionRequest)
 var mu sync.Mutex
 
-func (p *Postgres) CreateSubscribeRequest(ctx context.Context, subReq repModels.SubscriptionRequest) (string, error) {
-	op := "internal.author.repository.CreateSubscribeRequest"
+func (p *Postgres) SaveSubscribeRequest(ctx context.Context, subReq repModels.SubscriptionRequest) error {
+	op := "internal.author.repository.SaveSubscribeRequest"
 
 	// Пользователь, на которого подписываемся, является автором
 	isAuthor, err := p.isAuthor(ctx, subReq.AuthorID)
 	if err != nil {
-		return "", errors.Wrap(err, op)
+		return errors.Wrap(err, op)
 	}
 	if !isAuthor {
-		return "", global.ErrUserIsNotAuthor
+		return global.ErrUserIsNotAuthor
 	}
 
 	// Выбранный уровень подписки существует
 	customSubID, err := p.getCustomSubscriptionID(ctx, subReq.AuthorID, subReq.Layer)
 	if err != nil {
-		return "", errors.Wrap(err, op)
+		return errors.Wrap(err, op)
 	}
 	if customSubID == "" {
-		return "", global.ErrCustomSubDoesNotExist
+		return global.ErrCustomSubDoesNotExist
 	}
 
 	subReqID := utils.GenerateUUID()
@@ -46,7 +46,7 @@ func (p *Postgres) CreateSubscribeRequest(ctx context.Context, subReq repModels.
 	defer mu.Unlock()
 	subscriptionRequests[subReqID] = subReq
 
-	return subReqID, nil
+	return nil
 }
 
 func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string) (string, error) {
@@ -108,6 +108,28 @@ func (p *Postgres) GetCustomSubscriptionInfo(ctx context.Context, customSubID st
 	}
 
 	return authorID, customName, nil
+}
+
+func (p *Postgres) GetCostCustomSub(ctx context.Context, authorID string, layer int) (int, error) {
+	op := "internal.author.repository.GetCostCustomSub"
+
+	query := `
+		SELECT 
+			cs.cost
+		FROM
+			custom_subscription cs
+		JOIN
+			subscription_layer sl ON cs.subscription_layer_id = sl.subscription_layer_id
+		WHERE 
+			sl.layer = $1 AND cs.author_id = $2;
+	`
+
+	var cost int
+	if err := p.db.QueryRow(ctx, query, layer, authorID).Scan(&cost); err != nil {
+		return 0, errors.Wrap(err, op)
+	}
+
+	return cost, nil
 }
 
 // GetUsername - получение имени пользователя по userID
