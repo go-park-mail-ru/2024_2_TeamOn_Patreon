@@ -112,6 +112,11 @@ var (
 
 	// statistic
 	ErrBadTime = errors.New("bad time request")
+
+	// comment
+
+	ErrCommentDoesntExist = errors.New("comment doesn`t exist")
+	ErrCommentTooLong     = errors.New("comment too long")
 )
 
 type ErrorHttpInfo struct {
@@ -165,7 +170,6 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrSubReqDoesNotExist:    {msg: "Запрос на оформление подписки не найден", code: http.StatusBadRequest},
 	ErrCustomSubDoesNotExist: {msg: "Выбранный уровень подписки не существует", code: http.StatusBadRequest},
 	ErrAuthorDoesNotExist:    {msg: "Автор не существует", code: http.StatusBadRequest},
-	ErrNotPaid:               {msg: "Отклонено: оплата не произведена.", code: http.StatusBadRequest},
 
 	// content
 	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},
@@ -203,7 +207,11 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	// statistic
 	ErrBadTime: {msg: "Статистику можно получить только за day/month/year", code: http.StatusBadRequest},
-}
+	// comment
+	ErrCommentDoesntExist: {msg: "Комментарий не существует", code: http.StatusBadRequest},
+	ErrCommentTooLong:     {msg: "Комментарий слишком длинный", code: http.StatusBadRequest},
+
+	}
 
 func GetMsgError(err error) string {
 	err = errors.Cause(err)
