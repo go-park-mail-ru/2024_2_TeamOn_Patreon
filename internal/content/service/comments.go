@@ -2,11 +2,39 @@ package service
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 	"github.com/pkg/errors"
 )
+
+func (b *Behavior) GetComments(ctx context.Context, userID string, postID string, opt *bModels.FeedOpt) ([]*models.Comment, error) {
+	op := "content.behavior.GetComments"
+
+	// Проверить может ли пользователь видеть пост
+	ok, err := b.userCanSeePost(ctx, userID, postID)
+	if err != nil {
+		err = errors.Wrap(err, op)
+		return nil, errors.Wrap(err, "user can see post")
+	}
+	if !ok {
+		err = errors.Wrap(global.ErrNotEnoughRights, "cannot see post")
+		return nil, errors.Wrap(err, op)
+	}
+
+	opt.Validate()
+
+	// Достать комменты
+	comments, err := b.rep.GetCommentsByPostID(ctx, postID, opt.Limit, opt.Offset)
+	if err != nil {
+		err = errors.Wrap(err, op)
+		return nil, errors.Wrap(err, "get comments")
+	}
+
+	return comments, nil
+}
 
 func (b *Behavior) CreateComment(ctx context.Context, userID string, postID string, content string) (string, error) {
 	op := "content.behavior.CreateComment"

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models/mapper"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
@@ -12,14 +13,47 @@ import (
 
 // PostsPostIDCommentsGet - достаем все комменты принадлежащие посту
 func (h *Handler) PostsPostIDCommentsGet(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	// TODO: Достаем из контекста пользователя
-	// TODO: Достаем и валидируем postID из параметров пути
-	// TODO: Достаем и валидируем limit offset из query параметров
-	// TODO: Достаем из бизнес логики комменты
-	// TODO: Мапим комменты
-	// TODO: Отправялем комменты
+	op := "content.controller.PostsPostIDCommentsGet"
+	ctx := r.Context()
+
+	// Достаем из контекста пользователя
+	var userID string
+	user, ok := r.Context().Value(global.UserKey).(bModels.User)
+	if ok {
+		userID = string(user.UserID)
+	}
+
+	// Достаем и валидируем postID из параметров пути
+	postID, ok := mux.Vars(r)[postIDParam]
+	if !utils.IsValidUUIDv4(postID) || !ok {
+		err := global.ErrBadRequest
+		logger.StandardWarnF(ctx, op, "Received get post from path error={%v} post_id='%v'", err, postID)
+		// проставляем http.StatusBadRequest
+		w.WriteHeader(global.GetCodeError(err))
+		// отправляем структуру ошибки
+		utils.SendModel(&models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	// Получение параметров `offset` и `limit` из запроса
+	offsetStr := r.URL.Query().Get(offsetParam)
+	limitStr := r.URL.Query().Get(limitParam)
+
+	opt := bModels.NewFeedOpt(offsetStr, limitStr)
+
+	// Достаем из бизнес логики комменты
+	comments, err := h.b.GetComments(ctx, userID, postID, opt)
+	if err != nil {
+		logger.StandardWarnF(ctx, op, "Get comments error={%v}", err)
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(&models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+	// Мапим комменты
+	tComments := mapper.MapCommonCommentsToControllerComments(comments)
+
+	// Отправялем комменты
+	utils.SendModel(tComments, w, op, ctx)
 }
 
 func (h *Handler) PostsPostIDCommentsCreatePost(w http.ResponseWriter, r *http.Request) {

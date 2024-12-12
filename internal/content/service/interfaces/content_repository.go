@@ -89,4 +89,6 @@ type CommentInterface interface {
 	DeleteComment(ctx context.Context, commentID string) error
 
 	GetUserIDByCommentID(ctx context.Context, commentID string) (string, error)
+
+	GetCommentsByPostID(ctx context.Context, postID string, limit, offset int) ([]*models.Comment, error)
 }
