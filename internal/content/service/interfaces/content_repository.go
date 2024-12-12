@@ -15,6 +15,8 @@ type ContentRepository interface {
 
 	MediaInterface
 
+	CommentInterface
+
 	// utils
 
 	// GetIsLikedForPosts проставляет лайки в моделях поста
@@ -79,4 +81,12 @@ type MediaInterface interface {
 	SaveFile(ctx context.Context, postID string, file []byte, fileExtension string) error
 	// DeleteFile - удаляем файл, прикреплённый к посту
 	DeleteFile(ctx context.Context, postID, fileID string) error
+}
+
+type CommentInterface interface {
+	CreateComment(ctx context.Context, userID, commentID string, content string) error
+	UpdateComment(ctx context.Context, userID, commentID string, content string) error
+	DeleteComment(ctx context.Context, userID, commentID string) error
+
+	GetUserIDByCommentID(ctx context.Context, commentID string) (string, error)
 }

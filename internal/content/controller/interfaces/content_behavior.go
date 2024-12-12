@@ -34,4 +34,6 @@ type ContentBehavior interface {
 
 type CommentBehavior interface {
 	CreateComment(ctx context.Context, userID string, postID string, content string) (string, error)
+	UpdateComment(ctx context.Context, userID string, commentID string, content string) error
+	DeleteComment(ctx context.Context, userID string, commentID string) error
 }

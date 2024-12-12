@@ -97,19 +97,88 @@ func (h *Handler) PostsCommentsCommentIDUpdatePost(w http.ResponseWriter, r *htt
 		return
 	}
 
-	_ = user
-	// TODO: Достаем и валидируем commentID из параметров пути
-	// TODO: Достаем и валидируем UpdateComment из бади
-	// TODO: Изменяем бизнес логикой пост
-	// TODO: Отправляем 200
+	// Достаем и валидируем commentID из параметров пути
+	commentID, ok := mux.Vars(r)[commentIDParam]
+	if !utils.IsValidUUIDv4(commentID) || !ok {
+		err := global.ErrBadRequest
+		logger.StandardWarnF(ctx, op, "Received get post from path error={%v} post_id='%v'", err, commentID)
+		// проставляем http.StatusBadRequest
+		w.WriteHeader(global.GetCodeError(err))
+		// отправляем структуру ошибки
+		utils.SendModel(&models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	// Достаем и валидируем UpdateComment из бади
+	var ac models.UpdateComment
+	if err := utils.ParseModels(r, &ac, op); err != nil {
+		// проставляем http.StatusBadRequest
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
+		// отправляем структуру ошибки
+		utils.SendModel(&models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	if _, err := ac.Validate(); err != nil {
+		logger.StandardWarnF(ctx, op, "Received validation error={%v}", err)
+		// проставляем http.StatusBadRequest
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
+		// отправляем структуру ошибки
+		utils.SendModel(&models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	// Изменяем бизнес логикой пост
+	err := h.b.UpdateComment(ctx, string(user.UserID), commentID, ac.Content)
+	if err != nil {
+		logger.StandardDebugF(ctx, op, "Error updating comment={%v}", err)
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(&models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	// Отправляем 200
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) PostsCommentsCommentIDDeleteDelete(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	op := "content.controller.PostsCommentsCommentIDDeleteDelete"
+	ctx := r.Context()
 
-	// TODO: Достаем из контекста пользователя, если его нет - выходим
-	// TODO: Достаем и валидируем  commentID из параметров пути
-	// TODO: Удаляем бизнес логикой пост
-	// TODO: Отправляем 204
+	// Достаем из контекста пользователя, если его нет - выходим
+	user, ok := r.Context().Value(global.UserKey).(bModels.User)
+	if !ok {
+		// проставляем http.StatusUnauthorized 401
+		logger.StandardResponse(ctx, "userData not found in context", http.StatusUnauthorized, r.Host, op)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// Достаем и валидируем  commentID из параметров пути
+	commentID, ok := mux.Vars(r)[commentIDParam]
+	if !utils.IsValidUUIDv4(commentID) || !ok {
+		err := global.ErrBadRequest
+		logger.StandardWarnF(ctx, op, "Received get post from path error={%v} post_id='%v'", err, commentID)
+		// проставляем http.StatusBadRequest
+		w.WriteHeader(global.GetCodeError(err))
+		// отправляем структуру ошибки
+		utils.SendModel(&models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	// Удаляем бизнес логикой пост
+	err := h.b.DeleteComment(ctx, string(user.UserID), commentID)
+	if err != nil {
+		logger.StandardDebugF(ctx, op, "Error deleting comment={%v}", err)
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(&models.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	// Отправляем 204
+	w.WriteHeader(http.StatusNoContent)
 }
