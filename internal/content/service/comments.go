@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
@@ -33,6 +34,7 @@ func (b *Behavior) GetComments(ctx context.Context, userID string, postID string
 		return nil, errors.Wrap(err, "get comments")
 	}
 
+	logger.StandardDebugF(ctx, op, "Got comments = %v", comments)
 	return comments, nil
 }
 

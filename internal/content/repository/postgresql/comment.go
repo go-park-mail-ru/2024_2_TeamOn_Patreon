@@ -14,7 +14,7 @@ const (
 	// Input: $1 commentID, $2 postID, $3 userID, $4 content
 	// Output: empty
 	insertCommentSQL = `
-		INSERT INTO Comment (comment_id, post_id, user_d, about, created_date) VALUES
+		INSERT INTO Comment (comment_id, post_id, user_id, about, created_date) VALUES
     ($1, $2, $3, $4, NOW())
   `
 

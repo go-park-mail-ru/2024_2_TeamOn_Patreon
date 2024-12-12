@@ -19,7 +19,7 @@ func MapCommonCommentToTransportComment(comment *models.Comment) *models2.Commen
 }
 
 func MapCommonCommentsToControllerComments(comments []*models.Comment) []*models2.Comment {
-	tComments := make([]*models2.Comment, len(comments))
+	tComments := make([]*models2.Comment, 0, len(comments))
 	for _, comment := range comments {
 		tComments = append(tComments, MapCommonCommentToTransportComment(comment))
 	}

@@ -51,6 +51,7 @@ func (h *Handler) PostsPostIDCommentsGet(w http.ResponseWriter, r *http.Request)
 	}
 	// Мапим комменты
 	tComments := mapper.MapCommonCommentsToControllerComments(comments)
+	logger.StandardDebugF(ctx, op, "Got tComments = %v", tComments)
 
 	// Отправялем комменты
 	utils.SendModel(tComments, w, op, ctx)
