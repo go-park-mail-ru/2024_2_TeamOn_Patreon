@@ -38,7 +38,7 @@ type PaymentResponse struct {
 	CreatedAt    string           `json:"created_at"`
 	Description  string           `json:"description"`
 	Confirmation ConfirmationResp `json:"confirmation"`
-	Metadata     string           `json:"metadata"`
+	// Metadata     string           `json:"metadata"`
 }
 
 type ConfirmationResp struct {
