@@ -108,6 +108,10 @@ var (
 	// moderation
 
 	ErrStatusIncorrect = errors.New("status incorrect")
+
+	// comment
+
+	ErrCommentDoesntExist = errors.New("comment doesn`t exist")
 )
 
 type ErrorHttpInfo struct {
@@ -195,6 +199,9 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	// moderation
 	ErrStatusIncorrect: {msg: "Статус неверный", code: http.StatusBadRequest},
+
+	// comment
+	ErrCommentDoesntExist: {msg: "Комментарий не существует", code: http.StatusBadRequest},
 }
 
 func GetMsgError(err error) string {

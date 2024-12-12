@@ -84,9 +84,9 @@ type MediaInterface interface {
 }
 
 type CommentInterface interface {
-	CreateComment(ctx context.Context, userID, commentID string, content string) error
-	UpdateComment(ctx context.Context, userID, commentID string, content string) error
-	DeleteComment(ctx context.Context, userID, commentID string) error
+	CreateComment(ctx context.Context, userID, postID, commentID string, content string) error
+	UpdateComment(ctx context.Context, commentID string, content string) error
+	DeleteComment(ctx context.Context, commentID string) error
 
 	GetUserIDByCommentID(ctx context.Context, commentID string) (string, error)
 }

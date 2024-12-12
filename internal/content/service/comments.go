@@ -28,7 +28,7 @@ func (b *Behavior) CreateComment(ctx context.Context, userID string, postID stri
 	commentID := utils.GenerateUUID()
 
 	// Создание коммента с ююдом созданным
-	err = b.createComment(ctx, userID, commentID, content)
+	err = b.createComment(ctx, userID, postID, commentID, content)
 	if err != nil {
 		err = errors.Wrap(err, op)
 		return "", errors.Wrap(err, "create comment")
@@ -101,10 +101,10 @@ func (b *Behavior) isUserAuthorOfComment(ctx context.Context, userID string, com
 	return true, nil
 }
 
-func (b *Behavior) createComment(ctx context.Context, userID string, commentID string, content string) error {
+func (b *Behavior) createComment(ctx context.Context, userID string, postID, commentID string, content string) error {
 	op := "content.behavior.createComment"
 
-	err := b.rep.CreateComment(ctx, userID, commentID, content)
+	err := b.rep.CreateComment(ctx, userID, postID, commentID, content)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -114,7 +114,7 @@ func (b *Behavior) createComment(ctx context.Context, userID string, commentID s
 func (b *Behavior) updateComment(ctx context.Context, userID string, commentID string, content string) error {
 	op := "content.behavior.updateComment"
 
-	err := b.rep.UpdateComment(ctx, userID, commentID, content)
+	err := b.rep.UpdateComment(ctx, commentID, content)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -124,7 +124,7 @@ func (b *Behavior) updateComment(ctx context.Context, userID string, commentID s
 func (b *Behavior) deleteComment(ctx context.Context, userID string, commentID string) error {
 	op := "content.behavior.deleteComment"
 
-	err := b.rep.DeleteComment(ctx, userID, commentID)
+	err := b.rep.DeleteComment(ctx, commentID)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
