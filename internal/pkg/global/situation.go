@@ -112,6 +112,7 @@ var (
 	// comment
 
 	ErrCommentDoesntExist = errors.New("comment doesn`t exist")
+	ErrCommentTooLong     = errors.New("comment too long")
 )
 
 type ErrorHttpInfo struct {
@@ -202,6 +203,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 
 	// comment
 	ErrCommentDoesntExist: {msg: "Комментарий не существует", code: http.StatusBadRequest},
+	ErrCommentTooLong:     {msg: "Комментарий слишком длинный", code: http.StatusBadRequest},
 }
 
 func GetMsgError(err error) string {

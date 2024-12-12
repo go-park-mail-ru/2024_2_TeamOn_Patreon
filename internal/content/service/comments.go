@@ -41,7 +41,11 @@ func (b *Behavior) GetComments(ctx context.Context, userID string, postID string
 func (b *Behavior) CreateComment(ctx context.Context, userID string, postID string, content string) (string, error) {
 	op := "content.behavior.CreateComment"
 	// Валидация контента
-	content = ValidateComment(content)
+	content, err := ValidateComment(content)
+	if err != nil {
+		err = errors.Wrap(err, op)
+		return "", errors.Wrap(err, "validate comment")
+	}
 
 	// Проверка может ли юзер видеть пост
 	ok, err := b.userCanSeePost(ctx, userID, postID)
@@ -70,9 +74,13 @@ func (b *Behavior) CreateComment(ctx context.Context, userID string, postID stri
 func (b *Behavior) UpdateComment(ctx context.Context, userID string, commentID string, content string) error {
 	op := "content.behavior.UpdateComment"
 	// Валидация контента
-	content = ValidateComment(content)
+	content, err := ValidateComment(content)
+	if err != nil {
+		err = errors.Wrap(err, op)
+		return errors.Wrap(err, "validate comment")
+	}
 
-	// TODO: Проверка автор ли юзер этого коммента
+	// Проверка автор ли юзер этого коммента
 	ok, err := b.isUserAuthorOfComment(ctx, userID, commentID)
 	if err != nil {
 		err = errors.Wrap(err, op)
@@ -114,8 +122,14 @@ func (b *Behavior) DeleteComment(ctx context.Context, userID string, commentID s
 	return nil
 }
 
-func ValidateComment(comment string) string {
-	return validate.Sanitize(comment)
+func ValidateComment(comment string) (string, error) {
+	if comment == "" {
+		return "", global.ErrCommentDoesntExist
+	}
+	if len(comment) > 100 {
+		return "", global.ErrCommentTooLong
+	}
+	return validate.Sanitize(comment), nil
 }
 
 func (b *Behavior) isUserAuthorOfComment(ctx context.Context, userID string, commentID string) (bool, error) {
