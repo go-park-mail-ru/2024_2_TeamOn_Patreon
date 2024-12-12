@@ -5,6 +5,7 @@ import (
 	"mime/multipart"
 
 	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/pkg/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
 )
 
@@ -31,8 +32,10 @@ type AuthorService interface {
 	// PostUpdateBackground - изменение фона страницы автора
 	PostUpdateBackground(ctx context.Context, authorID string, avatar multipart.File, fileName string) error
 
-	// PostTip - обновление информации о себе
-	PostTip(ctx context.Context, userID, authorID string, cost int, message string) error
+	// TIP
+
+	// CreateTipRequest - создаёт запрос на отправку пожертвования
+	CreateTipRequest(ctx context.Context, tipReq models.TipRequest) error
 
 	// SUBSCRIBE
 

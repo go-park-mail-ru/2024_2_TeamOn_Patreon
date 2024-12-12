@@ -16,6 +16,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Для хранения ID запросов на подписку
 var subscriptionRequests = make(map[string]repModels.SubscriptionRequest)
 var mu sync.Mutex
 
@@ -40,12 +41,10 @@ func (p *Postgres) SaveSubscribeRequest(ctx context.Context, subReq repModels.Su
 		return global.ErrCustomSubDoesNotExist
 	}
 
-	subReqID := utils.GenerateUUID()
-
 	// Сохраняем в map до момента оплаты
 	mu.Lock()
 	defer mu.Unlock()
-	subscriptionRequests[subReqID] = subReq
+	subscriptionRequests[subReq.SubReqID] = subReq
 
 	return nil
 }

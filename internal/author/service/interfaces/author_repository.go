@@ -34,9 +34,6 @@ type AuthorRepository interface {
 	// UpdateBackground обновляет путь к фону страницы автора
 	UpdateBackground(ctx context.Context, authorID string, background multipart.File, fileName string) error
 
-	// NewTip сохраняет запись о пожертвовании
-	NewTip(ctx context.Context, userID, authorID string, cost int, message string) error
-
 	// GenerateID генерирует ID в формате UUIDv4
 	GenerateID() string
 
@@ -62,6 +59,14 @@ type AuthorRepository interface {
 
 	// RealizeSubscribeRequest реализует запрос на подписку
 	RealizeSubscribeRequest(ctx context.Context, subReqID string) (string, error)
+
+	// TIP
+
+	// NewTip сохраняет запись о пожертвовании [ УДАЛИТЬ КАК БУДЕТ ГОТОВО АПИ ОПЛАТЫ ]
+	NewTip(ctx context.Context, userID, authorID string, cost int, message string) error
+
+	// SaveTipRequest сохраняет запрос на пожертвование
+	SaveTipRequest(ctx context.Context, tipReq repModels.TipRequest) error
 
 	// STATISTIC
 

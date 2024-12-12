@@ -38,7 +38,10 @@ func (s *Service) CreateSubscriptionRequest(ctx context.Context, subReq sModels.
 	}
 
 	// Запрос в repository
-	logger.StandardDebugF(ctx, op, "want to create subscription request by user=%v, month=%v, layer=%v", subReq.UserID, subReq.MonthCount, subReq.Layer)
+	logger.StandardDebugF(ctx, op,
+		"want to create subscription request: \nsubReqID=%v, \nuserID=%v, \nauthorID=%v, \nmonth=%v, \nlayer=%v",
+		subReq.SubReqID, subReq.UserID, subReq.AuthorID, subReq.MonthCount, subReq.Layer)
+
 	err := s.rep.SaveSubscribeRequest(ctx, sModels.MapServSubReqToRepSubReq(subReq))
 	if err != nil {
 		return errors.Wrap(err, op)
@@ -124,7 +127,7 @@ func (s *Service) sendNotificationOfSubscribeToSubscriber(ctx context.Context, c
 
 	message := fmt.Sprintf("%v на @%v успешно оформлена! Уровень подписки: «%v».", description, authorName, customName)
 
-	if err := s.rep.SendNotification(ctx, message, userID, authorID); err != nil {
+	if err := s.rep.SendNotification(ctx, message, userID, userID); err != nil {
 		return errors.Wrap(err, op)
 	}
 

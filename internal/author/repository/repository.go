@@ -8,7 +8,6 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
-	"time"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
@@ -307,32 +306,6 @@ func (p *Postgres) UpdateBackground(ctx context.Context, authorID string, backgr
 	logger.StandardInfo(
 		ctx,
 		fmt.Sprintf("successful update record for authorID: %s", authorID),
-		op,
-	)
-	// Возвращаем nil, если обновление прошло успешно
-	return nil
-}
-
-func (p *Postgres) NewTip(ctx context.Context, userID, authorID string, cost int, message string) error {
-	op := "internal.account.repository.NewTip"
-
-	// Запрос на добавление записи Tip
-	query := `
-		INSERT INTO 
-			tip (tip_id, user_id, author_id, cost, message, payed_date)
-        VALUES 
-			($1, $2, $3, $4, $5, $6)
-	`
-
-	tipID := p.GenerateID()
-	// Выполняем запрос
-	if _, err := p.db.Exec(ctx, query, tipID, userID, authorID, cost, message, time.Now()); err != nil {
-		return errors.Wrap(err, op)
-	}
-
-	logger.StandardInfo(
-		ctx,
-		fmt.Sprintf("successful create new record for authorID: %s", authorID),
 		op,
 	)
 	// Возвращаем nil, если обновление прошло успешно

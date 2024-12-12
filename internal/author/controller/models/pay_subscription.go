@@ -24,6 +24,12 @@ type ConfirmationReq struct {
 	ReturnURL string `json:"return_url,omitempty"`
 }
 
+type NotificationPaymentService struct {
+	Type   string          `json:"type"`
+	Event  string          `json:"event"`
+	Object PaymentResponse `json:"object"`
+}
+
 type PaymentResponse struct {
 	ID           string           `json:"id"`
 	Status       string           `json:"status"`
@@ -32,6 +38,7 @@ type PaymentResponse struct {
 	CreatedAt    string           `json:"created_at"`
 	Description  string           `json:"description"`
 	Confirmation ConfirmationResp `json:"confirmation"`
+	Metadata     string           `json:"metadata"`
 }
 
 type ConfirmationResp struct {

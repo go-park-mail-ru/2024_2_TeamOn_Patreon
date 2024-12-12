@@ -2,9 +2,13 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
 
+	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
 	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/models"
+	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/models"
 	global "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
@@ -13,9 +17,9 @@ import (
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
-// PostAuthorTip - ручка пожертвований автору
+// PostAuthorTip - ручка создания запроса на пожертвование автору
 func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
-	op := "internal.account.controller.PostAuthorUpdateInfo"
+	op := "internal.account.controller.PostAuthorTip"
 
 	ctx := r.Context()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -75,11 +79,43 @@ func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Собираем информацию для пользователя о платеже
+	strCost := strconv.Itoa(tipInfo.Cost) + ".00"
+	payInfo := models.InfoPaySubscription{
+		AuthorID:    authorID,
+		Cost:        strCost,
+		Description: fmt.Sprintf("Пожертвование на сумму %v руб.", strCost),
+	}
+
+	// Обращение к API оплаты
+	paymentResponse, err := handler.CreateRequestPay(ctx, payInfo)
+	if err != nil {
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
 	// Обращение к service
-	if err := handler.serv.PostTip(r.Context(), userID, authorID, tipInfo.Cost, tipInfo.Message); err != nil {
+	tipReq := models.TipRequest{
+		TipReqID: paymentResponse.ID,
+		UserID:   userID,
+		AuthorID: authorID,
+		Cost:     tipInfo.Cost,
+		Message:  tipInfo.Message,
+	}
+
+	if err := handler.serv.CreateTipRequest(r.Context(), models.MapControllerTipReqToServTipReq(tipReq)); err != nil {
 		logger.StandardWarnF(ctx, op, "update info error {%v}", err)
 		// Status 500
 		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	// Возвращаем URL на API оплаты
+	if err = json.NewEncoder(w).Encode(paymentResponse.Confirmation.ConfirmationURL); err != nil {
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 	}
 
 	// Status 200
