@@ -102,7 +102,7 @@ func (b *Behavior) UpdateComment(ctx context.Context, userID string, commentID s
 
 func (b *Behavior) DeleteComment(ctx context.Context, userID string, commentID string) error {
 	op := "content.behavior.DeleteComment"
-	// TODO: Проверка автор ли юзер этого коммента
+	// Проверка автор ли юзер этого коммента
 	userIsAuthor, err := b.isUserAuthorOfComment(ctx, userID, commentID)
 	if err != nil {
 		err = errors.Wrap(err, op)
