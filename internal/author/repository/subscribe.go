@@ -16,6 +16,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Для хранения ID запросов на подписку
 var subscriptionRequests = make(map[string]repModels.SubscriptionRequest)
 var mu sync.Mutex
 
@@ -40,17 +41,15 @@ func (p *Postgres) SaveSubscribeRequest(ctx context.Context, subReq repModels.Su
 		return global.ErrCustomSubDoesNotExist
 	}
 
-	subReqID := utils.GenerateUUID()
-
 	// Сохраняем в map до момента оплаты
 	mu.Lock()
 	defer mu.Unlock()
-	subscriptionRequests[subReqID] = subReq
+	subscriptionRequests[subReq.SubReqID] = subReq
 
 	return nil
 }
 
-func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string) (string, error) {
+func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string) (repModels.SubscriptionRequest, string, error) {
 	op := "internal.author.repository.RealizeSubscribeRequest"
 
 	mu.Lock()
@@ -60,7 +59,7 @@ func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string)
 	logger.StandardDebugF(ctx, op, "want to get subscription request by reqID=%v", subReqID)
 	subReq, exists := subscriptionRequests[subReqID]
 	if !exists {
-		return "", global.ErrSubReqDoesNotExist
+		return repModels.SubscriptionRequest{}, "", global.ErrSubReqDoesNotExist
 	}
 
 	customSubID, _ := p.getCustomSubscriptionID(ctx, subReq.AuthorID, subReq.Layer)
@@ -78,12 +77,12 @@ func (p *Postgres) RealizeSubscribeRequest(ctx context.Context, subReqID string)
     	VALUES ($1, $2, $3, $4, $5)
 	`
 	if _, err := p.db.Exec(ctx, query, subID, subReq.UserID, customSubID, currentTime, finishedDate); err != nil {
-		return "", errors.Wrap(err, op)
+		return repModels.SubscriptionRequest{}, "", errors.Wrap(err, op)
 	}
 	// Удаляем запрос из map после реализации
 	delete(subscriptionRequests, subReqID)
 
-	return customSubID, nil
+	return subReq, customSubID, nil
 }
 
 func (p *Postgres) GetCustomSubscriptionInfo(ctx context.Context, customSubID string) (string, string, error) {
