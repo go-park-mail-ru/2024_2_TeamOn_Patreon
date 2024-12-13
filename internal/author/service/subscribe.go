@@ -82,7 +82,7 @@ func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID strin
 	}
 
 	// Отправка уведомления пользователю о оформленной подписке
-	if err := s.sendNotificationOfSubscribeToSubscriber(ctx, customSubscriptionID, "", description); err != nil {
+	if err := s.sendNotificationOfSubscribeToSubscriber(ctx, customSubscriptionID, subReq.UserID, description); err != nil {
 		logger.StandardDebugF(ctx, op, "failed send notification to SUBSCRIBER successful save subscription: %v", err)
 	}
 	return nil
