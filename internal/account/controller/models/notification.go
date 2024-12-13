@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/pkg/models"
 	valid "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 )
@@ -28,13 +26,13 @@ type Notification struct {
 }
 
 func mapNotificationCommonToController(ntf pkgModels.Notification) *Notification {
-	loc, _ := time.LoadLocation("Europe/Moscow")
+	// loc, _ := time.LoadLocation("Europe/Moscow")
 	return &Notification{
 		NotificationID: valid.Sanitize(ntf.NotificationID),
 		Message:        valid.Sanitize(ntf.Message),
 		SenderID:       valid.Sanitize(ntf.SenderID),
 		IsRead:         ntf.IsRead,
-		CreatedAt:      ntf.CreatedAt.In(loc).Format("2 января 2006 15:04"),
+		CreatedAt:      ntf.CreatedAt.String(),
 	}
 }
 
