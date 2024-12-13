@@ -53,6 +53,7 @@ var (
 	ErrInvalidAuthorID       = errors.New("the author cannot subscribe to himself")
 	ErrUserIsNotAuthor       = errors.New("user is not author")
 	ErrSubReqDoesNotExist    = errors.New("subscription request does not exit")
+	ErrTipReqDoesNotExist    = errors.New("tip request does not exit")
 	ErrCustomSubDoesNotExist = errors.New("custom subscription does not exist")
 	ErrNotPaid               = errors.New("request rejected: not paid")
 
@@ -163,6 +164,7 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrInvalidAuthorID:       {msg: "Вы не можете оформить подписки на себя", code: http.StatusBadRequest},
 	ErrUserIsNotAuthor:       {msg: "Пользователь не является автором", code: http.StatusBadRequest},
 	ErrSubReqDoesNotExist:    {msg: "Запрос на оформление подписки не найден", code: http.StatusBadRequest},
+	ErrTipReqDoesNotExist:    {msg: "Запрос на донат не найден", code: http.StatusBadRequest},
 	ErrCustomSubDoesNotExist: {msg: "Выбранный уровень подписки не существует", code: http.StatusBadRequest},
 	ErrAuthorDoesNotExist:    {msg: "Автор не существует", code: http.StatusBadRequest},
 	ErrNotPaid:               {msg: "Отклонено: оплата не произведена.", code: http.StatusBadRequest},

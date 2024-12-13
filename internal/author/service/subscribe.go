@@ -54,7 +54,7 @@ func (s *Service) CreateSubscriptionRequest(ctx context.Context, subReq sModels.
 	return nil
 }
 
-func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID string, status bool, description, userID string) error {
+func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID string, status bool, description string) error {
 	op := "internal.author.service.RealizeSubscriptionRequest"
 
 	logger.StandardDebugF(ctx, op, "payment status: %v", status)
@@ -66,7 +66,7 @@ func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID strin
 
 	// Обращение в repository
 	logger.StandardDebugF(ctx, op, "want to realize subscription request=%v", subReqID)
-	customSubscriptionID, err := s.rep.RealizeSubscribeRequest(ctx, subReqID)
+	subReq, customSubscriptionID, err := s.rep.RealizeSubscribeRequest(ctx, subReqID)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -77,12 +77,12 @@ func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID strin
 		op)
 
 	// Отправка уведомления автору о новом подписчике
-	if err := s.sendNotificationOfSubscribe(ctx, customSubscriptionID, userID); err != nil {
+	if err := s.sendNotificationOfSubscribe(ctx, customSubscriptionID, subReq.UserID); err != nil {
 		logger.StandardDebugF(ctx, op, "failed send notification to AUTHOR about new subscribe: %v", err)
 	}
 
 	// Отправка уведомления пользователю о оформленной подписке
-	if err := s.sendNotificationOfSubscribeToSubscriber(ctx, customSubscriptionID, userID, description); err != nil {
+	if err := s.sendNotificationOfSubscribeToSubscriber(ctx, customSubscriptionID, "", description); err != nil {
 		logger.StandardDebugF(ctx, op, "failed send notification to SUBSCRIBER successful save subscription: %v", err)
 	}
 	return nil

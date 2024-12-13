@@ -85,6 +85,7 @@ func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 		AuthorID:    authorID,
 		Cost:        strCost,
 		Description: fmt.Sprintf("Пожертвование на сумму %v руб.", strCost),
+		PayType:     models.TypeTip,
 	}
 
 	// Обращение к API оплаты

@@ -78,6 +78,7 @@ func (handler *Handler) PostSubscriptionRequest(w http.ResponseWriter, r *http.R
 		AuthorID:    subReq.AuthorID,
 		Cost:        costSubscription,
 		Description: fmt.Sprintf("Оформление подписки на %v мес.", subReq.MonthCount),
+		PayType:     models.TypeSubscription,
 	}
 
 	// Обращение к API оплаты

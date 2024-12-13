@@ -1,16 +1,22 @@
 package models
 
+const (
+	TypeSubscription = "subscription"
+	TypeTip          = "tip"
+)
+
 type InfoPaySubscription struct {
 	AuthorID    string // Для редиректа
 	Cost        string // Счёт на оплату
 	Description string // Описание платежа
+	PayType     string // Тип платежа
 }
 
 type PaymentRequest struct {
 	Amount       Amount          `json:"amount"`
 	Description  string          `json:"description"`
 	Confirmation ConfirmationReq `json:"confirmation"`
-	Metadata     interface{}     `json:"metadata,omitempty"`
+	Metadata     Metadata        `json:"metadata,omitempty"`
 	Test         bool            `json:"test"`
 }
 
@@ -38,7 +44,11 @@ type PaymentResponse struct {
 	CreatedAt    string           `json:"created_at"`
 	Description  string           `json:"description"`
 	Confirmation ConfirmationResp `json:"confirmation"`
-	// Metadata     string           `json:"metadata"`
+	Metadata     Metadata         `json:"metadata"`
+}
+
+type Metadata struct {
+	PayType string `json:"pay_type"` // Поле для типа платежа
 }
 
 type ConfirmationResp struct {

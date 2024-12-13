@@ -10,8 +10,8 @@ import (
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
-// PostSubscriptionRealize - ручка реализации запроса пользователя на подписку на автора
-func (handler *Handler) PostSubscriptionRealize(w http.ResponseWriter, r *http.Request) {
+// PostPaymentRealize - ручка реализации запроса пользователя на оплату
+func (handler *Handler) PostPaymentRealize(w http.ResponseWriter, r *http.Request) {
 	op := "internal.account.controller.PostSubscriptionRealize"
 
 	ctx := r.Context()
@@ -29,11 +29,14 @@ func (handler *Handler) PostSubscriptionRealize(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// logger.StandardDebugF(ctx, op,
-	// 	"INFO FROM YOOMONEY=%v", ntfPayService)
-
 	// Обращение в service
-	err := handler.serv.RealizeSubscriptionRequest(ctx, ntfPayService.Object.ID, ntfPayService.Object.Paid, ntfPayService.Object.Description, "")
+	var err error
+	if ntfPayService.Object.Metadata.PayType == models.TypeSubscription {
+		err = handler.serv.RealizeSubscriptionRequest(ctx, ntfPayService.Object.ID, ntfPayService.Object.Paid, ntfPayService.Object.Description)
+	} else if ntfPayService.Object.Metadata.PayType == models.TypeTip {
+		err = handler.serv.RealizeTipRequest(ctx, ntfPayService.Object.ID, ntfPayService.Object.Paid, ntfPayService.Object.Description)
+	}
+
 	if err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))

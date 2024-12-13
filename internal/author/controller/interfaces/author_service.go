@@ -37,6 +37,9 @@ type AuthorService interface {
 	// CreateTipRequest - создаёт запрос на отправку пожертвования
 	CreateTipRequest(ctx context.Context, tipReq models.TipRequest) error
 
+	// RealizeTipRequest реализует запрос пользователя на донат автору
+	RealizeTipRequest(ctx context.Context, tipReqID string, status bool, description string) error
+
 	// SUBSCRIBE
 
 	// GetCostSubscription получает стоимость подписки по уровню и сроку подписки
@@ -46,7 +49,7 @@ type AuthorService interface {
 	CreateSubscriptionRequest(ctx context.Context, subReq sModels.SubscriptionRequest) error
 
 	// CreateSubscribeRequest реализует запрос пользователя на подписку на автора
-	RealizeSubscriptionRequest(ctx context.Context, subReqID string, status bool, description, userID string) error
+	RealizeSubscriptionRequest(ctx context.Context, subReqID string, status bool, description string) error
 
 	// STATISTIC
 

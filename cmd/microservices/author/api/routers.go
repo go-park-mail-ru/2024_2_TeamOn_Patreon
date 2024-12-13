@@ -174,10 +174,10 @@ func handlePay(router *mux.Router, service interfaces.AuthorService) *mux.Router
 
 	var routes = Routes{
 		Route{
-			"SubscriptionRealize",
+			"PostPaymentRealize",
 			"POST",
-			"/subscription/realize",
-			handler.PostSubscriptionRealize,
+			"/payment/realize",
+			handler.PostPaymentRealize,
 		},
 	}
 

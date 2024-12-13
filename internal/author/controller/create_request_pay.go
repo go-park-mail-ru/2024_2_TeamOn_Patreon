@@ -8,40 +8,44 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 
-	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/models"
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	logger "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/pkg/errors"
 )
 
 const (
-	apiURL    = "https://api.yookassa.ru/v3/payments"              // URL для создания платежа
-	clientID  = "996895"                                           // СПРЯТАТЬ!!!
-	secretKey = "test_kKJUwERP7sXkFVyy1mrjp-82dg8-bohbwnsodUk3peA" // СПРЯТАТЬ!!!
+	apiURL    = "https://api.yookassa.ru/v3/payments" // URL для создания платежа
+	returnURL = "https://pushart.online/profile/"     // редирект URL после оплаты
 )
 
-func (handler *Handler) CreateRequestPay(ctx context.Context, payInfo models.InfoPaySubscription) (cModels.PaymentResponse, error) {
+func (handler *Handler) CreateRequestPay(ctx context.Context, payInfo models.InfoPaySubscription) (models.PaymentResponse, error) {
 	op := "internal.author.controller.createRequestPay"
 
 	// Модель запроса к сервису оплаты с указанием суммы и редиректа после успешной оплаты
-	paymentRequest := cModels.PaymentRequest{
-		Amount: cModels.Amount{
+	paymentRequest := models.PaymentRequest{
+		Amount: models.Amount{
 			Value:    payInfo.Cost,
 			Currency: "RUB",
 		},
 		Description: payInfo.Description,
-		Confirmation: cModels.ConfirmationReq{
+		Confirmation: models.ConfirmationReq{
 			Type:      "redirect",
-			ReturnURL: "https://pushart.online/profile/" + payInfo.AuthorID, // Куда направить после оплаты
+			ReturnURL: returnURL + payInfo.AuthorID, // Куда направить после оплаты
 		},
 		Test: true,
+		Metadata: models.Metadata{
+			PayType: payInfo.PayType,
+		},
 	}
 
-	var paymentResponse cModels.PaymentResponse
+	var paymentResponse models.PaymentResponse
 
 	// Преобразуем запрос в JSON
+	// --------------------------- Исправить на Encoder!!
 	requestBody, err := json.Marshal(paymentRequest)
 	if err != nil {
 		logger.StandardDebugF(ctx, op, "marshal err: %v", err)
@@ -57,6 +61,10 @@ func (handler *Handler) CreateRequestPay(ctx context.Context, payInfo models.Inf
 
 	// Идемпотент
 	idempotenceKey := utils.GenerateUUID()
+
+	// Параметры магазина
+	clientID := (os.Getenv(global.EnvClientID))
+	secretKey := (os.Getenv(global.EnvSecretKey))
 
 	// Устанавливаем заголовки
 	req.Header.Set("Content-Type", "application/json")
@@ -84,6 +92,7 @@ func (handler *Handler) CreateRequestPay(ctx context.Context, payInfo models.Inf
 		fmt.Sprintf("Статус ответа: %v. Тело ответа: %v", resp.Status, string(body)), op)
 
 	// Получаем ID платежа и URL на оплату
+	// --------------------------- Исправить на Decoder!!
 	if err := json.Unmarshal(body, &paymentResponse); err != nil {
 		logger.StandardDebugF(ctx, op, "Fail unmarshal response: %v", err)
 		return paymentResponse, errors.Wrap(err, op)

@@ -33,8 +33,18 @@ func (p *Postgres) SaveTipRequest(ctx context.Context, tipReq repModels.TipReque
 	return nil
 }
 
-func (p *Postgres) NewTip(ctx context.Context, userID, authorID string, cost int, message string) error {
-	op := "internal.account.repository.NewTip"
+func (p *Postgres) RealizeTipRequest(ctx context.Context, tipReqID string) (repModels.TipRequest, error) {
+	op := "internal.author.repository.RealizeTipRequest"
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	// Получаем данные запроса на донат
+	logger.StandardDebugF(ctx, op, "want to get tip request by reqID=%v", tipReqID)
+	tipReq, exists := tipRequests[tipReqID]
+	if !exists {
+		return repModels.TipRequest{}, global.ErrTipReqDoesNotExist
+	}
 
 	// Запрос на добавление записи Tip
 	query := `
@@ -46,15 +56,18 @@ func (p *Postgres) NewTip(ctx context.Context, userID, authorID string, cost int
 
 	tipID := p.GenerateID()
 	// Выполняем запрос
-	if _, err := p.db.Exec(ctx, query, tipID, userID, authorID, cost, message, time.Now()); err != nil {
-		return errors.Wrap(err, op)
+	if _, err := p.db.Exec(ctx, query, tipID, tipReq.UserID, tipReq.AuthorID, tipReq.Cost, tipReq.Message, time.Now()); err != nil {
+		return repModels.TipRequest{}, errors.Wrap(err, op)
 	}
+
+	// Удаляем запрос из map после реализации
+	delete(subscriptionRequests, tipReqID)
 
 	logger.StandardInfo(
 		ctx,
-		fmt.Sprintf("successful create new record for authorID: %s", authorID),
+		fmt.Sprintf("successful create new record for authorID: %s", tipReq.AuthorID),
 		op,
 	)
-	// Возвращаем nil, если обновление прошло успешно
-	return nil
+
+	return tipReq, nil
 }

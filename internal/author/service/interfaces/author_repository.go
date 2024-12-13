@@ -58,15 +58,15 @@ type AuthorRepository interface {
 	SaveSubscribeRequest(ctx context.Context, subReq repModels.SubscriptionRequest) error
 
 	// RealizeSubscribeRequest реализует запрос на подписку
-	RealizeSubscribeRequest(ctx context.Context, subReqID string) (string, error)
+	RealizeSubscribeRequest(ctx context.Context, subReqID string) (repModels.SubscriptionRequest, string, error)
 
 	// TIP
 
-	// NewTip сохраняет запись о пожертвовании [ УДАЛИТЬ КАК БУДЕТ ГОТОВО АПИ ОПЛАТЫ ]
-	NewTip(ctx context.Context, userID, authorID string, cost int, message string) error
-
 	// SaveTipRequest сохраняет запрос на пожертвование
 	SaveTipRequest(ctx context.Context, tipReq repModels.TipRequest) error
+
+	// RealizeTipRequest реализует запрос на пожертвование
+	RealizeTipRequest(ctx context.Context, tipReqID string) (repModels.TipRequest, error)
 
 	// STATISTIC
 

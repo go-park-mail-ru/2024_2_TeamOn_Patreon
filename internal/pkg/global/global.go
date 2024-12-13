@@ -58,4 +58,9 @@ const (
 	EnvGRPCPort    = "GRPC_PORT"
 	EnvGRPCTimeout = "GRPC_TIMEOUT"
 	EnvGRPCAddress = "GRPC_ADDRESS"
+
+	// API Payment Service
+
+	EnvClientID  = "CLIENT_ID"
+	EnvSecretKey = "SECRET_KEY"
 )

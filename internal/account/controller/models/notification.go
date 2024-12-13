@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/pkg/models"
 	valid "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 )
@@ -24,7 +22,7 @@ type Notification struct {
 	// Статус: прочитано / нет
 	IsRead bool `json:"isRead"`
 	// Дата отправления
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt string `json:"createdAt"`
 }
 
 func mapNotificationCommonToController(ntf pkgModels.Notification) *Notification {
@@ -33,7 +31,7 @@ func mapNotificationCommonToController(ntf pkgModels.Notification) *Notification
 		Message:        valid.Sanitize(ntf.Message),
 		SenderID:       valid.Sanitize(ntf.SenderID),
 		IsRead:         ntf.IsRead,
-		CreatedAt:      ntf.CreatedAt,
+		CreatedAt:      ntf.CreatedAt.Format("2 января 2006 15:04"),
 	}
 }
 
