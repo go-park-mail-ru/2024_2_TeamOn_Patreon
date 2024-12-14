@@ -125,7 +125,7 @@ func (s *Service) sendNotificationOfSubscribeToSubscriber(ctx context.Context, c
 		return errors.Wrap(err, op)
 	}
 
-	message := fmt.Sprintf("%v на @%v успешно оформлена! Уровень подписки: «%v».", description, authorName, customName)
+	message := fmt.Sprintf("%v на @%v. Уровень подписки: «%v».", description, authorName, customName)
 
 	if err := s.rep.SendNotification(ctx, message, userID, userID); err != nil {
 		return errors.Wrap(err, op)
