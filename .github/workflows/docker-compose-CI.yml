@@ -1,0 +1,61 @@
+name: Docker-compose CI
+
+on:
+  push:
+    branches: [ "load" ]
+  pull_request:
+    branches: [ "load" ]
+
+jobs:
+
+  lint: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Lint go
+        run: go vet ./...
+
+  tests:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+     # Actions от github: проверяет репозиторий, гит и т.д.
+    - uses: actions/checkout@v4
+    # Пример однолинейного простого скрипта shell
+    - name: microservices
+      run: cd cmd/microservices
+      
+    - name: Build the Docker image
+      run: docker-compose up -d
+      
+    # Пример однолинейного простого скрипта shell
+    - name: Run a one-line script
+      run: echo Hello, world! some tests
+
+    # Пример многолинейного скрипта shell
+    - name: Run a multi-line script
+      run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
+
+  deploy:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Run command on remote server
+        uses: D3rHase/ssh-command-action@v0.2.2
+        with:
+          host: ${{secrets.SSH_HOST}}
+          user: ${{secrets.SSH_USER}}
+          private_key: ${{secrets.SSH_PRIVATE_KEY}}
+          command: |
+            cd ${{ secrets.PROJECT_FOLDER }};
+            git checkout load;
+            git pull;
+            docker-compose --file docker-compose.prod.yml down;
+            docker-compose --file docker-compose.prod.yml up -d;
+            docker system prune --all --force;
+            
