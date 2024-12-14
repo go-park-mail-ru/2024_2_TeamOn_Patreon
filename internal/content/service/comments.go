@@ -126,7 +126,7 @@ func ValidateComment(comment string) (string, error) {
 	if comment == "" {
 		return "", global.ErrCommentDoesntExist
 	}
-	if len(comment) > 100 {
+	if len(comment) > 500 {
 		return "", global.ErrCommentTooLong
 	}
 	return validate.Sanitize(comment), nil
