@@ -45,7 +45,7 @@ func (csr *CustomSubscriptionRepository) SearchAuthor(ctx context.Context, searc
 		if err = rows.Scan(&authorID, &sim); err != nil {
 			return nil, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(ctx, op, "Got authorName userID=%v name=%v for author=%v", authorID, sim)
+		logger.StandardDebugF(ctx, op, "Got authorName userID=%v name=%v ", authorID, sim)
 		authorIDs = append(authorIDs, authorID)
 	}
 

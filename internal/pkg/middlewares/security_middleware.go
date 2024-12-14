@@ -25,7 +25,7 @@ func Security(handler http.Handler) http.Handler {
 		// X-XSS-Protection: 1; mode=block включает фильтр и блокирует отображение страницы,
 		// 									если обнаружена потенциальная атака XSS.
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
-		logger.StandardInfoF(r.Context(), op, "Successful set `X-XSS-Protection: 1; mode=block` header request %s %s %s", r.Method, r.URL.Path)
+		logger.StandardInfoF(r.Context(), op, "Successful set `X-XSS-Protection: 1; mode=block` header request %s %s", r.Method, r.URL.Path)
 
 		// X-Frame-Options - защита от угона кликов
 		// Работает за счет размещения  нашего сайта во фрейме
@@ -34,14 +34,14 @@ func Security(handler http.Handler) http.Handler {
 		//					его загружающая, расположены на одном домене. т.е. если мы сами себя загружаем
 		// 					можно, в целом, и deny, если фронт ничего такого не планирует
 		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
-		logger.StandardInfoF(r.Context(), op, "Successful set `X-Frame-Options: SAMEORIGIN` header request %s %s %s", r.Method, r.URL.Path)
+		logger.StandardInfoF(r.Context(), op, "Successful set `X-Frame-Options: SAMEORIGIN` header request %s %s", r.Method, r.URL.Path)
 
 		// X-Content-Type-Options - защищает от атак подменой MIME типов
 		// nginx: add_header X-Content-Type-Options "nosniff";
 		// 		Заголовок содержит инструкции по определению типа файла и не допускает сниффинг контента.
 		//		При конфигурации потребуется добавить только один параметр: “nosniff”.
 		w.Header().Set("X-Content-Type-Options", "nosniff")
-		logger.StandardInfoF(r.Context(), op, "Successful set `X-Content-Type-Options: nosniff` header request %s %s %s", r.Method, r.URL.Path)
+		logger.StandardInfoF(r.Context(), op, "Successful set `X-Content-Type-Options: nosniff` header request %s %s", r.Method, r.URL.Path)
 
 		handler.ServeHTTP(w, r)
 	})

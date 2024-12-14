@@ -128,7 +128,8 @@ func (b *Behavior) moderatePost(parentCtx context.Context, postID string, title 
 	op := "content.service.moderatePost"
 
 	reqID := parentCtx.Value(global.CtxReqId)
-	ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(time.Second*5))
+	ctx, cansel := context.WithDeadline(context.Background(), time.Now().Add(time.Second*5))
+	defer cansel()
 	ctx = context.WithValue(ctx, global.CtxReqId, reqID)
 
 	if isUpdate {

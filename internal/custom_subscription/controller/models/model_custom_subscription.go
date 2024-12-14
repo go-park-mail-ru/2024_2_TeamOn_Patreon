@@ -17,6 +17,6 @@ type CustomSubscription struct {
 }
 
 func (sc CustomSubscription) String() string {
-	return fmt.Sprintf("Custom Subscription ID: %d, Title: %s, Description: %s, Cost: %d, Layer: %d",
+	return fmt.Sprintf("Custom Subscription ID: %v, Title: %s, Description: %s, Cost: %d, Layer: %d",
 		sc.CustomSubscriptionID, sc.Title, sc.Description, sc.Cost, sc.Layer)
 }

@@ -111,7 +111,7 @@ func (h *Handler) ModerationPostDecisionPost(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.WriteHeader(http.StatusOK)
-	logger.StandardDebugF(ctx, op, "Successful sent %v")
+	logger.StandardDebugF(ctx, op, "Successful sent %v", "ok")
 
 }
 

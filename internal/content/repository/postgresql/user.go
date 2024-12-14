@@ -81,7 +81,7 @@ func (cr *ContentRepository) GetUserLayerOfAuthor(ctx context.Context, userID, a
 		if err = rows.Scan(&layer); err != nil {
 			return 0, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(ctx, op, "Got layer= %s user= %s", layer, userID)
+		logger.StandardDebugF(ctx, op, "Got layer= %v user= %v", layer, userID)
 		return layer, nil
 	}
 

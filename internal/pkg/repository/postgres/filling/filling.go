@@ -90,7 +90,7 @@ func main() {
 		log.Fatalf("Ошибка при создании модератора: %v", err)
 	}
 
-	fmt.Printf("Создано модератор \n", n)
+	fmt.Printf("Создано модератор %v \n ", n)
 
 	if err = filling.createUsers(context.Background(), pool, n); err != nil {
 		log.Fatalf("Ошибка при создании пользователей: %v", err)
@@ -351,7 +351,7 @@ func (f *Filling) createCustomSubscriptions(ctx context.Context, pool *pgxpool.P
 				cost = consts.CUSTOM_COST*layer + 10
 			}
 
-			f.CustomSubToAuthor[customSubID] = CustomSub{layer: string(layer), authorName: authorName, customID: customSubID}
+			f.CustomSubToAuthor[customSubID] = CustomSub{layer: strconv.Itoa(layer), authorName: authorName, customID: customSubID}
 
 			// Запрос на добавление пользователя
 			batch.Queue(`
@@ -404,7 +404,7 @@ func (f *Filling) createSubscriptions(ctx context.Context, pool *pgxpool.Pool, n
 			if f.Users[Author(authorName)] == nil {
 				f.Users[Author(authorName)] = make(map[Layer][]User)
 			}
-			f.Users[Author(authorName)][Layer(string(layer))] = append(f.Users[Author(authorName)][Layer(string(layer))], User(username))
+			f.Users[Author(authorName)][Layer(strconv.Itoa(layer))] = append(f.Users[Author(authorName)][Layer(strconv.Itoa(layer))], User(username))
 
 			// Запрос на добавление пользователя
 			batch.Queue(`
@@ -459,7 +459,7 @@ func (f *Filling) createPosts(ctx context.Context, pool *pgxpool.Pool, n int) er
 			if f.Posts[Author(authorName)] == nil {
 				f.Posts[Author(authorName)] = make(map[Layer][]PostTitle)
 			}
-			f.Posts[Author(authorName)][Layer(string(layer))] = append(f.Posts[Author(authorName)][Layer(string(layer))], PostTitle(title)) // Запрос на добавление пользователя
+			f.Posts[Author(authorName)][Layer(strconv.Itoa(layer))] = append(f.Posts[Author(authorName)][Layer(strconv.Itoa(layer))], PostTitle(title)) // Запрос на добавление пользователя
 			batch.Queue(`
 INSERT INTO Post (post_id, user_id, title, about, subscription_layer_id, post_status_id) VALUES
     (gen_random_uuid(), (SELECT user_id FROM People WHERE username = $1), $2, $3 , (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $4),
