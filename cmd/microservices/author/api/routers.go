@@ -32,15 +32,19 @@ func NewRouter(behavior interfaces.AuthorService, monster *middlewares.Monster) 
 
 	authRouter := mainRouter.PathPrefix("/").Subrouter()
 	router := mainRouter.PathPrefix("/").Subrouter()
+	payRouter := mainRouter.PathPrefix("/").Subrouter()
 
 	handleAuth(authRouter, behavior)
 	handleOther(router, behavior)
+	handlePay(payRouter, behavior)
 
 	authRouter.Use(monster.HandlerAuth)
 	router.Use(monster.AuthMiddleware)
 
 	// регистрируем middlewares
-	mainRouter.Use(middlewares.CsrfMiddleware)
+	authRouter.Use(middlewares.CsrfMiddleware)
+	router.Use(middlewares.CsrfMiddleware)
+
 	mainRouter.Use(middlewares.Logging)
 	mainRouter.Use(middlewares.AddRequestID)
 
@@ -86,12 +90,6 @@ func handleAuth(router *mux.Router, service interfaces.AuthorService) *mux.Route
 			"POST",
 			"/subscription/request",
 			handler.PostSubscriptionRequest,
-		},
-		Route{
-			"SubscriptionRealize",
-			"POST",
-			"/subscription/realize",
-			handler.PostSubscriptionRealize,
 		},
 		Route{
 			"GetStatPosts",
@@ -151,6 +149,35 @@ func handleOther(router *mux.Router, service interfaces.AuthorService) *mux.Rout
 			"GET",
 			"/metrics",
 			promhttp.Handler().ServeHTTP,
+		},
+	}
+
+	for _, route := range routes {
+		var handler http.Handler
+		handler = route.HandlerFunc
+		logger.StandardInfoF(context.Background(), op, "Registered: %s %s", route.Method, route.Pattern)
+
+		router.
+			Methods(route.Method).
+			Path(route.Pattern).
+			Name(route.Name).
+			Handler(handler)
+	}
+
+	return router
+}
+
+func handlePay(router *mux.Router, service interfaces.AuthorService) *mux.Router {
+	op := "author.api.routers.handlePay"
+
+	handler := api.New(service)
+
+	var routes = Routes{
+		Route{
+			"PostPaymentRealize",
+			"POST",
+			"/payment/realize",
+			handler.PostPaymentRealize,
 		},
 	}
 

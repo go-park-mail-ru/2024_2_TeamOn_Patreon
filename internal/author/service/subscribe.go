@@ -38,7 +38,10 @@ func (s *Service) CreateSubscriptionRequest(ctx context.Context, subReq sModels.
 	}
 
 	// Запрос в repository
-	logger.StandardDebugF(ctx, op, "want to create subscription request by user=%v, month=%v, layer=%v", subReq.UserID, subReq.MonthCount, subReq.Layer)
+	logger.StandardDebugF(ctx, op,
+		"want to create subscription request: \nsubReqID=%v, \nuserID=%v, \nauthorID=%v, \nmonth=%v, \nlayer=%v",
+		subReq.SubReqID, subReq.UserID, subReq.AuthorID, subReq.MonthCount, subReq.Layer)
+
 	err := s.rep.SaveSubscribeRequest(ctx, sModels.MapServSubReqToRepSubReq(subReq))
 	if err != nil {
 		return errors.Wrap(err, op)
@@ -51,7 +54,7 @@ func (s *Service) CreateSubscriptionRequest(ctx context.Context, subReq sModels.
 	return nil
 }
 
-func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID string, status bool, description, userID string) error {
+func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID string, status bool, description string) error {
 	op := "internal.author.service.RealizeSubscriptionRequest"
 
 	logger.StandardDebugF(ctx, op, "payment status: %v", status)
@@ -63,7 +66,7 @@ func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID strin
 
 	// Обращение в repository
 	logger.StandardDebugF(ctx, op, "want to realize subscription request=%v", subReqID)
-	customSubscriptionID, err := s.rep.RealizeSubscribeRequest(ctx, subReqID)
+	subReq, customSubscriptionID, err := s.rep.RealizeSubscribeRequest(ctx, subReqID)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -74,12 +77,12 @@ func (s *Service) RealizeSubscriptionRequest(ctx context.Context, subReqID strin
 		op)
 
 	// Отправка уведомления автору о новом подписчике
-	if err := s.sendNotificationOfSubscribe(ctx, customSubscriptionID, userID); err != nil {
+	if err := s.sendNotificationOfSubscribe(ctx, customSubscriptionID, subReq.UserID); err != nil {
 		logger.StandardDebugF(ctx, op, "failed send notification to AUTHOR about new subscribe: %v", err)
 	}
 
 	// Отправка уведомления пользователю о оформленной подписке
-	if err := s.sendNotificationOfSubscribeToSubscriber(ctx, customSubscriptionID, userID, description); err != nil {
+	if err := s.sendNotificationOfSubscribeToSubscriber(ctx, customSubscriptionID, subReq.UserID, description); err != nil {
 		logger.StandardDebugF(ctx, op, "failed send notification to SUBSCRIBER successful save subscription: %v", err)
 	}
 	return nil
@@ -124,7 +127,7 @@ func (s *Service) sendNotificationOfSubscribeToSubscriber(ctx context.Context, c
 
 	message := fmt.Sprintf("%v на @%v успешно оформлена! Уровень подписки: «%v».", description, authorName, customName)
 
-	if err := s.rep.SendNotification(ctx, message, userID, authorID); err != nil {
+	if err := s.rep.SendNotification(ctx, message, userID, userID); err != nil {
 		return errors.Wrap(err, op)
 	}
 

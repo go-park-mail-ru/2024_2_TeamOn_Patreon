@@ -24,16 +24,17 @@ type Notification struct {
 	// Статус: прочитано / нет
 	IsRead bool `json:"isRead"`
 	// Дата отправления
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt string `json:"createdAt"`
 }
 
 func mapNotificationCommonToController(ntf pkgModels.Notification) *Notification {
+	loc, _ := time.LoadLocation("Europe/Moscow")
 	return &Notification{
 		NotificationID: valid.Sanitize(ntf.NotificationID),
 		Message:        valid.Sanitize(ntf.Message),
 		SenderID:       valid.Sanitize(ntf.SenderID),
 		IsRead:         ntf.IsRead,
-		CreatedAt:      ntf.CreatedAt,
+		CreatedAt:      ntf.CreatedAt.In(loc).Format("2 января 2006 15:04"),
 	}
 }
 
