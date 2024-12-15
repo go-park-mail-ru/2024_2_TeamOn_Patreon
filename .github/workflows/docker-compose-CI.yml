@@ -5,6 +5,8 @@ on:
     branches: [ "load" ]
   pull_request:
     branches: [ "load" ]
+  commit:
+    branches: [ "load" ]
 
 jobs:
 
@@ -20,24 +22,33 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     steps:
-     # Actions от github: проверяет репозиторий, гит и т.д.
     - uses: actions/checkout@v4
-    # Пример однолинейного простого скрипта shell
-    - name: microservices
-      run: cd cmd/microservices
-      
-    - name: Build the Docker image
-      run: docker-compose up -d
-      
-    # Пример однолинейного простого скрипта shell
-    - name: Run a one-line script
-      run: echo Hello, world! some tests
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+        cache-dependency-path: go.sum
+    - name: Install dependencies
+      run: go mod tidy
+    - name: Tests
+      run: go test ./...
 
-    # Пример многолинейного скрипта shell
-    - name: Run a multi-line script
-      run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+#
+#    - name: microservices
+#      run: cd cmd/microservices
+#
+#    - name: Build the Docker image
+#      run: docker-compose up -d
+#
+#    # Пример однолинейного простого скрипта shell
+#    - name: Run a one-line script
+#      run: echo Hello, world! some tests
+#
+#    # Пример многолинейного скрипта shell
+#    - name: Run a multi-line script
+#      run: |
+#          echo Add other actions to build,
+#          echo test, and deploy your project.
 
   deploy:
     needs: tests

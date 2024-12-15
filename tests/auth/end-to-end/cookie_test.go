@@ -15,7 +15,7 @@ import (
 func (ts *TestServer) TestUserRegisterWithCookie(t *testing.T) {
 	// Тестовые данные для регистрации
 	registerData := map[string]string{
-		"username": "testuser",
+		"username": "testuser1",
 		"password": "Test@1234",
 	}
 
