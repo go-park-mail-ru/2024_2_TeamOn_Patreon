@@ -25,4 +25,6 @@ type Post struct {
 	CreatedDate time.Time
 	// Непустой только для выборки автором для авторов
 	Status string
+	// Число комментариев
+	NumComments int
 }

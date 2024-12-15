@@ -15,7 +15,7 @@ const (
 	// getPopularPostForUserSQL возвращает посты отсортированные по лайкам по убывающей, которые
 	// может смотреть пользователь среди всех постов
 	// Output: postID, title, about, authorId, authorUsername, likes, created_date
-	// likes - количество лайков
+	// likes - количество лайков, comments
 	// Input: получает $1 userId - uuid пользователя, {$2 offset} и { $3 limit}
 	getPopularPostForUserSQL = `
 SELECT 
@@ -25,7 +25,8 @@ SELECT
     author.user_id AS author_id, 
     author.Username AS author_username, 
     COUNT(Like_Post.like_post_id) AS likes,
-    post.created_date
+    post.created_date,
+   	(SELECT COUNT(*) FROM Comment where post_id = post.post_id) as comments
 FROM 
     post
 JOIN 
@@ -74,7 +75,7 @@ OFFSET $2;
 	// getPopularPostsForAnonSQL возвращает посты отсортированные по лайкам по убывающей, которые
 	// может смотреть пользователь среди всех постов
 	// Output: postID, title, about, authorId, authorUsername, likes, created_date
-	// likes - количество лайков
+	// likes - количество лайков, numCOMM
 	// Input: {$1 offset} и { $2 limit}
 	getPopularPostsForAnonSQL = `
 SELECT 
@@ -84,7 +85,8 @@ SELECT
     author.user_id AS author_id, 
     author.Username AS author_username, 
     COUNT(Like_Post.like_post_id) AS likes,
-    post.created_date
+    post.created_date,
+   	(SELECT COUNT(*) FROM Comment where post_id = post.post_id) as comments
 FROM 
     post
 JOIN 
@@ -127,12 +129,13 @@ func (cr *ContentRepository) GetPopularPostsForUser(ctx context.Context, userID 
 		authorUsername string
 		likes          int
 		createdDate    time.Time
+		numComments    int
 	)
 
 	posts := make([]*models.Post, 0)
 
 	for rows.Next() {
-		if err = rows.Scan(&postID, &title, &content, &authorId, &authorUsername, &likes, &createdDate); err != nil {
+		if err = rows.Scan(&postID, &title, &content, &authorId, &authorUsername, &likes, &createdDate, &numComments); err != nil {
 			return nil, errors.Wrap(err, op)
 		}
 		logger.StandardDebugF(ctx, op,
@@ -146,6 +149,7 @@ func (cr *ContentRepository) GetPopularPostsForUser(ctx context.Context, userID 
 			AuthorUsername: authorUsername,
 			Likes:          likes,
 			CreatedDate:    createdDate,
+			NumComments:    numComments,
 		})
 
 	}
@@ -174,10 +178,11 @@ func (cr *ContentRepository) GetPopularPosts(ctx context.Context, offset int, li
 		authorUsername string
 		likes          int
 		createdDate    time.Time
+		numComments    int
 	)
 
 	for rows.Next() {
-		if err = rows.Scan(&postID, &title, &content, &authorId, &authorUsername, &likes, &createdDate); err != nil {
+		if err = rows.Scan(&postID, &title, &content, &authorId, &authorUsername, &likes, &createdDate, &numComments); err != nil {
 			return nil, errors.Wrap(err, op)
 		}
 		logger.StandardDebugF(ctx, op,
@@ -191,6 +196,7 @@ func (cr *ContentRepository) GetPopularPosts(ctx context.Context, offset int, li
 			AuthorUsername: authorUsername,
 			Likes:          likes,
 			CreatedDate:    createdDate,
+			NumComments:    numComments,
 		})
 
 	}

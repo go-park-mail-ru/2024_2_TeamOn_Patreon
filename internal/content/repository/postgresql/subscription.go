@@ -26,7 +26,7 @@ const (
 	// getSubscriptionFeedForUser возвращает посты отсортированные по дате по убывающей, которые
 	// может смотреть пользователь среди всех постов авторов, на которых он подписан
 	// Output: postID, title, about, authorId, authorUsername, likes, created_date
-	// likes - количество лайков
+	// likes - количество лайков, numComments
 	// Input: получает $1 userId - uuid пользователя, {$2 offset} и { $3 limit}
 	getSubscriptionFeedForUser = `
 SELECT 
@@ -36,7 +36,8 @@ SELECT
     author.user_id AS author_id, 
     author.Username AS author_username, 
     COUNT(Like_Post.like_post_id) AS likes,
-    post.created_date
+    post.created_date,
+   	(SELECT COUNT(*) FROM Comment where post_id = post.post_id) as comments
 FROM 
     post
 JOIN 
@@ -114,12 +115,13 @@ func (cr ContentRepository) GetSubscriptionPostsForUser(ctx context.Context, use
 		authorUsername string
 		likes          int
 		createdDate    time.Time
+		numComments    int
 	)
 
 	posts := make([]*models.Post, 0)
 
 	for rows.Next() {
-		if err = rows.Scan(&postID, &title, &content, &authorID, &authorUsername, &likes, &createdDate); err != nil {
+		if err = rows.Scan(&postID, &title, &content, &authorID, &authorUsername, &likes, &createdDate, &numComments); err != nil {
 			return nil, errors.Wrap(err, op)
 		}
 		logger.StandardDebugF(ctx, op,
@@ -133,6 +135,7 @@ func (cr ContentRepository) GetSubscriptionPostsForUser(ctx context.Context, use
 			AuthorUsername: authorUsername,
 			Likes:          likes,
 			CreatedDate:    createdDate,
+			NumComments:    numComments,
 		})
 
 	}

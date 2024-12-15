@@ -27,6 +27,8 @@ type Post struct {
 	CreatedAt string `json:"createdAt"`
 	// Статус поста только для автор ми
 	Status string `json:"status"`
+	// Число комментариев
+	NumComments int `json:"numComments"`
 }
 
 func (p *Post) String() string {
