@@ -159,7 +159,7 @@ func (p *Postgres) GetUsername(ctx context.Context, userID string) (string, erro
 }
 
 func (p *Postgres) SendNotification(ctx context.Context, message, userID, authorID string) error {
-	op := "internal.content.repository.postgresql.SendNotification"
+	op := "internal.author.repository.SendNotification"
 
 	query := `
 	INSERT INTO 

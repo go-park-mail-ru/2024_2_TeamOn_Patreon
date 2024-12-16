@@ -29,6 +29,8 @@ type ContentRepository interface {
 	GetAuthorOfPost(ctx context.Context, postID string) (string, error)
 	// GetUserLayerOfAuthor - уровень подписки пользователя на определенном авторе
 	GetUserLayerOfAuthor(ctx context.Context, userID, authorID string) (int, error)
+	// SendNotification - отправляет уведомление пользователю с userID
+	SendNotification(ctx context.Context, message, userID, authorID string) error
 }
 
 type PostInterface interface {

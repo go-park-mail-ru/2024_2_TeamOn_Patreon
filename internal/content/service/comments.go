@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -67,6 +69,12 @@ func (b *Behavior) CreateComment(ctx context.Context, userID string, postID stri
 		err = errors.Wrap(err, op)
 		return "", errors.Wrap(err, "create comment")
 	}
+
+	// Отправляем уведомление автору поста о новом комментарии
+	if err := b.sendNotificationOfComment(ctx, userID, postID, content); err != nil {
+		logger.StandardDebugF(ctx, op, "failed send notification to AUTHOR about new comment: %v", err)
+	}
+
 	// Возвращаем ид коммента
 	return commentID, nil
 }
@@ -172,5 +180,38 @@ func (b *Behavior) deleteComment(ctx context.Context, userID string, commentID s
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
+	return nil
+}
+
+func (b *Behavior) sendNotificationOfComment(ctx context.Context, userID, postID, content string) error {
+	op := "internal.author.service.sendNotificationOfComment"
+
+	logger.StandardDebugF(ctx, op, "want to send notification to AUTHOR about new comment")
+
+	// Имя пользователя
+	username, err := b.rep.GetUsername(ctx, userID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	// ID автора поста
+	authorID, err := b.rep.GetAuthorOfPost(ctx, postID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	//title поста
+	postTitle, err := b.rep.GetTitleOfPost(ctx, postID)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	message := fmt.Sprintf("Пользователь @%v под вашим постом «%v» оставил комментарий: «%v»", username, postTitle, content)
+
+	if err := b.rep.SendNotification(ctx, message, userID, authorID); err != nil {
+		return errors.Wrap(err, op)
+	}
+
+	logger.StandardDebugF(ctx, op, "Successful send notification: %v", message)
 	return nil
 }
