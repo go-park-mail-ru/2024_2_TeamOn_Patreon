@@ -9,6 +9,9 @@ import (
 	"os"
 )
 
+//go:generate easyjson -all
+
+//easyjson:json
 type MediaUploadRequest struct {
 	// Айди поста, в котором нужно редактировать медиа
 	PostId string `json:"postId,omitempty"`

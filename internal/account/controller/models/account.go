@@ -5,7 +5,11 @@ import (
 	valid "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 )
 
+//go:generate easyjson -all
+
 // Service модель аккаунта пользователя
+//
+//easyjson:json
 type Account struct {
 	// Имя пользователя
 	Username string `json:"username"`

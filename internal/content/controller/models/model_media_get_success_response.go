@@ -5,6 +5,9 @@
  */
 package models
 
+//go:generate easyjson -all
+
+//easyjson:json
 type MediaGetSuccessResponse struct {
 	PostId string `json:"postId,omitempty"`
 

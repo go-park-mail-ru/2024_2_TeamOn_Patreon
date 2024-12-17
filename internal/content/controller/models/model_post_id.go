@@ -2,6 +2,9 @@ package models
 
 import "fmt"
 
+//go:generate easyjson -all
+
+//easyjson:json
 type PostId struct {
 	// id post
 	PostId string `json:"postId"`

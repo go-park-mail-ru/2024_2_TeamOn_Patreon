@@ -10,10 +10,14 @@ package models
 
 import (
 	"fmt"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
+//go:generate easyjson -all
+
+//easyjson:json
 type PostID struct {
 	// ID поста
 	PostID string `json:"postID"`

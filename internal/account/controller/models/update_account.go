@@ -8,7 +8,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate easyjson -all
+
 // Service модель изменения данных аккаунта пользователя
+//
+//easyjson:json
 type UpdateAccount struct {
 	// Имя пользователя
 	Username string `json:"username,omitempty"`

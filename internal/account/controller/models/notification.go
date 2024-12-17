@@ -7,13 +7,19 @@ import (
 	valid "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 )
 
+//go:generate easyjson -all
+
 // Controller модель NotificationID
+//
+//easyjson:json
 type NotificationID struct {
 	// ID уведомления
 	ID string `json:"notificationID"`
 }
 
 // Controller модель Notification
+//
+//easyjson:json
 type Notification struct {
 	// ID уведомления
 	NotificationID string `json:"notificationID"`

@@ -7,6 +7,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate easyjson -all
+
+//easyjson:json
 type SubscriptionRequest struct {
 	SubscriptionRequestID string `json:"subscriptionRequestID"`
 	AuthorID              string `json:"authorID"`

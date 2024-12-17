@@ -8,6 +8,9 @@
 
 package models
 
+//go:generate easyjson -all
+
+//easyjson:json
 type StatTable struct {
 	// Тема вопорса
 	Theme string `json:"theme"`

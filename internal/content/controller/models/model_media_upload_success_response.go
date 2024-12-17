@@ -8,6 +8,9 @@
  */
 package models
 
+//go:generate easyjson -all
+
+//easyjson:json
 type MediaUploadSuccessResponse struct {
 	// Id загруженного медиа-контента
 	MediaId string `json:"mediaId,omitempty"`

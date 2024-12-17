@@ -9,6 +9,9 @@ import (
 	"os"
 )
 
+//go:generate easyjson -all
+
+//easyjson:json
 type MediaGetSuccessResponseMediaContent struct {
 	MediaId string `json:"mediaId,omitempty"`
 	// Формат файла

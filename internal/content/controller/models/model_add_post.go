@@ -3,7 +3,7 @@
  *
  * API для управления постами и лентой
  */
-
+//go:generate easyjson -all
 package models
 
 import (
@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+//easyjson:json
 type AddPost struct {
 	// Заголовок поста
 	Title string `json:"title"`

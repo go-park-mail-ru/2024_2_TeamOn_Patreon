@@ -12,6 +12,9 @@ type InfoPaySubscription struct {
 	PayType     string // Тип платежа
 }
 
+//go:generate easyjson -all
+
+//easyjson:json
 type PaymentRequest struct {
 	Amount       Amount          `json:"amount"`
 	Description  string          `json:"description"`
@@ -20,22 +23,26 @@ type PaymentRequest struct {
 	Test         bool            `json:"test"`
 }
 
+//easyjson:json
 type Amount struct {
 	Value    string `json:"value"`
 	Currency string `json:"currency"`
 }
 
+//easyjson:json
 type ConfirmationReq struct {
 	Type      string `json:"type"`
 	ReturnURL string `json:"return_url,omitempty"`
 }
 
+//easyjson:json
 type NotificationPaymentService struct {
 	Type   string          `json:"type"`
 	Event  string          `json:"event"`
 	Object PaymentResponse `json:"object"`
 }
 
+//easyjson:json
 type PaymentResponse struct {
 	ID           string           `json:"id"`
 	Status       string           `json:"status"`
@@ -47,10 +54,12 @@ type PaymentResponse struct {
 	Metadata     Metadata         `json:"metadata"`
 }
 
+//easyjson:json
 type Metadata struct {
 	PayType string `json:"pay_type"` // Поле для типа платежа
 }
 
+//easyjson:json
 type ConfirmationResp struct {
 	Type            string `json:"type"`
 	ConfirmationURL string `json:"confirmation_url"`
