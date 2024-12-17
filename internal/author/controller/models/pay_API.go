@@ -12,7 +12,7 @@ type InfoPaySubscription struct {
 	PayType     string // Тип платежа
 }
 
-//go:generate easyjson -all
+//go:generate easyjson
 
 //easyjson:json
 type PaymentRequest struct {

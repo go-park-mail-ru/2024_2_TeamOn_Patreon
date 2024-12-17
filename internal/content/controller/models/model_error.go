@@ -7,7 +7,7 @@ package models
 
 import "fmt"
 
-//go:generate easyjson -all
+//go:generate easyjson
 
 //easyjson:json
 type ModelError struct {

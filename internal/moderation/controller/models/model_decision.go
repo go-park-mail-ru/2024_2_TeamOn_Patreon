@@ -16,7 +16,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
-//go:generate easyjson -all
+//go:generate easyjson
 
 // Decision решение модератора об одобрении поста
 //

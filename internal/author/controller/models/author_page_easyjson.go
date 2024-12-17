@@ -60,7 +60,7 @@ func easyjsonD2ce8f2fDecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthor
 				}
 				for !in.IsDelim(']') {
 					var v1 models.Subscription
-					(v1).UnmarshalEasyJSON(in)
+					easyjsonD2ce8f2fDecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorServiceModels(in, &v1)
 					out.Subscriptions = append(out.Subscriptions, v1)
 					in.WantComma()
 				}
@@ -108,7 +108,7 @@ func easyjsonD2ce8f2fEncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthor
 				if v2 > 0 {
 					out.RawByte(',')
 				}
-				(v3).MarshalEasyJSON(out)
+				easyjsonD2ce8f2fEncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorServiceModels(out, v3)
 			}
 			out.RawByte(']')
 		}
@@ -143,4 +143,53 @@ func (v *AuthorPage) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *AuthorPage) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonD2ce8f2fDecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(l, v)
+}
+func easyjsonD2ce8f2fDecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorServiceModels(in *jlexer.Lexer, out *models.Subscription) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "AuthorID":
+			out.AuthorID = string(in.String())
+		case "AuthorName":
+			out.AuthorName = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonD2ce8f2fEncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorServiceModels(out *jwriter.Writer, in models.Subscription) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"AuthorID\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.AuthorID))
+	}
+	{
+		const prefix string = ",\"AuthorName\":"
+		out.RawString(prefix)
+		out.String(string(in.AuthorName))
+	}
+	out.RawByte('}')
 }

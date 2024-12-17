@@ -5,7 +5,7 @@
  */
 package models
 
-//go:generate easyjson -all
+//go:generate easyjson
 
 //easyjson:json
 type Likes struct {

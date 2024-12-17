@@ -3,7 +3,7 @@
  *
  * API для управления постами и лентой
  */
-//go:generate easyjson -all
+//go:generate easyjson
 package models
 
 import (

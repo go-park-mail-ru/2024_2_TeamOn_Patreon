@@ -1,6 +1,6 @@
 package models
 
-//go:generate easyjson -all
+//go:generate easyjson
 
 // ModelError Сообщение об ошибке. Возвыращает бэк
 //

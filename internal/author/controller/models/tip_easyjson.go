@@ -17,101 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson7c3bc009DecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(in *jlexer.Lexer, out *TipRequest) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "TipReqID":
-			out.TipReqID = string(in.String())
-		case "UserID":
-			out.UserID = string(in.String())
-		case "AuthorID":
-			out.AuthorID = string(in.String())
-		case "Cost":
-			out.Cost = int(in.Int())
-		case "Message":
-			out.Message = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson7c3bc009EncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(out *jwriter.Writer, in TipRequest) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"TipReqID\":"
-		out.RawString(prefix[1:])
-		out.String(string(in.TipReqID))
-	}
-	{
-		const prefix string = ",\"UserID\":"
-		out.RawString(prefix)
-		out.String(string(in.UserID))
-	}
-	{
-		const prefix string = ",\"AuthorID\":"
-		out.RawString(prefix)
-		out.String(string(in.AuthorID))
-	}
-	{
-		const prefix string = ",\"Cost\":"
-		out.RawString(prefix)
-		out.Int(int(in.Cost))
-	}
-	{
-		const prefix string = ",\"Message\":"
-		out.RawString(prefix)
-		out.String(string(in.Message))
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v TipRequest) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjson7c3bc009EncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v TipRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson7c3bc009EncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *TipRequest) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjson7c3bc009DecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *TipRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson7c3bc009DecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(l, v)
-}
-func easyjson7c3bc009DecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels1(in *jlexer.Lexer, out *Tip) {
+func easyjson7c3bc009DecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(in *jlexer.Lexer, out *Tip) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -144,7 +50,7 @@ func easyjson7c3bc009DecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthor
 		in.Consumed()
 	}
 }
-func easyjson7c3bc009EncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels1(out *jwriter.Writer, in Tip) {
+func easyjson7c3bc009EncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(out *jwriter.Writer, in Tip) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -170,23 +76,23 @@ func easyjson7c3bc009EncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthor
 // MarshalJSON supports json.Marshaler interface
 func (v Tip) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson7c3bc009EncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels1(&w, v)
+	easyjson7c3bc009EncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Tip) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson7c3bc009EncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels1(w, v)
+	easyjson7c3bc009EncodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Tip) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson7c3bc009DecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels1(&r, v)
+	easyjson7c3bc009DecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Tip) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson7c3bc009DecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels1(l, v)
+	easyjson7c3bc009DecodeGithubComGoParkMailRu20242TeamOnPatreonInternalAuthorControllerModels(l, v)
 }

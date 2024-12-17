@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//go:generate easyjson -all
+//go:generate easyjson
 
 // Service модель изменения данных аккаунта пользователя
 //

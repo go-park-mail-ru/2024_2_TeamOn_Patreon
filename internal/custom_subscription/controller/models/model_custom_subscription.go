@@ -2,7 +2,7 @@ package models
 
 import "fmt"
 
-//go:generate easyjson -all
+//go:generate easyjson
 
 // CustomSubscription Данные о кастономной подписки, которые возвращает бэк
 //

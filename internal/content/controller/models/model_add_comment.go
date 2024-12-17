@@ -5,7 +5,7 @@
  *
  * API version: 1.0.0
  */
-//go:generate easyjson -all
+//go:generate easyjson
 
 package models
 

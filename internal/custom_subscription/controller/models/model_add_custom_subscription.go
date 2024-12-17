@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//go:generate easyjson -all
+//go:generate easyjson
 
 // AddCustomSubscription Данные для добавления кастомной подписки, которые отправляет фронт
 //

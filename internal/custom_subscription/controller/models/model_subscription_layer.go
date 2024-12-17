@@ -2,7 +2,7 @@ package models
 
 import "fmt"
 
-//go:generate easyjson -all
+//go:generate easyjson
 
 // SubscriptionLayer Данные об уровне подписки, которые возвращает бэк
 //

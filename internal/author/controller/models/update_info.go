@@ -1,6 +1,6 @@
 package models
 
-//go:generate easyjson -all
+//go:generate easyjson
 
 // Service модель обновления информации об авторе
 //

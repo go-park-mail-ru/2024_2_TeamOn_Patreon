@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//go:generate easyjson -all
+//go:generate easyjson
 
 // Все, чего нет - не заменяется
 
