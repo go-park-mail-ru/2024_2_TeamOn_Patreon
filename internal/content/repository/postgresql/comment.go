@@ -56,7 +56,7 @@ const (
 		from comment
 			join people using (user_id)
 		where comment.post_id = $1
-		order by comment.created_date desc
+		order by comment.created_date
 		limit $2
 		offset $3
 `
