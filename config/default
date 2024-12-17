@@ -24,11 +24,7 @@ server {
 
     location =  /error.html {
         alias /var/www/mysite/2024_2_TeamOn/src/app/styles/photos/error.html;
-	# expires 30d;
-	# add_header Cache-Control "public, no-transform";
-	#error_page 404 = /var/www/mysite/2024_2_TeamOn/src/app/styles/photos/;
-   
-}
+    }
 
 
     location ^~ /static/ {
@@ -47,7 +43,6 @@ server {
     add_header 'Access-Control-Allow-Credentials' 'true'; 
     add_header 'Access-Control-Allow-Headers' 'X-CSRF-Token, Content-Type';
     add_header 'Access-Control-Allow-Methods' 'GET, POST';
-    #   add_header "Access-Control-Allow-Origin" "*";
     add_header "Access-Control-Allow-Headers" "X-CSRF-Token, Origin, X-Requested-With, Content-Type, Accept";
 
     # Проксирование запросов к /api/auth/token-endpoint
@@ -80,9 +75,9 @@ server {
         rewrite ^/api/accounts/account/update/role /account/update/role break;
         rewrite ^/api/accounts/account/update /account/update break;
         rewrite ^/api/accounts/account /account break;
-	rewrite ^/api/accounts/notification/status/update /notification/status/update break;
-	rewrite ^/api/accounts/notification/new /notification/new break;
-	rewrite ^/api/accounts/notification /notification break;
+        rewrite ^/api/accounts/notification/status/update /notification/status/update break;
+        rewrite ^/api/accounts/notification/new /notification/new break;
+        rewrite ^/api/accounts/notification /notification break;
 
 
 
@@ -99,16 +94,15 @@ server {
 	    rewrite ^/api/pages/token-endpoint /token-endpoint break;
         rewrite ^/api/pages/author/(.*)/background /author/$1/background break;
 	    rewrite ^/api/pages/author/(.*)/tip /author/$1/tip break;
-	    # 	rewrite ^/api/pages/author/(.*) /author/$1 break;
         rewrite ^/api/pages/author/payments /author/payments break;
         rewrite ^/api/pages/author/update/background /author/update/background break;
         rewrite ^/api/pages/author/update/info /author/update/info break;
         rewrite ^/api/pages/subscription/request /subscription/request break;
       	rewrite ^/api/pages/payment/realize /payment/realize break;
         rewrite ^/api/pages/unsubscription /unsubscription break;
-	rewrite ^/api/pages/stat/posts /stat/posts break;
-	rewrite ^/api/pages/stat/payments /stat/payments break;
-rewrite ^/api/pages/author/(.*) /author/$1 break;
+        rewrite ^/api/pages/stat/posts /stat/posts break;
+        rewrite ^/api/pages/stat/payments /stat/payments break;
+        rewrite ^/api/pages/author/(.*) /author/$1 break;
 
 
 	    proxy_pass http://backend_author;
@@ -124,12 +118,11 @@ rewrite ^/api/pages/author/(.*) /author/$1 break;
 	    rewrite ^/api/posts/token-endpoint /token-endpoint break;
 	    rewrite ^/api/posts/feed/popular /feed/popular break;
         rewrite ^/api/posts/feed/subscriptions /feed/subscriptions break;
-      rewrite ^/api/posts/posts/(.*)/comments/create /posts/$1/comments/create break;
+        rewrite ^/api/posts/posts/(.*)/comments/create /posts/$1/comments/create break;
 
        	rewrite ^/api/posts/posts/(.*)/comments /posts/$1/comments break;
         rewrite ^/api/posts/posts/comments/(.*)/update /posts/comments/$1/update break;
         rewrite ^/api/posts/posts/comments/(.*)/delete /posts/comments/$1/delete break;
-	#rewrite ^/api/posts/posts/(.*)/comments/create /posts/$1/comments/create break;
 
        	rewrite ^/api/posts/post/like /post/like break;
        	rewrite ^/api/posts/post/update /post/update break;
@@ -248,12 +241,6 @@ rewrite ^/api/pages/author/(.*) /author/$1 break;
         expires 30d; 
         add_header Cache-Control "public, no-transform";
     }
-    #   location = /error.html {
-    #    try_files $uri =404;
-    #    alias /var/www/mysite/2024_2_TeamOn/src/app/styles/photos/;
-    #   expires 30d;
-    #    add_header Cache-Control "public, no-transform";
-    #}
 
     ssl_certificate /etc/letsencrypt/live/pushart.online/fullchain.pem; 
     ssl_certificate_key /etc/letsencrypt/live/pushart.online/privkey.pem; 
