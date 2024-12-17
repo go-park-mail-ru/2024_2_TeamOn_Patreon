@@ -25,7 +25,7 @@ SELECT
     author.Username AS author_username, 
     COUNT(Like_Post.like_post_id) AS likes,
     post.created_date,
-    (SELECT * FROM Comment where post_id = post.post_id) as comments
+    (SELECT COUNT(*) FROM Comment where post_id = post.post_id) as comments
 FROM 
     post
 JOIN 
