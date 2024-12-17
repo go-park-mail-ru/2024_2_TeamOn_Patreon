@@ -2,7 +2,7 @@ name: Docker CI
 
 on:
   push:
-    branches: [ "ci" ]
+    branches: [ "load" ]
   pull_request:
     branches: [ "load" ]
 env:
