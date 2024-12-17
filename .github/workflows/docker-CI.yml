@@ -1,0 +1,76 @@
+name: Docker CI
+
+on:
+  push:
+    branches: [ "ci" ]
+  pull_request:
+    branches: [ "load" ]
+env:
+  IMAGE_REGISTRY: "ghcr.io"
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Lint go
+        run: go vet ./...
+  tests:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache-dependency-path: go.sum
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+      - name: Set up Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+      - name: Docker up for tests
+        run: |
+          cd ./cmd/microservices
+          docker-compose build --progress=plain --cache-from=type=local,src=/tmp/.buildx-cache \
+          --cache-to=type=local,dest=/tmp/.buildx-cache
+          docker-compose up -d postgres migrate-service filling-service
+
+      - name: Install dependencies
+        run: go mod tidy
+      - name: Tests
+        run: go test ./...
+
+  deploy:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Run commands on server
+        run: |
+          ssh -o ServerAliveInterval=30 -i ~/.ssh/id_rsa ubuntu@${{ secrets.SSH_HOST }} << EOF
+            echo 'Connected successfully!'
+            uname -a
+            pwd
+            cd ./2024_2_TeamOn_Patreon
+            sudo git fetch origin
+            sudo git checkout load
+            sudo git pull origin load
+            cd ./cmd/microservices
+            sudo docker-compose down
+            sudo docker-compose up -d --build
+          EOF

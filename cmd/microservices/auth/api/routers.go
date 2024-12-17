@@ -6,6 +6,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
 
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller"
 	bInterfaces "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/interafces"
@@ -89,11 +90,15 @@ func NewRouter(behavior bInterfaces.AuthBehavior) *mux.Router {
 			Handler(handler)
 	}
 
+	testEnv := config.GetEnv("STATUS", "prod")
+
 	// регистрируем middlewares
 	router.Use(middlewares.AddRequestID)
 	router.Use(middlewares.Logging)
-	router.Use(middlewares.Security)
-	router.Use(middlewares.CsrfMiddleware)
+	if testEnv != "test" {
+		router.Use(middlewares.Security)
+		router.Use(middlewares.CsrfMiddleware)
+	}
 
 	// Метрики
 	metrics.NewMetrics(prometheus.DefaultRegisterer)

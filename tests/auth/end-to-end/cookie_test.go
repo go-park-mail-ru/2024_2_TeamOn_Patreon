@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -15,7 +16,7 @@ import (
 func (ts *TestServer) TestUserRegisterWithCookie(t *testing.T) {
 	// Тестовые данные для регистрации
 	registerData := map[string]string{
-		"username": "testuser",
+		"username": "testuser" + strconv.Itoa(time.Now().Second()),
 		"password": "Test@1234",
 	}
 

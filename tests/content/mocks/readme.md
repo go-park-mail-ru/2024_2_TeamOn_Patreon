@@ -22,12 +22,15 @@ type DataStore interface {
     GetData(id int) (string, error)
 }
 ```
-
+E:\Documents\university\VK\golang\2024_2_TeamOn_Patreon\
 ### Генерируем мок
 
 С помощью mockgen можно сгенерировать код мока для интерфейса DataStore. Вызовите следующую команду:
 ``` bash
 mockgen -source=path/to/interface.go -destination=path/to/res_mock.go -package=mock_interfaces
+
+[//]: # у нас: для контента
+[//]: # (mockgen -source=./internal/content/controller/interfaces/content_behavior.go -destination=./tests/content/mocks/mock_interfaces/mock_content_service.go -package=./tests/content/mocks/mock_interfaces)
 ```
 Эта команда создаст файл mock_datastore.go с автоматически сгенерированным мок-объектом для интерфейса DataStore.
 

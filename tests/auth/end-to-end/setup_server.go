@@ -11,6 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/middlewares"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -20,6 +21,7 @@ import (
 // TestServer содержит общий сервер
 type TestServer struct {
 	server *httptest.Server
+	db     *pgxpool.Pool
 }
 
 // SetupTestServer инициализирует сервер и роутер
@@ -28,11 +30,12 @@ func SetupTestServer() *TestServer {
 	logger.New()
 
 	// pkg
-	config.InitEnv("pkg/.env.default", "pkg/auth/.env.default")
+	config.InitEnv("../../../config/.env.default", "../../../config/auth/.env.default")
 
 	// repository
 	db := postgres.InitPostgresDB(context.Background())
-	defer db.Close()
+
+	// defer db.Close()
 
 	rep := postgresql.NewAuthRepository(db)
 	beh := service.New(rep)
@@ -45,12 +48,13 @@ func SetupTestServer() *TestServer {
 
 	// Создание тестового сервера
 	ts := httptest.NewServer(router)
-	return &TestServer{server: ts}
+	return &TestServer{server: ts, db: db}
 }
 
 // TearDown останавливает тестовые сервер
 func (ts *TestServer) TearDown() {
 	ts.server.Close()
+	ts.db.Close()
 }
 
 // MakeRequest создает запрос к тестовому серверу
