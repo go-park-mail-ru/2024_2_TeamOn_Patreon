@@ -62,7 +62,7 @@ jobs:
 
       - name: Run commands on server
         run: |
-          ssh -o ServerAliveInterval=30 -i ~/.ssh/id_rsa root@${{ secrets.SSH_HOST }} << EOF
+          ssh -o ServerAliveInterval=30 -i ~/.ssh/id_rsa ubuntu@${{ secrets.SSH_HOST }} << EOF
             echo 'Connected successfully!'
             uname -a
             pwd
