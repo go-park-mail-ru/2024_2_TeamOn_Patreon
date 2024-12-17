@@ -108,7 +108,7 @@ func (b *Behavior) getUser(ctx context.Context, username string) (*bModels.User,
 	op := "auth.service.GetUser"
 
 	userId, role, err := b.rep.GetUserByUsername(ctx, username)
-	logger.StandardDebugF(ctx, op, "Got userId=%v role=%v by username", userId, role, username)
+	logger.StandardDebugF(ctx, op, "Got userId=%v role=%v by username=%v", userId, role, username)
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}

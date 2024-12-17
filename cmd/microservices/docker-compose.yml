@@ -34,6 +34,7 @@ services:
       dockerfile: cmd/microservices/auth/Dockerfile
     ports:
       - "8081:8081"
+      - "777:777"
     env_file:
       - ../../config/auth/.env.default
       - ../../config/.env.docker
@@ -118,6 +119,21 @@ services:
     networks:
       - monitoring
 
+  moderation-service:
+    build:
+      context: ../../
+      dockerfile: cmd/microservices/moderation/Dockerfile
+    ports:
+      - "8087:8087"
+    depends_on:
+      - postgres
+    env_file:
+      - ../../config/moderation/.env.default
+      - ../../config/.env.docker
+    networks:
+      - monitoring
+
+
   migrate-service:
     build:
       context: ../../
@@ -126,6 +142,9 @@ services:
       - postgres
     networks:
       - monitoring
+    env_file:
+      - ../../config/.env.docker
+    restart: on-failure  # Перезапускать, если сервис завершился с ошибкой
 
   filling-service:
     build:
@@ -135,6 +154,10 @@ services:
       - migrate-service
     networks:
       - monitoring
+    env_file:
+      - ../../config/.env.docker
+    restart: on-failure  # Перезапускать, если сервис завершился с ошибкой
+
 
   # CSAT
   postgres-csat:
@@ -177,6 +200,7 @@ services:
       - postgres-csat
     networks:
       - monitoring
+    restart: on-failure  # Перезапускать, если сервис завершился с ошибкой
 
   # CSAT
   filling-csat-service:
@@ -190,46 +214,47 @@ services:
       - migrate-csat-service
     networks:
       - monitoring
+    restart: on-failure  # Перезапускать, если сервис завершился с ошибкой
 
 
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
-    restart: unless-stopped
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    ports:
-      - 9100:9100
-    networks:
-      - monitoring
+  # node-exporter:
+  #   image: prom/node-exporter:latest
+  #   container_name: node-exporter
+  #   restart: unless-stopped
+  #   volumes:
+  #     - /proc:/host/proc:ro
+  #     - /sys:/host/sys:ro
+  #     - /:/rootfs:ro
+  #   command:
+  #     - '--path.procfs=/host/proc'
+  #     - '--path.rootfs=/rootfs'
+  #     - '--path.sysfs=/host/sys'
+  #     - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+  #   ports:
+  #     - 9100:9100
+  #   networks:
+  #     - monitoring
 
-  # Prometheus
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    networks:
-      - monitoring
-    volumes:
-      - ../../internal/pkg/middlewares/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
+  # # Prometheus
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   networks:
+  #     - monitoring
+  #   volumes:
+  #     - ../../internal/pkg/middlewares/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    networks:
-      - monitoring
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   ports:
+  #     - "3000:3000"
+  #   networks:
+  #     - monitoring
 
 networks:
   monitoring:

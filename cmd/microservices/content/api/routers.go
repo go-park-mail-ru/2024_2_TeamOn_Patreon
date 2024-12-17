@@ -2,9 +2,6 @@ package api
 
 import (
 	"context"
-	"net/http"
-	"strings"
-
 	api "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/interfaces"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -13,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"net/http"
 )
 
 type Route struct {
@@ -56,44 +54,65 @@ func handleAuth(router *mux.Router, behavior interfaces.ContentBehavior) *mux.Ro
 	var routes = Routes{
 		Route{
 			"PostLikePost",
-			strings.ToUpper("Post"),
+			http.MethodPost,
 			"/post/like",
 			handler.PostLikePost,
 		},
 
 		Route{
 			"PostPost",
-			strings.ToUpper("Post"),
+			http.MethodPost,
 			"/post",
 			handler.PostPost,
 		},
 
 		Route{
 			"PostUpdatePost",
-			strings.ToUpper("Post"),
+			http.MethodPost,
 			"/post/update",
 			handler.PostUpdatePost,
 		},
 
 		Route{
 			"PostUploadContentPost",
-			strings.ToUpper("Post"),
+			http.MethodPost,
 			"/post/upload/media/{postID}",
 			handler.PostUploadMediaPost,
 		},
 
 		Route{
 			"PostUploadContentPost",
-			strings.ToUpper("Delete"),
+			http.MethodDelete,
 			"/post/delete/media/{postID}",
 			handler.PostDeleteMedia,
 		},
 
 		Route{
 			"PostsPostIdDelete",
-			strings.ToUpper("Delete"),
+			http.MethodDelete,
 			"/delete/post/{postID}",
 			handler.PostsPostIdDelete,
+		},
+
+		Route{
+			"PostsCommentsCommentIDDeleteDelete",
+			http.MethodDelete,
+			"/posts/comments/{commentID}/delete",
+			handler.PostsCommentsCommentIDDeleteDelete,
+		},
+
+		Route{
+			"PostsCommentsCommentIDUpdatePost",
+			http.MethodPost,
+			"/posts/comments/{commentID}/update",
+			handler.PostsCommentsCommentIDUpdatePost,
+		},
+
+		Route{
+			"PostsPostIDCommentsCreatePost",
+			http.MethodPost,
+			"/posts/{postID}/comments/create",
+			handler.PostsPostIDCommentsCreatePost,
 		},
 	}
 
@@ -120,40 +139,46 @@ func handleOther(router *mux.Router, behavior interfaces.ContentBehavior) {
 	var routes = Routes{
 		Route{
 			"FeedPopularGet",
-			strings.ToUpper("Get"),
+			http.MethodGet,
 			"/feed/popular",
 			handler.FeedPopularGet,
 		},
 
 		Route{
 			"FeedSubscriptionsGet",
-			strings.ToUpper("Get"),
+			http.MethodGet,
 			"/feed/subscriptions",
 			handler.FeedSubscriptionsGet,
 		},
 
 		Route{
 			"AuthorPostAuthorIdGet",
-			strings.ToUpper("Get"),
+			http.MethodGet,
 			"/author/post/{authorID}",
 			handler.AuthorPostAuthorIdGet,
 		},
 
 		Route{
 			"PostMediaGet",
-			strings.ToUpper("Get"),
+			http.MethodGet,
 			"/post/media/{postID}",
 			handler.PostMediaGet,
 		},
 		Route{
+			"PostsPostIDCommentsGet",
+			http.MethodGet,
+			"/posts/{postID}/comments",
+			handler.PostsPostIDCommentsGet,
+		},
+		Route{
 			"GetCSRFToken",
-			strings.ToUpper("Get"),
+			http.MethodGet,
 			"/token-endpoint",
 			middlewares.GetCSRFTokenHandler,
 		},
 		Route{
 			"Metrics",
-			"GET",
+			http.MethodGet,
 			"/metrics",
 			promhttp.Handler().ServeHTTP,
 		},

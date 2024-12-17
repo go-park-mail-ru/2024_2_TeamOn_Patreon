@@ -47,12 +47,15 @@ var (
 
 	// author
 
+	ErrAuthorDoesNotExist    = errors.New("author doesn`t exist")
 	ErrInvalidMonthCount     = errors.New("month count must be positive integer and and no more than 12")
 	ErrInvalidLayer          = errors.New("layer must be from 1 to 3")
 	ErrInvalidAuthorID       = errors.New("the author cannot subscribe to himself")
 	ErrUserIsNotAuthor       = errors.New("user is not author")
 	ErrSubReqDoesNotExist    = errors.New("subscription request does not exit")
+	ErrTipReqDoesNotExist    = errors.New("tip request does not exit")
 	ErrCustomSubDoesNotExist = errors.New("custom subscription does not exist")
+	ErrNotPaid               = errors.New("request rejected: not paid")
 
 	// logout
 
@@ -97,14 +100,24 @@ var (
 
 	ErrAuthorNameTooLong = errors.New("author name too long")
 
-
 	// csat
 
 	ErrInvalidRating = errors.New("invalid rating value")
 
-	ErrNotValidDays      = errors.New("not valid number of days")
-	ErrDaysIsNotDigital  = errors.New("days is not digital")
+	ErrNotValidDays     = errors.New("not valid number of days")
+	ErrDaysIsNotDigital = errors.New("days is not digital")
 
+	// moderation
+
+	ErrStatusIncorrect = errors.New("status incorrect")
+
+	// statistic
+	ErrBadTime = errors.New("bad time request")
+
+	// comment
+
+	ErrCommentDoesntExist = errors.New("comment doesn`t exist")
+	ErrCommentTooLong     = errors.New("comment too long")
 )
 
 type ErrorHttpInfo struct {
@@ -156,7 +169,9 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrInvalidAuthorID:       {msg: "Вы не можете оформить подписки на себя", code: http.StatusBadRequest},
 	ErrUserIsNotAuthor:       {msg: "Пользователь не является автором", code: http.StatusBadRequest},
 	ErrSubReqDoesNotExist:    {msg: "Запрос на оформление подписки не найден", code: http.StatusBadRequest},
+	ErrTipReqDoesNotExist:    {msg: "Запрос на донат не найден", code: http.StatusBadRequest},
 	ErrCustomSubDoesNotExist: {msg: "Выбранный уровень подписки не существует", code: http.StatusBadRequest},
+	ErrAuthorDoesNotExist:    {msg: "Автор не существует", code: http.StatusBadRequest},
 
 	// content
 	ErrFieldTooLong:             {msg: "поле слишком длинное", code: http.StatusBadRequest},
@@ -189,7 +204,16 @@ var mapErrToHttpModel = map[error]ErrorHttpInfo{
 	ErrNotValidDays:     {msg: "Неправильное количество дней", code: http.StatusBadRequest},
 	ErrDaysIsNotDigital: {msg: "Количество дней выражается в числах", code: http.StatusBadRequest},
 
-}
+	// moderation
+	ErrStatusIncorrect: {msg: "Статус неверный", code: http.StatusBadRequest},
+
+	// statistic
+	ErrBadTime: {msg: "Статистику можно получить только за day/month/year", code: http.StatusBadRequest},
+	// comment
+	ErrCommentDoesntExist: {msg: "Комментарий не существует", code: http.StatusBadRequest},
+	ErrCommentTooLong:     {msg: "Комментарий слишком длинный", code: http.StatusBadRequest},
+
+	}
 
 func GetMsgError(err error) string {
 	err = errors.Cause(err)

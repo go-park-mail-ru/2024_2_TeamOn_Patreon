@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/config"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres/filling/consts"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/repository/postgres/filling/models"
 	"github.com/google/uuid"
@@ -12,6 +14,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 )
 
 type CustomSub struct {
@@ -48,12 +51,11 @@ func main() {
 	n := consts.COUNT_USER
 
 	// Параметры подключения к PostgreSQL
-	dbHost := "postgres"
-	dbHost = "127.0.0.1"
-	dbPort := 5432
-	dbUser := "admin"
-	dbPassword := "adminpass"
-	dbName := "testdb"
+	dbHost := config.GetEnv(global.EnvDBHost, "127.0.0.1")
+	dbPort, _ := strconv.Atoi(config.GetEnv(global.EnvPort, "5432"))
+	dbUser := config.GetEnv(global.EnvDbUser, "admin")
+	dbPassword := config.GetEnv(global.EnvDbPassword, "adminpass")
+	dbName := config.GetEnv(global.EnvDbName, "testdb")
 
 	path := "models/authors.json"
 	path = "internal/pkg/repository/postgres/filling/models/authors.json"
@@ -84,7 +86,13 @@ func main() {
 
 	log.Println(filling)
 
-	if err := filling.createUsers(context.Background(), pool, n); err != nil {
+	if err := filling.createModerator(context.Background(), pool); err != nil {
+		log.Fatalf("Ошибка при создании модератора: %v", err)
+	}
+
+	fmt.Printf("Создано модератор %v \n ", n)
+
+	if err = filling.createUsers(context.Background(), pool, n); err != nil {
 		log.Fatalf("Ошибка при создании пользователей: %v", err)
 	}
 
@@ -125,6 +133,47 @@ func main() {
 	}
 
 	fmt.Printf("Создано %d лайков \n", index)
+}
+
+func (f *Filling) createModerator(ctx context.Context, pool *pgxpool.Pool) error {
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return fmt.Errorf("не удалось получить соединение из пула: %v", err)
+	}
+	defer conn.Release()
+
+	batch := &pgx.Batch{}
+
+	// Подготавливаем данные для пользователей и связанных записей
+	userID := uuid.New()
+	username := "moderator"
+	email := fmt.Sprintf(consts.EMAIL_DOMAIN_NAME, username)
+
+	// Генерация хеша пароля
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(consts.PASSWORD), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("ошибка хеширования пароля: %v", err)
+	}
+
+	// Запрос на добавление пользователя
+	batch.Queue(`
+            INSERT INTO People (user_id, username, email, role_id, hash_password) 
+            VALUES ($1, $2, $3, (SELECT role_id FROM Role WHERE role_default_name = 'Moderator'), $4)`,
+		userID, username, email, passwordHash)
+
+	// Выполнение батч-запроса
+	br := conn.Conn().SendBatch(ctx, batch)
+	defer br.Close()
+
+	// Проверка результатов выполнения батча
+	for i := 0; i < batch.Len(); i++ {
+		_, err := br.Exec()
+		if err != nil {
+			return fmt.Errorf("ошибка выполнения батч-запроса на шаге %d: %v", i+1, err)
+		}
+	}
+
+	return nil
 }
 
 func (f *Filling) createUsers(ctx context.Context, pool *pgxpool.Pool, n int) error {
@@ -302,7 +351,7 @@ func (f *Filling) createCustomSubscriptions(ctx context.Context, pool *pgxpool.P
 				cost = consts.CUSTOM_COST*layer + 10
 			}
 
-			f.CustomSubToAuthor[customSubID] = CustomSub{layer: string(layer), authorName: authorName, customID: customSubID}
+			f.CustomSubToAuthor[customSubID] = CustomSub{layer: strconv.Itoa(layer), authorName: authorName, customID: customSubID}
 
 			// Запрос на добавление пользователя
 			batch.Queue(`
@@ -355,7 +404,7 @@ func (f *Filling) createSubscriptions(ctx context.Context, pool *pgxpool.Pool, n
 			if f.Users[Author(authorName)] == nil {
 				f.Users[Author(authorName)] = make(map[Layer][]User)
 			}
-			f.Users[Author(authorName)][Layer(string(layer))] = append(f.Users[Author(authorName)][Layer(string(layer))], User(username))
+			f.Users[Author(authorName)][Layer(strconv.Itoa(layer))] = append(f.Users[Author(authorName)][Layer(strconv.Itoa(layer))], User(username))
 
 			// Запрос на добавление пользователя
 			batch.Queue(`
@@ -410,10 +459,11 @@ func (f *Filling) createPosts(ctx context.Context, pool *pgxpool.Pool, n int) er
 			if f.Posts[Author(authorName)] == nil {
 				f.Posts[Author(authorName)] = make(map[Layer][]PostTitle)
 			}
-			f.Posts[Author(authorName)][Layer(string(layer))] = append(f.Posts[Author(authorName)][Layer(string(layer))], PostTitle(title)) // Запрос на добавление пользователя
+			f.Posts[Author(authorName)][Layer(strconv.Itoa(layer))] = append(f.Posts[Author(authorName)][Layer(strconv.Itoa(layer))], PostTitle(title)) // Запрос на добавление пользователя
 			batch.Queue(`
-INSERT INTO Post (post_id, user_id, title, about, subscription_layer_id) VALUES
-    (gen_random_uuid(), (SELECT user_id FROM People WHERE username = $1), $2, $3 , (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $4))
+INSERT INTO Post (post_id, user_id, title, about, subscription_layer_id, post_status_id) VALUES
+    (gen_random_uuid(), (SELECT user_id FROM People WHERE username = $1), $2, $3 , (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $4),
+     (select post_status_id from post_status where status = 'PUBLISHED'))
 `,
 				authorName, title, about, layer)
 		}

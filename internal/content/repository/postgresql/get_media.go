@@ -41,7 +41,7 @@ func (cr *ContentRepository) GetContentsByPost(ctx context.Context, postID strin
 			return nil, errors.Wrap(err, op)
 		}
 		logger.StandardDebugF(ctx, op,
-			"Got  media: post_id=%v title=%v authorId=%v authorUsername=%v likes=%v created_date=%v",
+			"Got  media: contentID=%v contentType=%v contentURL=%v",
 			contentID, contentType, contentURL)
 		medias = append(medias, &models.Media{
 			MediaID:   contentID,

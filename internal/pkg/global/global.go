@@ -21,7 +21,16 @@ const BehaviorKey = "service"
 // UserKey - ключ для получения бизнес-модельки юзера из контекста
 const UserKey string = "user"
 
+// CtxReqId Константа для пролучения reqID из контекста
+const CtxReqId = "request_id"
+
 // ROLEs - лежат в общих моделях
+
+// statistic
+const (
+	StatPosts    = "posts"
+	StatPayments = "payments"
+)
 
 // ENV
 const (
@@ -48,4 +57,10 @@ const (
 
 	EnvGRPCPort    = "GRPC_PORT"
 	EnvGRPCTimeout = "GRPC_TIMEOUT"
+	EnvGRPCAddress = "GRPC_ADDRESS"
+
+	// API Payment Service
+
+	EnvClientID  = "CLIENT_ID"
+	EnvSecretKey = "SECRET_KEY"
 )

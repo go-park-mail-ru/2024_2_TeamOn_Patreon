@@ -13,8 +13,10 @@ const (
 	// Input: $1 postId, $2 userId, $3 title, $4 about, $5 layer - уровень подписки
 	// Output: empty
 	insertPostSQL = `
-		INSERT INTO Post (post_id, user_id, title, about, subscription_layer_id, created_date) VALUES
-    ($1, $2, $3, $4, (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $5), NOW())
+		INSERT INTO Post (post_id, user_id, title, about, subscription_layer_id, post_status_id, created_date) VALUES
+    ($1, $2, $3, $4, (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = $5), 
+     (SELECT post_status_id FROM Post_Status WHERE status = 'PUBLISHED'),
+     NOW())
   `
 
 	// deletePostSQL - удаляет 1 пост по id
@@ -32,6 +34,14 @@ const (
 		from Post
 		where post_id = $1
 `
+	// getTitleOfPost - возвращает title поста
+	// Input: $1 postId
+	// Output: title
+	getTitleOfPost = `
+		select title
+		from Post
+		where post_id = $1
+`
 
 	// Update
 
@@ -40,7 +50,7 @@ const (
 	// Output: empty
 	updateTitleOfPost = `
 		update Post
-		SET title = $2
+		SET title = $2, updated_date = NOW(), post_status_id = (select post_status_id from Post_Status where status = 'PUBLISHED')
 		WHERE post_id = $1
 `
 
@@ -49,8 +59,26 @@ const (
 	// Output: empty
 	updateContentOfPost = `
 		update Post
-		SET about = $2
+		SET about = $2, updated_date = NOW(), post_status_id = (select post_status_id from Post_Status where status = 'PUBLISHED')
 		WHERE post_id = $1
+`
+
+	// updateStatusOfPost - обновляет статус поста
+	// Input: $1 - postID, $2 - status
+	// Output: empty
+	updateStatusOfPost = `
+		update Post
+		SET post_status_id = (select post_status_id from Post_Status where status = $2)
+		WHERE post_id = $1
+`
+
+	// getPostByIDSQL - достает пост по ид
+	// Input: $1 - postID
+	// Output: title, content
+	getPostByIDSQL = `
+	SELECT title, about
+	FROM Post
+	WHERE post_id = $1
 `
 )
 
@@ -118,4 +146,64 @@ func (cr *ContentRepository) UpdateContentOfPost(ctx context.Context, postID str
 		return errors.Wrap(err, op)
 	}
 	return nil
+}
+
+func (cr *ContentRepository) GetTitleOfPost(ctx context.Context, postID string) (string, error) {
+	op := "internal.content.repository.post.GetTitleOfPost"
+
+	rows, err := cr.db.Query(ctx, getTitleOfPost, postID)
+	if err != nil {
+		return "", errors.Wrap(err, op)
+	}
+
+	defer rows.Close()
+
+	var (
+		title string
+	)
+
+	for rows.Next() {
+		if err = rows.Scan(&title); err != nil {
+			return "", errors.Wrap(err, op)
+		}
+		logger.StandardDebugF(ctx, op, "Got title='%s' of post='%v'", title, postID)
+		return title, nil
+	}
+	return "", errors.Wrap(global.ErrPostDoesntExists, op)
+}
+
+
+func (cr *ContentRepository) UpdatePostStatus(ctx context.Context, postID string, status string) error {
+	op := "moderation.repository.post.UpdatePostStatus"
+
+	_, err := cr.db.Exec(ctx, updateStatusOfPost, postID, status)
+	if err != nil {
+		return errors.Wrap(err, op)
+	}
+	return nil
+}
+
+func (cr *ContentRepository) GetPostByID(ctx context.Context, postID string) (string, string, error) {
+	op := "internal.content.repository.post.GetPostByID"
+
+	rows, err := cr.db.Query(ctx, getPostByIDSQL, postID)
+	if err != nil {
+		return "", "", errors.Wrap(err, op)
+	}
+
+	defer rows.Close()
+
+	var (
+		title   string
+		content string
+	)
+
+	for rows.Next() {
+		if err = rows.Scan(&title, &content); err != nil {
+			return "", "", errors.Wrap(err, op)
+		}
+		logger.StandardDebugF(ctx, op, "Got title='%s' content='%v' of post='%v'", title, content, postID)
+		return title, content, nil
+	}
+	return "", "", errors.Wrap(global.ErrPostDoesntExists, op)
 }

@@ -8,12 +8,13 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
-	"time"
 
 	repModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/repository/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
@@ -45,13 +46,13 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*repModels.
 	var author repModels.Author
 
 	if err := p.db.QueryRow(ctx, query, authorID).Scan(&author.Username, &author.Info); err != nil {
-		if err == sql.ErrNoRows {
+		if err == pgx.ErrNoRows {
 			// Если автор не найден, возвращаем nil без ошибки
 			logger.StandardInfoF(
 				ctx,
 				"author with authorID='%v' not found", authorID,
 				op)
-			return nil, nil
+			return nil, errors.Wrap(global.ErrAuthorDoesNotExist, op)
 		}
 		return nil, errors.Wrap(err, op)
 	}
@@ -72,9 +73,10 @@ func (p *Postgres) AuthorByID(ctx context.Context, authorID string) (*repModels.
 		if err == sql.ErrNoRows {
 			// Если подписчики не найдены, проставляем ноль
 			author.Followers = 0
+		} else {
+			logger.StandardDebugF(ctx, op, "get followers error: {%v}", err)
+			return nil, errors.Wrap(err, op)
 		}
-		logger.StandardDebugF(ctx, op, "get followers error: {%v}", err)
-		return nil, errors.Wrap(err, op)
 	}
 
 	// Возвращаем данные автора
@@ -166,16 +168,30 @@ func (p *Postgres) Payments(ctx context.Context, authorID string) (int, error) {
 
 	// SQL-запрос для получения payments за донаты и подписки
 	query := `
+		WITH total_tips AS (
+			SELECT 
+				COALESCE(SUM(cost), 0) AS total_cost
+			FROM 
+				tip
+			WHERE 
+				author_id = $1
+			),
+		total_subscriptions AS (
+			SELECT 
+				COALESCE(SUM(cs.cost), 0) AS total_cost
+			FROM 
+				subscription s
+			LEFT JOIN
+				custom_subscription cs ON cs.custom_subscription_id = s.custom_subscription_id
+			WHERE 
+				cs.author_id = $1
+		)
+
 		SELECT 
-			COALESCE(SUM(t.cost), 0) + COALESCE(SUM(cs.cost), 0) AS total_payments
+			tt.total_cost + ts.total_cost AS total_payments
 		FROM 
-			custom_subscription cs
-		LEFT JOIN 
-			subscription s ON cs.custom_subscription_id = s.custom_subscription_id
-		LEFT JOIN 
-			tip t ON cs.author_id = t.author_id
-		WHERE 
-			cs.author_id = $1
+			total_tips tt,
+			total_subscriptions ts;
 	`
 
 	var amountPayments int
@@ -296,30 +312,29 @@ func (p *Postgres) UpdateBackground(ctx context.Context, authorID string, backgr
 	return nil
 }
 
-func (p *Postgres) NewTip(ctx context.Context, userID, authorID string, cost int, message string) error {
-	op := "internal.account.repository.NewTip"
+func (p *Postgres) GetAuthorPageID(ctx context.Context, userID string) (string, error) {
+	op := "internal.author.repository.GetAuthorPageID"
 
-	// Запрос на добавление записи Tip
+	// SQL-запрос для получения username, info
 	query := `
-		INSERT INTO 
-			tip (tip_id, user_id, author_id, cost, message, payed_date)
-        VALUES 
-			($1, $2, $3, $4, $5, $6)
+		SELECT 
+			page_id
+		FROM 
+			page 
+		WHERE 
+			user_id = $1;
 	`
 
-	tipID := p.GenerateID()
-	// Выполняем запрос
-	if _, err := p.db.Exec(ctx, query, tipID, userID, authorID, cost, message, time.Now()); err != nil {
-		return errors.Wrap(err, op)
-	}
+	var pageID string
 
-	logger.StandardInfo(
-		ctx,
-		fmt.Sprintf("successful create new record for authorID: %s", authorID),
-		op,
-	)
-	// Возвращаем nil, если обновление прошло успешно
-	return nil
+	err := p.db.QueryRow(ctx, query, userID).Scan(&pageID)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return "", nil
+		}
+		return "", errors.Wrap(err, op)
+	}
+	return pageID, nil
 }
 
 func (p *Postgres) GenerateID() string {

@@ -4,6 +4,8 @@ import (
 	"context"
 	"mime/multipart"
 
+	pkgModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/pkg/models"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
 	sModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/service/models"
 )
 
@@ -30,12 +32,28 @@ type AuthorService interface {
 	// PostUpdateBackground - изменение фона страницы автора
 	PostUpdateBackground(ctx context.Context, authorID string, avatar multipart.File, fileName string) error
 
-	// PostTip - обновление информации о себе
-	PostTip(ctx context.Context, userID, authorID string, cost int, message string) error
+	// TIP
 
-	// CreateSubscriptionRequest создаёт пользователя запрос на подписку на автора
-	CreateSubscriptionRequest(ctx context.Context, subReq sModels.SubscriptionRequest) (string, error)
+	// CreateTipRequest - создаёт запрос на отправку пожертвования
+	CreateTipRequest(ctx context.Context, tipReq models.TipRequest) error
+
+	// RealizeTipRequest реализует запрос пользователя на донат автору
+	RealizeTipRequest(ctx context.Context, tipReqID string, status bool, description string) error
+
+	// SUBSCRIBE
+
+	// GetCostSubscription получает стоимость подписки по уровню и сроку подписки
+	GetCostSubscription(ctx context.Context, monthCount int, authorID string, layer int) (string, error)
+
+	// CreateSubscriptionRequest создаёт пользовательский запрос на подписку на автора
+	CreateSubscriptionRequest(ctx context.Context, subReq sModels.SubscriptionRequest) error
 
 	// CreateSubscribeRequest реализует запрос пользователя на подписку на автора
-	RealizeSubscriptionRequest(ctx context.Context, subReqID string) error
+	RealizeSubscriptionRequest(ctx context.Context, subReqID string, status bool, description string) error
+
+	// STATISTIC
+
+	// GetStatistic - возвращает структуру с массивом точек по времени и массивом точек по количеству выборки
+	// statParam - параметр, по которому собирается статистика
+	GetStatistic(ctx context.Context, userID, time, statParam string) (*pkgModels.Graphic, error)
 }

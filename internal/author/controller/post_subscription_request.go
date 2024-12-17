@@ -2,9 +2,11 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
+
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -62,8 +64,8 @@ func (handler *Handler) PostSubscriptionRequest(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// Обращение в service
-	subReqID, err := handler.serv.CreateSubscriptionRequest(ctx, models.MapSubReqToServiceSubReq(userID, subReq))
+	// Получение через service суммы оплаты
+	costSubscription, err := handler.serv.GetCostSubscription(ctx, subReq.MonthCount, subReq.AuthorID, subReq.Layer)
 	if err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
@@ -71,9 +73,35 @@ func (handler *Handler) PostSubscriptionRequest(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// Возвращаем ID запроса на подписку
-	subReq.SubscriptionRequestID = subReqID
-	if err = json.NewEncoder(w).Encode(subReq.SubscriptionRequestID); err != nil {
+	// Собираем информацию для пользователя о платеже
+	payInfo := models.InfoPaySubscription{
+		AuthorID:    subReq.AuthorID,
+		Cost:        costSubscription,
+		Description: fmt.Sprintf("Оформление подписки на %v мес.", subReq.MonthCount),
+		PayType:     models.TypeSubscription,
+	}
+
+	// Обращение к API оплаты
+	paymentResponse, err := handler.CreateRequestPay(ctx, payInfo)
+	if err != nil {
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	// Обращение в service
+	subReq.SubscriptionRequestID = paymentResponse.ID
+	err = handler.serv.CreateSubscriptionRequest(ctx, models.MapSubReqToServiceSubReq(userID, subReq))
+	if err != nil {
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
+		return
+	}
+
+	// Возвращаем URL на API оплаты
+	if err = json.NewEncoder(w).Encode(paymentResponse.Confirmation.ConfirmationURL); err != nil {
 		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
 		w.WriteHeader(global.GetCodeError(err))
 		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)

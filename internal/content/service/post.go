@@ -2,8 +2,11 @@ package service
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/service/moderation"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/service/validate"
+	models2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/moderation/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
+	"time"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
@@ -51,6 +54,9 @@ func (b *Behavior) CreatePost(ctx context.Context, authorID string, title string
 	if err != nil {
 		return "", errors.Wrap(err, op)
 	}
+
+	go b.moderatePost(ctx, newPostID, title, content, false)
+
 	return newPostID, nil
 }
 
@@ -113,4 +119,69 @@ func (b *Behavior) checkLayerExist(ctx context.Context, authorID string, layer i
 	}
 
 	return layerExist, nil
+}
+
+// moderatePost - проводит проверку цензуры содержания поста
+// если пост не проходит проверку, меняет его статус на BLOCKED
+// если проходит, то ничего не делает
+func (b *Behavior) moderatePost(parentCtx context.Context, postID string, title string, content string, isUpdate bool) {
+	op := "content.service.moderatePost"
+
+	reqID := parentCtx.Value(global.CtxReqId)
+	ctx, cansel := context.WithDeadline(context.Background(), time.Now().Add(time.Second*5))
+	defer cansel()
+	ctx = context.WithValue(ctx, global.CtxReqId, reqID)
+
+	if isUpdate {
+		oldTitle, oldConent, err := b.rep.GetPostByID(ctx, postID)
+		if err != nil {
+			logger.StandardDebugF(ctx, op, "GetPostByID err=%v", err)
+		}
+		if title == "" {
+			title = oldTitle
+		}
+		if content == "" {
+			content = oldConent
+		}
+	}
+
+	// проверка заголовка
+	ok := moderation.IsOkayText(title)
+	if !ok {
+		err := b.updatePostStatus(ctx, postID, models2.Blocked)
+		if err != nil {
+			err = errors.Wrap(err, op)
+			logger.StandardDebugF(ctx, op, "moderatePost err=%v", err)
+		}
+		logger.StandardDebugF(ctx, op, "moderatePost title is not ok for postID=%v", postID)
+		return
+	}
+
+	// проверка контента
+	ok = moderation.IsOkayText(content)
+	if !ok {
+		err := b.updatePostStatus(ctx, postID, models2.Blocked)
+		if err != nil {
+			err = errors.Wrap(err, op)
+			logger.StandardDebugF(ctx, op, "moderatePost err=%v", err)
+		}
+		logger.StandardDebugF(ctx, op, "moderatePost content is not ok for postID=%v", postID)
+		return
+	}
+
+	// логирование статуса
+	logger.StandardDebugF(ctx, op, "moderatePost postID=%v is ok", postID)
+	if isUpdate {
+		// Изменить статус на паблишед
+		err := b.rep.UpdatePostStatus(ctx, postID, models2.Published)
+		if err != nil {
+			logger.StandardDebugF(ctx, op, "moderatePost err=%v", err)
+		}
+		logger.StandardDebugF(ctx, op, "moderatePost postID=%v is ok succsessful update status on PUBLISHED", postID)
+	}
+}
+
+// updatePostStatus обновляет статус поста
+func (b *Behavior) updatePostStatus(ctx context.Context, postID string, status string) error {
+	return b.rep.UpdatePostStatus(ctx, postID, status)
 }

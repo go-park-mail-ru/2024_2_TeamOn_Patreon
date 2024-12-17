@@ -46,7 +46,7 @@ func (p *Postgres) UserByID(ctx context.Context, userID string) (*repModels.User
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			// Если пользователь не найден, возвращаем nil без ошибки
+			// Если пользователь не найден
 			logger.StandardInfoF(
 				ctx,
 				"user with userID='%v' not found", userID,

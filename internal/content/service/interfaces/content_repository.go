@@ -15,6 +15,8 @@ type ContentRepository interface {
 
 	MediaInterface
 
+	CommentInterface
+
 	// utils
 
 	// GetIsLikedForPosts проставляет лайки в моделях поста
@@ -22,11 +24,13 @@ type ContentRepository interface {
 	GetUserRole(ctx context.Context, userID string) (string, error)
 	CheckCustomLayer(ctx context.Context, authorID string, layer int) (bool, error)
 	// GetPostLayerBuPostID уровень поста по ид поста
-	GetPostLayerBuPostID(ctx context.Context, postID string) (int, error)
+	GetPostLayerByPostID(ctx context.Context, postID string) (int, error)
 	// GetAuthorOfPost - получение  ID автора поста
 	GetAuthorOfPost(ctx context.Context, postID string) (string, error)
 	// GetUserLayerOfAuthor - уровень подписки пользователя на определенном авторе
 	GetUserLayerOfAuthor(ctx context.Context, userID, authorID string) (int, error)
+	// SendNotification - отправляет уведомление пользователю с userID
+	SendNotification(ctx context.Context, message, userID, authorID string) error
 }
 
 type PostInterface interface {
@@ -39,6 +43,11 @@ type PostInterface interface {
 	UpdateTitleOfPost(ctx context.Context, postID string, title string) error
 	// UpdateContentOfPost - обновляет описание одного поста
 	UpdateContentOfPost(ctx context.Context, postID string, content string) error
+	// GetTitleOfPost - обновляет описание одного поста
+	GetTitleOfPost(ctx context.Context, postID string) (string, error)
+
+	UpdatePostStatus(ctx context.Context, postID string, status string) error
+	GetPostByID(ctx context.Context, postID string) (string, string, error)
 }
 
 type FeedInterface interface {
@@ -61,6 +70,11 @@ type LikePostInterface interface {
 	InsertLikePost(ctx context.Context, userID string, postID string) error
 	DeleteLikePost(ctx context.Context, userID string, postID string) error
 	GetPostLikes(ctx context.Context, postID string) (int, error)
+
+	// SendNotificationOfLike - отправляет уведомление о лайке поста
+	SendNotificationOfLike(ctx context.Context, message, userID, authorID string) error
+	// GetUsername - получение имени пользователя по userID
+	GetUsername(ctx context.Context, userID string) (string, error)
 }
 
 type MediaInterface interface {
@@ -69,4 +83,14 @@ type MediaInterface interface {
 	SaveFile(ctx context.Context, postID string, file []byte, fileExtension string) error
 	// DeleteFile - удаляем файл, прикреплённый к посту
 	DeleteFile(ctx context.Context, postID, fileID string) error
+}
+
+type CommentInterface interface {
+	CreateComment(ctx context.Context, userID, postID, commentID string, content string) error
+	UpdateComment(ctx context.Context, commentID string, content string) error
+	DeleteComment(ctx context.Context, commentID string) error
+
+	GetUserIDByCommentID(ctx context.Context, commentID string) (string, error)
+
+	GetCommentsByPostID(ctx context.Context, postID string, limit, offset int) ([]*models.Comment, error)
 }
