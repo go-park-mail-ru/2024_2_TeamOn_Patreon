@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
 	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
@@ -64,7 +63,7 @@ func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	accountData := cModels.MapUserToAccount(user, subscriptions)
-	json.NewEncoder(w).Encode(accountData)
+	utils.SendModel(accountData, w, op, ctx)
 	// Status 200
 	w.WriteHeader(http.StatusOK)
 }

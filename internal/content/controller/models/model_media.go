@@ -1,5 +1,8 @@
 package models
 
+//go:generate easyjson
+
+//easyjson:json
 type Media struct {
 	// Идентификатор медиа
 	MediaID string `json:"mediaID"`
@@ -9,6 +12,7 @@ type Media struct {
 	MediaURL string `json:"mediaURL"`
 }
 
+//easyjson:json
 type MediaResponse struct {
 	PostID       string   `json:"postId"`
 	MediaContent []*Media `json:"mediaContent"`

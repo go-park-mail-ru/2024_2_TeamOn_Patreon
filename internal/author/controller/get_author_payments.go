@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
 	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/author/controller/models"
@@ -49,7 +48,8 @@ func (handler *Handler) GetAuthorPayments(w http.ResponseWriter, r *http.Request
 	payments := cModels.Payments{
 		Amount: amountPayments,
 	}
-	json.NewEncoder(w).Encode(payments)
+
+	utils.SendModel(payments, w, op, ctx)
 	// Status 200
 	w.WriteHeader(http.StatusOK)
 }

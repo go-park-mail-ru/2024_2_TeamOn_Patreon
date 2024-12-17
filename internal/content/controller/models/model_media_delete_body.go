@@ -6,6 +6,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate easyjson
+
+//easyjson:json
 type MediaDeleteRequest struct {
 	MediaIDs []string `json:"mediaID"`
 }

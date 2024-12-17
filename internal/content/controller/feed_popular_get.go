@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models"
@@ -45,8 +44,5 @@ func (h *Handler) FeedPopularGet(w http.ResponseWriter, r *http.Request) {
 	popularPosts := mapper.MapCommonPostsToControllerPosts(posts)
 
 	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(popularPosts); err != nil {
-		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
-		w.WriteHeader(global.GetCodeError(err))
-	}
+	utils.SendModel(popularPosts, w, op, ctx)
 }

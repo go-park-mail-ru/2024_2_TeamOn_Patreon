@@ -45,7 +45,6 @@ func (handler *Handler) CreateRequestPay(ctx context.Context, payInfo models.Inf
 	var paymentResponse models.PaymentResponse
 
 	// Преобразуем запрос в JSON
-	// --------------------------- Исправить на Encoder!!
 	requestBody, err := json.Marshal(paymentRequest)
 	if err != nil {
 		logger.StandardDebugF(ctx, op, "marshal err: %v", err)
@@ -92,7 +91,6 @@ func (handler *Handler) CreateRequestPay(ctx context.Context, payInfo models.Inf
 		fmt.Sprintf("Статус ответа: %v. Тело ответа: %v", resp.Status, string(body)), op)
 
 	// Получаем ID платежа и URL на оплату
-	// --------------------------- Исправить на Decoder!!
 	if err := json.Unmarshal(body, &paymentResponse); err != nil {
 		logger.StandardDebugF(ctx, op, "Fail unmarshal response: %v", err)
 		return paymentResponse, errors.Wrap(err, op)

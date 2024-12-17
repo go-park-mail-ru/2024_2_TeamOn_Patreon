@@ -12,8 +12,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate easyjson
+
 // Все, чего нет - не заменяется
 
+//easyjson:json
 type UpdatePost struct {
 	// Идентификатор поста для обновления
 	PostId string `json:"postId"`

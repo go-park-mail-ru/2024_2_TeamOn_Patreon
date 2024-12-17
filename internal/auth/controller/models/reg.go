@@ -9,7 +9,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate easyjson
+
 // Reg - модель для фронта
+//
+//easyjson:json
 type Reg struct {
 	// Имя пользователя. допустимые символы - латинские буквы, цифры и \"-\", \"_\".
 	Username string `json:"username"`
