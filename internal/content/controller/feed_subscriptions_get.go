@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/controller/models"
@@ -9,6 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	cModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
+	utils "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	utils2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
@@ -56,8 +56,6 @@ func (h *Handler) FeedSubscriptionsGet(w http.ResponseWriter, r *http.Request) {
 
 	// Отправляем посты
 	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(tPosts); err != nil {
-		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
-		w.WriteHeader(global.GetCodeError(err))
-	}
+	utils.SendModel(tPosts, w, op, ctx)
+
 }

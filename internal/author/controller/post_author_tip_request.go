@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -64,10 +63,12 @@ func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 
 	// Парсинг данных из json
 	tipInfo := &cModels.Tip{}
-	if err := json.NewDecoder(r.Body).Decode(&tipInfo); err != nil {
-		logger.StandardWarnF(ctx, op, "json parsing error {%v}", err)
-		// Status 400
-		w.WriteHeader(http.StatusBadRequest)
+	if err := utils.ParseModels(r, &tipInfo, op); err != nil {
+		// проставляем http.StatusBadRequest
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
+		// отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 
@@ -113,11 +114,7 @@ func (handler *Handler) PostAuthorTip(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Возвращаем URL на API оплаты
-	if err = json.NewEncoder(w).Encode(paymentResponse.Confirmation.ConfirmationURL); err != nil {
-		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
-		w.WriteHeader(global.GetCodeError(err))
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
-	}
+	utils.SendModel(paymentResponse.Confirmation.ConfirmationURL, w, op, ctx)
 
 	// Status 200
 	w.WriteHeader(http.StatusOK)

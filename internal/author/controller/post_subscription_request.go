@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -101,11 +100,7 @@ func (handler *Handler) PostSubscriptionRequest(w http.ResponseWriter, r *http.R
 	}
 
 	// Возвращаем URL на API оплаты
-	if err = json.NewEncoder(w).Encode(paymentResponse.Confirmation.ConfirmationURL); err != nil {
-		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
-		w.WriteHeader(global.GetCodeError(err))
-		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
-	}
+	utils.SendModel(paymentResponse.Confirmation.ConfirmationURL, w, op, ctx)
 
 	w.WriteHeader(http.StatusOK)
 }

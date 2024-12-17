@@ -1,7 +1,8 @@
 package controller
 
 import (
-	"encoding/json"
+	"net/http"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/moderation/controller/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/moderation/controller/models/mapper"
 	models2 "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/moderation/pkg/models"
@@ -10,7 +11,6 @@ import (
 	bModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/service/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 	"github.com/pkg/errors"
-	"net/http"
 )
 
 func (h *Handler) ModerationPostComplaintPost(w http.ResponseWriter, r *http.Request) {
@@ -167,9 +167,6 @@ func (h *Handler) ModerationPostGet(w http.ResponseWriter, r *http.Request) {
 	posts := mapper.MapBPostsToTPosts(bPosts)
 
 	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(posts); err != nil {
-		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
-		w.WriteHeader(global.GetCodeError(err))
-	}
+	utils.SendModel(posts, w, op, ctx)
 	logger.StandardDebugF(ctx, op, "Successful sent %v", posts)
 }
