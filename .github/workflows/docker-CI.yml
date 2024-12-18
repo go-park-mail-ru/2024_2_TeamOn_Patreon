@@ -71,7 +71,8 @@ jobs:
             sudo git checkout load
             sudo git pull origin load
             cd ./cmd/microservices
-            sudo docker-compose prune
+            sudo docker system prune
+            sudo docker volume rm $(docker volume ls -q)
             sudo docker-compose down
             sudo docker-compose up -d --build
           EOF
