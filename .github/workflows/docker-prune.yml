@@ -2,9 +2,9 @@ name: Docker CI
 
 on:
   push:
-    branches: [ "load" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "load" ]
+    branches: [ "main" ]
 env:
   IMAGE_REGISTRY: "ghcr.io"
 jobs:
@@ -71,7 +71,8 @@ jobs:
             sudo git checkout load
             sudo git pull origin load
             cd ./cmd/microservices
-            sudo docker system prune -f
+            sudo docker system prune -f --volumes
+            sudo docker volume rm $(docker volume ls -q) -f
             sudo docker-compose down
             sudo docker-compose up -d --build
           EOF
