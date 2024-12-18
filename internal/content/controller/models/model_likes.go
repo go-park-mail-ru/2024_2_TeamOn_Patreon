@@ -5,6 +5,9 @@
  */
 package models
 
+//go:generate easyjson
+
+//easyjson:json
 type Likes struct {
 	// Количество лайков
 	Count int `json:"count"`

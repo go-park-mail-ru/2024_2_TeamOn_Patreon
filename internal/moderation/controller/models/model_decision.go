@@ -10,12 +10,17 @@ package models
 
 import (
 	"fmt"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/moderation/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/utils"
 )
 
+//go:generate easyjson
+
 // Decision решение модератора об одобрении поста
+//
+//easyjson:json
 type Decision struct {
 	// Идентификатор поста
 	PostID string `json:"postID"`

@@ -1,0 +1,249 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/mysite/dist;
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name pushart.online www.pushart.online;
+
+    if ($host = pushart.online) {
+          return 301 https://$host$request_uri;
+    }
+
+}
+
+server {
+    listen [::]:443 ssl http2 ipv6only=on; 
+    listen 443 ssl; 
+
+    root /var/www/mysite/dist;
+    index index.html index.htm index.nginx-debian.html;
+    server_name pushart.online; 
+    error_page 404 /error.html;
+
+    location =  /error.html {
+        alias /var/www/mysite/2024_2_TeamOn/src/app/styles/photos/error.html;
+    }
+
+
+    location ^~ /static/ {
+        alias /home/ubuntu/2024_2_TeamOn_Patreon/static/;
+        autoindex off;
+    }
+
+    location /grafana {
+        rewrite  ^/grafana/(.*)  /$1 break;
+
+        proxy_pass         http://localhost:3000;
+        proxy_set_header   Host $host;
+    }	
+
+    # Обработка CORS
+    add_header 'Access-Control-Allow-Credentials' 'true'; 
+    add_header 'Access-Control-Allow-Headers' 'X-CSRF-Token, Content-Type';
+    add_header 'Access-Control-Allow-Methods' 'GET, POST';
+    add_header "Access-Control-Allow-Headers" "X-CSRF-Token, Origin, X-Requested-With, Content-Type, Accept";
+
+    # Проксирование запросов к /api/auth/token-endpoint
+    location /api/auth/token-endpoint {
+        proxy_pass http://backend_auth/token-endpoint;  
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-CSRF-Token $http_x_csrf_token;
+        proxy_set_header Cookie $http_cookie; 
+    }
+
+    # Проксирование остальных запросов к /api/auth
+    location /api/auth {
+        proxy_pass http://backend_auth/auth;  
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-CSRF-Token $http_x_csrf_token;
+        proxy_set_header Cookie $http_cookie; 
+    }
+    
+    # Проксирование запросов к /api/accounts
+    location /api/accounts {
+	    rewrite ^/api/accounts/token-endpoint /token-endpoint break;
+        rewrite ^/api/accounts/account/(.*)/avatar /account/$1/avatar break;
+        rewrite ^/api/accounts/account/update/avatar /account/update/avatar break;
+        rewrite ^/api/accounts/account/update/role /account/update/role break;
+        rewrite ^/api/accounts/account/update /account/update break;
+        rewrite ^/api/accounts/account /account break;
+        rewrite ^/api/accounts/notification/status/update /notification/status/update break;
+        rewrite ^/api/accounts/notification/new /notification/new break;
+        rewrite ^/api/accounts/notification /notification break;
+
+
+
+        proxy_pass http://backend_account;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+	    proxy_set_header X-CSRF-Token $http_x_csrf_token;
+    }
+
+    # Проксирование запросов к /api/danya
+    location /api/pages {
+	    rewrite ^/api/pages/token-endpoint /token-endpoint break;
+        rewrite ^/api/pages/author/(.*)/background /author/$1/background break;
+	    rewrite ^/api/pages/author/(.*)/tip /author/$1/tip break;
+        rewrite ^/api/pages/author/payments /author/payments break;
+        rewrite ^/api/pages/author/update/background /author/update/background break;
+        rewrite ^/api/pages/author/update/info /author/update/info break;
+        rewrite ^/api/pages/subscription/request /subscription/request break;
+      	rewrite ^/api/pages/payment/realize /payment/realize break;
+        rewrite ^/api/pages/unsubscription /unsubscription break;
+        rewrite ^/api/pages/stat/posts /stat/posts break;
+        rewrite ^/api/pages/stat/payments /stat/payments break;
+        rewrite ^/api/pages/author/(.*) /author/$1 break;
+
+
+	    proxy_pass http://backend_author;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+	    proxy_set_header X-CSRF-Token $http_x_csrf_token;
+    }
+
+    # Проксирование запросов к /api/posts
+    location /api/posts {
+	    rewrite ^/api/posts/token-endpoint /token-endpoint break;
+	    rewrite ^/api/posts/feed/popular /feed/popular break;
+        rewrite ^/api/posts/feed/subscriptions /feed/subscriptions break;
+        rewrite ^/api/posts/posts/(.*)/comments/create /posts/$1/comments/create break;
+
+       	rewrite ^/api/posts/posts/(.*)/comments /posts/$1/comments break;
+        rewrite ^/api/posts/posts/comments/(.*)/update /posts/comments/$1/update break;
+        rewrite ^/api/posts/posts/comments/(.*)/delete /posts/comments/$1/delete break;
+
+       	rewrite ^/api/posts/post/like /post/like break;
+       	rewrite ^/api/posts/post/update /post/update break;
+	    rewrite ^/api/posts/post/upload/content /post/upload/content break;
+	    rewrite ^/api/posts/post/upload/media/(.*) /post/upload/media/$1 break;
+	    rewrite ^/api/posts/post/media/(.*) /post/media/$1 break;
+	    rewrite ^/api/posts/post/delete/media/(.*) /post/delete/media/$1 break;
+	    rewrite ^/api/posts/post /post break;
+        rewrite ^/api/posts/delete/post/(.*) /delete/post/$1 break;
+        rewrite ^/api/posts/author/post/(.*) /author/post/$1 break;
+
+        proxy_pass http://backend_posts;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+	    proxy_set_header X-CSRF-Token $http_x_csrf_token;
+    }
+    
+    # Проксирование запросов к /api/tech    
+    location /api/tech {
+        rewrite ^/api/tech/token-endpoint /token-endpoint break;
+	    rewrite ^/api/tech/search/(.*) /search/$1 break;
+        rewrite ^/api/tech/subscription/custom /subscription/custom break;
+        rewrite ^/api/tech/subscription/layers /subscription/layers break;
+        rewrite ^/api/tech/subscription/(.*)/custom /subscription/$1/custom break;
+        
+        proxy_pass http://backend_tech;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-CSRF-Token $http_x_csrf_token;
+
+    }
+    # Проксирование запросов к /api/csat    
+    location /api/csat {
+        rewrite ^/api/csat/token-endpoint /token-endpoint break;
+        rewrite ^/api/csat/result/(.*) /csat/result/$1 break;
+        rewrite ^/api/csat/check /csat/check  break;
+        rewrite ^/api/csat/question /csat/question break;
+	    rewrite ^/api/csat/table /csat/table break;
+
+        proxy_pass http://backend_csat;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-CSRF-Token $http_x_csrf_token;
+
+    }
+    location /api/moderation {
+        rewrite ^/api/moderation/moderation/token-endpoint /token-endpoint break;
+        rewrite ^/api/moderation/moderation/post/decision /moderation/post/decision break;
+	    rewrite ^/api/moderation/moderation/post/complaint /moderation/post/complaint break;
+	    rewrite ^/api/moderation/moderation/post /moderation/post break;
+
+        proxy_pass http://backend_moderation;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-CSRF-Token $http_x_csrf_token;
+
+    }
+
+    location ^~ /styles/ {
+        alias /var/www/mysite/dist;
+    }
+
+    location */ {
+        try_files $uri $uri/ /index.html;
+        error_page 404 = /error.html;
+    }
+
+    location / { 
+        
+        # Разрешаем CORS для вашего домена
+        if ($http_origin = "https://ваш-домен.com") {
+            add_header "Access-Control-Allow-Origin" "$http_origin";
+        }
+
+        # Разрешаем CORS для домена Юмани
+        if ($http_origin = "https://yoomoney.ru") {
+            add_header "Access-Control-Allow-Origin" "$http_origin";
+        }
+
+        # Общие заголовки
+        add_header 'Access-Control-Allow-Credentials' 'true';
+        add_header 'Access-Control-Allow-Headers' 'X-CSRF-Token, Content-Type';
+        add_header 'Access-Control-Allow-Methods' 'GET, POST';
+
+        # Обработка OPTIONS запросов
+        if ($request_method = 'OPTIONS') {
+            add_header 'Access-Control-Allow-Origin' "$http_origin";
+            add_header 'Access-Control-Allow-Credentials' 'true';
+            add_header 'Access-Control-Allow-Headers' 'X-CSRF-Token, Content-Type';
+            add_header 'Access-Control-Allow-Methods' 'GET, POST';
+            return 204;  # Возвращаем статус 204 No Content
+        }
+
+    	try_files $uri $uri/ /index.html;
+        error_page 404 = /error.html;
+    }
+
+    location = /feed/bundle.js {
+        return 301 /bundle.js;
+    }
+
+    location = /bundle.js {
+        allow all;
+    }
+    location ~* \.(png|jpg|jpeg)$ {
+        try_files $uri =404;
+        alias /var/www/mysite/2024_2_TeamOn/src/app/styles/photos/;
+        expires 30d; 
+        add_header Cache-Control "public, no-transform";
+    }
+
+    ssl_certificate /etc/letsencrypt/live/pushart.online/fullchain.pem; 
+    ssl_certificate_key /etc/letsencrypt/live/pushart.online/privkey.pem; 
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; 
+}

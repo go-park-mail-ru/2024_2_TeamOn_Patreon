@@ -8,6 +8,9 @@
 
 package models
 
+//go:generate easyjson
+
+//easyjson:json
 type Comment struct {
 	// Уникальный идентификатор комментария
 	CommentID string `json:"commentID"`

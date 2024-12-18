@@ -11,6 +11,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate easyjson
+
+//easyjson:json
 type PostLikeBody struct {
 	// ID поста, который нужно лайкнуть или убрать лайк
 	PostId string `json:"postId"`

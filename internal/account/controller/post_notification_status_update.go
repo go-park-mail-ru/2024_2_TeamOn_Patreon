@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
 	models "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
@@ -45,10 +44,12 @@ func (handler *Handler) PostNotificationStatusUpdate(w http.ResponseWriter, r *h
 
 	// Парсинг данных из json
 	notification := &models.NotificationID{}
-	if err := json.NewDecoder(r.Body).Decode(&notification); err != nil {
-		logger.StandardWarnF(ctx, op, "json parsing error {%v}", err)
-		// Status 400
-		w.WriteHeader(http.StatusBadRequest)
+	if err := utils.ParseModels(r, &notification, op); err != nil {
+		// проставляем http.StatusBadRequest
+		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
+		w.WriteHeader(global.GetCodeError(err))
+		// отправляем структуру ошибки
+		utils.SendModel(&tModels.ModelError{Message: global.GetMsgError(err)}, w, op, ctx)
 		return
 	}
 	notificationID := notification.ID

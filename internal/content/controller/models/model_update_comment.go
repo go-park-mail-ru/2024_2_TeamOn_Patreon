@@ -10,6 +10,9 @@ package models
 
 import sanitize "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/validate"
 
+//go:generate easyjson
+
+//easyjson:json
 type UpdateComment struct {
 	// Содержимое коммента
 	Content string `json:"content"`

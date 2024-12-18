@@ -8,6 +8,9 @@ package models
 
 import "fmt"
 
+//go:generate easyjson
+
+//easyjson:json
 type Post struct {
 	// Идентификатор поста
 	PostId string `json:"postId"`

@@ -6,7 +6,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate easyjson
+
 // AddCustomSubscription Данные для добавления кастомной подписки, которые отправляет фронт
+//
+//easyjson:json
 type AddCustomSubscription struct {
 	// Заголовок кастномной (платной) подписки
 	Title string `json:"title"`

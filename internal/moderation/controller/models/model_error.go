@@ -8,6 +8,9 @@
 
 package models
 
+//go:generate easyjson
+
+//easyjson:json
 type ModelError struct {
 	// Описание ошибки
 	Message string `json:"message,omitempty"`

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/account/controller/models"
@@ -61,8 +60,5 @@ func (handler *Handler) GetNewNotifications(w http.ResponseWriter, r *http.Reque
 	notifications := models.MapNotificationsCommonToController(sNotifications)
 
 	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(notifications); err != nil {
-		logger.StandardResponse(ctx, err.Error(), global.GetCodeError(err), r.Host, op)
-		w.WriteHeader(global.GetCodeError(err))
-	}
+	utils.SendModel(notifications, w, op, ctx)
 }

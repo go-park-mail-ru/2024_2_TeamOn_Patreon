@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
 	tModels "github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/auth/controller/models"
@@ -80,7 +79,7 @@ func (handler *Handler) GetAuthor(w http.ResponseWriter, r *http.Request) {
 
 	accountPage := sModels.MapAuthorToAuthorPage(authorData, subscriptions, isSubscribe)
 
-	json.NewEncoder(w).Encode(accountPage)
+	utils.SendModel(accountPage, w, op, ctx)
 	// Status 200
 	w.WriteHeader(http.StatusOK)
 }

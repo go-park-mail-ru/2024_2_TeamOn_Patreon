@@ -5,6 +5,9 @@
  */
 package models
 
+//go:generate easyjson
+
+//easyjson:json
 type AuthorPosts struct {
 	// Идентификатор поста
 	PostId string `json:"postId"`
@@ -13,6 +16,6 @@ type AuthorPosts struct {
 	// Содержимое поста
 	Content string `json:"content,omitempty"`
 	// Количество лайков поста
-	Likes int32 `json:"likes"`
+	Likes     int32  `json:"likes"`
 	CreatedAt string `json:"CreatedAt"`
 }

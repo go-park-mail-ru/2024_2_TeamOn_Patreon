@@ -5,9 +5,11 @@
  *
  * API version: 1.0.0
  */
+//go:generate easyjson
 
 package models
 
+//easyjson:json
 type AddComment struct {
 	// Содержимое коммента
 	CommentID string `json:"commentID"`

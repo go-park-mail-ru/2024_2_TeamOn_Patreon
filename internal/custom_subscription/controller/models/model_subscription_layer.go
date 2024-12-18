@@ -2,7 +2,11 @@ package models
 
 import "fmt"
 
+//go:generate easyjson
+
 // SubscriptionLayer Данные об уровне подписки, которые возвращает бэк
+//
+//easyjson:json
 type SubscriptionLayer struct {
 	// Уровень подписки. Уровень [0:3]
 	Layer int `json:"layer"`

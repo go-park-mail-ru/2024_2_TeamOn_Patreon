@@ -11,6 +11,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate easyjson
+
+//easyjson:json
 type Login struct {
 	// Логин пользователя (имя пользователя или почта)
 	Username string `json:"username"`
