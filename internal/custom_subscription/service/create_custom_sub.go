@@ -85,7 +85,7 @@ func (b *Behavior) validateCustomSub(title, description string, layer, cost int)
 		return title, description, errors.Wrap(err, "title")
 	}
 
-	description, ok = validate.Description(title)
+	description, ok = validate.Description(description)
 	if !ok {
 		return title, description, errors.Wrap(err, "description")
 	}
