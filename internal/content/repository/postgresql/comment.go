@@ -2,11 +2,12 @@ package postgresql
 
 import (
 	"context"
+	"time"
+
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/content/pkg/models"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/global"
 	"github.com/go-park-mail-ru/2024_2_TeamOn_Patreon/internal/pkg/logger"
 	"github.com/pkg/errors"
-	"time"
 )
 
 const (
@@ -56,7 +57,7 @@ const (
 		from comment
 			join people using (user_id)
 		where comment.post_id = $1
-		order by comment.created_date desc
+		order by comment.created_date
 		limit $2
 		offset $3
 `
