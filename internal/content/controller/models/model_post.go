@@ -6,7 +6,10 @@
  */
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type Post struct {
 	// Идентификатор поста
@@ -24,7 +27,7 @@ type Post struct {
 	// Поставил ли лайк текущий пользователь
 	IsLiked bool `json:"isLiked"`
 	// Дата создания поста
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// Статус поста только для автор ми
 	Status string `json:"status"`
 	// Число комментариев
