@@ -19,7 +19,7 @@ import (
 
 const (
 	apiURL    = "https://api.yookassa.ru/v3/payments" // URL для создания платежа
-	returnURL = "https://pushart.online/profile/"     // редирект URL после оплаты
+	returnURL = "http://5.35.4.74/profile/"           // редирект URL после оплаты
 )
 
 func (handler *Handler) CreateRequestPay(ctx context.Context, payInfo models.InfoPaySubscription) (models.PaymentResponse, error) {
