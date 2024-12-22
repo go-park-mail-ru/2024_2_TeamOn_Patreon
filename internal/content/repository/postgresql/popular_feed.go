@@ -18,44 +18,60 @@ const (
 	// likes - количество лайков, comments
 	// Input: получает $1 userId - uuid пользователя, {$2 offset} и { $3 limit}
 	getPopularPostForUserSQL = `
+WITH user_layer AS (
+    SELECT 
+        COALESCE(sl.layer, 0) AS user_layer,
+        cs.author_id
+    FROM Subscription s
+    JOIN Custom_Subscription cs ON s.custom_subscription_id = cs.custom_subscription_id
+    JOIN Subscription_Layer sl ON cs.subscription_layer_id = sl.subscription_layer_id
+    WHERE s.user_id = $1
+),
+post_comments AS (
+    SELECT post_id, COUNT(*) AS comment_count
+    FROM Comment
+    GROUP BY post_id
+),
+post_likes AS (
+    SELECT post_id, COUNT(*) AS like_count
+    FROM Like_Post
+    GROUP BY post_id
+)
 SELECT 
     post.post_id, 
     post.Title, 
     post.About, 
     author.user_id AS author_id, 
     author.Username AS author_username, 
-    COUNT(Like_Post.like_post_id) AS likes,
+    COALESCE(pl.like_count, 0) AS likes,
     post.created_date,
-   	(SELECT COUNT(*) FROM Comment where post_id = post.post_id) as comments
+    COALESCE(pc.comment_count, 0) AS comments
 FROM 
     post
 JOIN 
-    People AS author ON author.user_id = post.user_id 
-RIGHT OUTER JOIN 
-    Subscription_Layer ON Subscription_Layer.subscription_layer_id = post.subscription_layer_id
-LEFT OUTER JOIN 
-    Like_Post USING (post_id)
+    People AS author ON author.user_id = post.user_id
+LEFT JOIN 
+    post_comments pc ON pc.post_id = post.post_id
+LEFT JOIN 
+    post_likes pl ON pl.post_id = post.post_id
+RIGHT JOIN 
+    Subscription_Layer sl ON sl.subscription_layer_id = post.subscription_layer_id
 WHERE 
-    (Subscription_Layer.layer <= (
-        SELECT COALESCE(Subscription_Layer.layer, 0)
-        FROM Subscription
-        JOIN Custom_Subscription ON Subscription.custom_subscription_id = Custom_Subscription.custom_subscription_id
-        JOIN Subscription_Layer ON Custom_Subscription.subscription_layer_id = Subscription_Layer.subscription_layer_id
-        WHERE Custom_Subscription.author_id = author.user_id AND Subscription.user_id = $1
+    (
+        sl.layer <= (SELECT MAX(user_layer) FROM user_layer WHERE author_id = author.user_id)
+        OR post.subscription_layer_id = (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = 0)
+        OR post.user_id = $1
     )
-    OR post.subscription_layer_id = (SELECT subscription_layer_id FROM Subscription_Layer WHERE layer = 0)
-    OR post.user_id = $1)
-	and post.post_status_id IN (select post_status_id FROM Post_Status WHERE status = 'PUBLISHED' or status = 'ALLOWED' or status = 'COMPLAINED')
+    AND post.post_status_id IN (
+        SELECT post_status_id 
+        FROM Post_Status 
+        WHERE status IN ('PUBLISHED', 'ALLOWED', 'COMPLAINED')
+    )
 GROUP BY 
-    post.post_id,  
-    post.About, 
-    post.Title, 
-    author_id, 
-    author_username
+    post.post_id, post.About, post.Title, author_id, author_username, pl.like_count, pc.comment_count
 ORDER BY 
     likes DESC
-LIMIT $3
-OFFSET $2;
+LIMIT $3 OFFSET $2;
 	`
 
 	// getLikedPostsForUser - возвращает id поста и информацию о том, лайкнул ли этот пост пользователь

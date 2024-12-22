@@ -1,0 +1,7 @@
+DROP INDEX idx_post_subscription_layer_status;
+DROP INDEX idx_post_likes_created_date;
+DROP INDEX idx_like_post_post_id;
+DROP INDEX idx_comment_post_id;
+DROP INDEX idx_subscription_layer_layer;
+DROP INDEX idx_subscription_user_id_custom_id;
+DROP INDEX idx_custom_subscription_author_layer;
